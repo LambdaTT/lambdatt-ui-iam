@@ -37,7 +37,7 @@
 
 <script>
 // Services:
-import {auth, permissions} from '../../services.js'
+import { auth, permissions } from '../../services.js'
 
 // Components:
 import UserInfo from '../../components/userinfo.vue'

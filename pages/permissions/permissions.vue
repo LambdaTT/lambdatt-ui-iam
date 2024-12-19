@@ -52,7 +52,7 @@
               Permissões por Módulo do Sistema:
             </label>
             <q-list class="q-mt-sm" bordered>
-              <div v-for="(mod, index) in permissions">
+              <div v-for="(mod, index) in permissions" :key="index">
                 <q-expansion-item header-class="q-pa-md bg-grey-8 text-white text-h6" expand-icon-class="text-white"
                   bordered group="system-modules" icon="fas fa-cube" :label="mod.ds_title" :default-opened="index == 0">
                   <q-card>
@@ -69,7 +69,7 @@
                           </tr>
                         </thead>
                         <tbody>
-                          <tr v-for="(prm, idx) in mod.permissions">
+                          <tr v-for="(prm, idx) in mod.permissions" :key="idx">
                             <td><span>
                                 {{ prm.entity_label }}
                                 <small v-if="prm.permission_type == 'C'">({{ prm.permission_key }})</small>
@@ -156,7 +156,7 @@
 
 <script>
 // Services:
-import {auth, permissions} from '../../services.js'
+import { auth, permissions } from '../../services.js'
 
 export default {
   name: 'pages-iam-permissions-permissions',
