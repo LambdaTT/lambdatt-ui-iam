@@ -47,7 +47,7 @@
 import {auth, permissions} from '../../services.js'
 
 // Components:
-import AuditInfoBlock from '/../components/auditinfo.vue'
+import AuditInfoBlock from '../../components/auditinfo.vue'
 
 export default {
   name: 'pages-iam-accessprofile-create',
