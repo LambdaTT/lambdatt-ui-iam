@@ -2,7 +2,7 @@ import {http, localData} from 'src/modules/lambdatt-ui-toolcase/services.js'
 
 export default {
   getUserPermissions() {
-    return http.get('/api/permissions/v1/user-permissions')
+    return http.get('/api/iam/permissions/v1/user-permissions')
       .then((response) => {
         localStorage.removeItem('regularPermissions');
         localData.insert('regularPermissions', response.data.regularPermissions);

@@ -66,7 +66,7 @@ export default {
 
   methods: {
     getModules() {
-      return this.$http.get(`/api/accessprofiles/v1/module/${this.$route.params.key}`)
+      return this.$http.get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
         .then((response) => {
           this.modules = [];
           this.selectedModules = [];
@@ -87,7 +87,7 @@ export default {
   created() {
     // Get Access profile data:
     this.$emit('load', 'profile-data');
-    this.$http.get(`/api/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+    this.$http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
       .then((response) => {
         this.userData = response.data;
       })

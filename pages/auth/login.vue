@@ -132,7 +132,7 @@ export default {
       if (!this.validateForm()) return false;
 
       this.$q.loading.show();
-      return this.$http.post('/api/auth/v1/login', this.input)
+      return this.$http.post('/api/iam/auth/v1/login', this.input)
         .then((response) => {
           var cookieOptions = {
             expires: '30m',
@@ -142,7 +142,7 @@ export default {
           localStorage.setItem('xsrf_token', response.data.xsrfToken);
 
           if (this.rememberMe) {
-            return this.$http.get('/api/auth/v1/renew-token')
+            return this.$http.get('/api/iam/auth/v1/renew-token')
               .then((response) => {
                 localStorage.setItem('authtoken', response.data.ds_hash);
               });
@@ -164,7 +164,7 @@ export default {
           console.error(error);
           this.$utils.notifyError(error);
 
-          this.$http.delete('/api/auth/v1/logout')
+          this.$http.delete('/api/iam/auth/v1/logout')
             .then(() => {
               localStorage.removeItem('authtoken');
               localStorage.removeItem('xsrf_token');
@@ -185,7 +185,7 @@ export default {
       }
 
       this.$q.loading.show();
-      return this.$http.post('/api/users/v1/request-password-reset', { ds_email: this.recoveryEmail })
+      return this.$http.post('/api/iam/users/v1/request-password-reset', { ds_email: this.recoveryEmail })
         .catch((error) => {
           this.$utils.notifyError(error);
           console.error("An error has occurred on the attempt to recovery password.", error);
@@ -199,13 +199,13 @@ export default {
   created() {
     this.$q.loading.show();
 
-    this.$http.get('/api/auth/v1/logged-user')
+    this.$http.get('/api/iam/auth/v1/logged-user')
       .then(() => {
         this.$router.push('/');
       })
       .catch(() => {
         if (localStorage.getItem('authtoken')) {
-          return this.$http.post(`/api/auth/v1/login-token/${localStorage.getItem('authtoken')}`)
+          return this.$http.post(`/api/iam/auth/v1/login-token/${localStorage.getItem('authtoken')}`)
             .then((response) => {
               var cookieOptions = {
                 expires: '30m',
@@ -218,7 +218,7 @@ export default {
               return permissions.getUserPermissions();
             })
             .then(() => {
-              return this.$http.get('/api/auth/v1/renew-token');
+              return this.$http.get('/api/iam/auth/v1/renew-token');
             })
             .then((response) => {
               // Set renewed token
@@ -234,7 +234,7 @@ export default {
                 console.error("An error has occurred on the attempt to perform automatic login.", error);
               }
 
-              this.$http.delete('/api/auth/v1/logout')
+              this.$http.delete('/api/iam/auth/v1/logout')
                 .then(() => {
                   localStorage.removeItem('authtoken');
                   localStorage.removeItem('xsrf_token');

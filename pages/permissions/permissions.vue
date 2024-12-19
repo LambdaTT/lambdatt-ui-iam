@@ -190,7 +190,7 @@ export default {
   methods: {
     async listProfiles() {
       this.$emit('load', 'list-acessprofiles');
-      var response = await this.$http.get('/api/accessprofiles/v1/accessprofile?do_active=Y')
+      var response = await this.$http.get('/api/iam/accessprofiles/v1/accessprofile?do_active=Y')
         .catch((error) => {
           this.$utils.notifyError(error.response);
           console.error(error);
@@ -209,7 +209,7 @@ export default {
 
     async listSystemModules() {
       this.$emit('load', 'list-system-modules');
-      var response = await this.$http.get('/api/applicationmodules/v1/module')
+      var response = await this.$http.get('/api/iam/applicationmodules/v1/module')
         .catch((error) => {
           this.$utils.notifyError(error.response);
           console.error(error);
@@ -248,7 +248,7 @@ export default {
       this.customPermissions = {};
 
       if (!!this.profileId) {
-        var response = await this.$http.get(`/api/accessprofiles/v1/permission/${this.profileId}`).catch(function (response) {
+        var response = await this.$http.get(`/api/iam/accessprofiles/v1/permission/${this.profileId}`).catch(function (response) {
           console.error("An error has occurred on the attempt to get profile's permissions.", response);
           this.$utils.notifyError(response);
         });
@@ -263,7 +263,7 @@ export default {
       if (this.$utils.validateForm(this.input, this.inputError) == false) return;
 
       this.$emit('load', 'create-execpermission');
-      await this.$http.post('/api/accessprofiles/v1/permission', this.input)
+      await this.$http.post('/api/iam/accessprofiles/v1/permission', this.input)
         .catch((error) => {
           console.error(error);
           this.$utils.notifyError(error);
@@ -304,9 +304,9 @@ export default {
       if (this.$utils.objectSize(input) < 1) return;
 
       this.$emit('load', 'save-permissions');
-      await this.$http.put(`/api/accessprofiles/v1/permission/${this.profileId}`, input)
+      await this.$http.put(`/api/iam/accessprofiles/v1/permission/${this.profileId}`, input)
         .then(() => {
-          return this.$http.get('/api/permissions/v1/user-permissions');
+          return this.$http.get('/api/iam/permissions/v1/user-permissions');
         })
         .then((response) => {
           localStorage.removeItem('regularPermissions');

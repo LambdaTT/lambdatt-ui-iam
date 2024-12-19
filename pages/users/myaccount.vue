@@ -65,7 +65,7 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$http.put(`/api/users/v1/my-account`, data)
+      return this.$http.put(`/api/iam/users/v1/my-account`, data)
         .then(() => {
           this.$utils.notify({
             message: "Seus dados foram salvos com sucesso.",
@@ -84,7 +84,7 @@ export default {
 
     getData() {
       this.$emit('load', 'users-data');
-      return this.$http.get(`/api/users/v1/my-account`)
+      return this.$http.get(`/api/iam/users/v1/my-account`)
         .then((response) => {
           this.User.read(response.data)
         })

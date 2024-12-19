@@ -113,7 +113,7 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$http.put(`/api/users/v2/user/${this.$route.params.key}`, data)
+      return this.$http.put(`/api/iam/users/v2/user/${this.$route.params.key}`, data)
         .then(() => {
           this.$router.push('/iam/users');
           this.$utils.notify({
@@ -136,7 +136,7 @@ export default {
 
       this.$emit('load', 'user-remove');
 
-      this.$http.delete(`/api/users/v1/user/${this.$route.params.key}`)
+      this.$http.delete(`/api/iam/users/v1/user/${this.$route.params.key}`)
         .then(() => {
           this.$utils.notify({
             message: 'O usuário foi excluído com sucesso',
@@ -156,7 +156,7 @@ export default {
 
     getData() {
       this.$emit('load', 'users-data');
-      return this.$http.get(`/api/users/v1/user/${this.$route.params.key}`)
+      return this.$http.get(`/api/iam/users/v1/user/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.inputUser)
             if (k in response.data)
@@ -184,7 +184,7 @@ export default {
 
     listProfiles() {
       this.$emit('load', 'profiles-list');
-      this.$http.get('/api/accessprofiles/v1/accessprofile')
+      this.$http.get('/api/iam/accessprofiles/v1/accessprofile')
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,

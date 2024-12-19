@@ -72,7 +72,7 @@ export default {
   methods: {
     getData() {
       this.$emit('load', 'users-data');
-      return this.$http.get(`/api/users/v1/user/${this.$route.params.key}`)
+      return this.$http.get(`/api/iam/users/v1/user/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.inputUser)
             if (k in response.data)
@@ -101,7 +101,7 @@ export default {
 
     listProfiles() {
       this.$emit('load', 'profiles-list');
-      this.$http.get('/api/accessprofiles/v1/accessprofile')
+      this.$http.get('/api/iam/accessprofiles/v1/accessprofile')
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,

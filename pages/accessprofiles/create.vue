@@ -78,7 +78,7 @@ export default {
       if (!this.validateForm()) return false;
 
       this.$emit('load', 'save-accessprofile');
-      return this.$http.post('/api/accessprofiles/v1/accessprofile', this.input)
+      return this.$http.post('/api/iam/accessprofiles/v1/accessprofile', this.input)
         .then((response) => {
           this.$router.push(`/iam/access-profiles/edit/${response.data.ds_key}`);
           this.$utils.notify({

@@ -97,7 +97,7 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$http.post('/api/users/v2/user', data)
+      return this.$http.post('/api/iam/users/v2/user', data)
         .then((response) => {
           this.$router.push(`/iam/user/edit/${response.data.ds_key}`);
           this.$utils.notify({
@@ -117,7 +117,7 @@ export default {
 
     listProfiles() {
       // Retrieve Access Profiles list:
-      return this.$http.get('/api/accessprofiles/v1/accessprofile')
+      return this.$http.get('/api/iam/accessprofiles/v1/accessprofile')
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,

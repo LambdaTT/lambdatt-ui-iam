@@ -77,13 +77,13 @@ export default {
       // Add:
       if (this.selectedModules.length > this.selectedModulesControl.length) {
         this.selectedModulesControl.push(modKey);
-        await this.$http.post(`/api/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
+        await this.$http.post(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
       }
       // Remove:
       else if (this.selectedModules.length < this.selectedModulesControl.length) {
         let idx = this.selectedModulesControl.indexOf(modKey);
         this.selectedModulesControl.splice(idx, 1);
-        await this.$http.delete(`/api/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
+        await this.$http.delete(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
       } else return;
 
       await permissions.getUserPermissions();
@@ -122,7 +122,7 @@ export default {
       if (!this.validateForm()) return false;
 
       this.$emit('load', 'save-accessprofile');
-      return this.$http.put(`/api/accessprofiles/v1/accessprofile/${this.$route.params.key}`, this.input)
+      return this.$http.put(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`, this.input)
         .then(() => {
           this.$router.push('/iam/access-profiles');
           this.$utils.notify({
@@ -145,7 +145,7 @@ export default {
 
       this.$emit('load', 'accessprofile-remove');
 
-      this.$http.delete(`/api/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+      this.$http.delete(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
         .then(() => {
           this.$utils.notify({
             message: 'O perfil foi excluído com sucesso',
@@ -164,7 +164,7 @@ export default {
     },
 
     getModules() {
-      return this.$http.get(`/api/accessprofiles/v1/module/${this.$route.params.key}`)
+      return this.$http.get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
         .then((response) => {
           this.modules = [];
           this.selectedModules = [];
@@ -189,7 +189,7 @@ export default {
   created() {
     // Get Access profile data:
     this.$emit('load', 'profile-data');
-    this.$http.get(`/api/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+    this.$http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
       .then((response) => {
         for (let k in this.input) {
           if (k in response.data)

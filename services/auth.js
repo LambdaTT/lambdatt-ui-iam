@@ -4,7 +4,7 @@ export default {
   authenticate: function ($component) {
     $component.$emit('load', 'auth');
 
-    return http.get('/api/auth/v1/logged-user')
+    return http.get('/api/iam/auth/v1/logged-user')
       .then(() => {
         $component.$emit('loaded', 'auth');
       })

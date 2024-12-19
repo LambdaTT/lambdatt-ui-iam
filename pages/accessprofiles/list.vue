@@ -12,7 +12,7 @@
         </div>
       </template>
 
-      <DataTable Name="accessprofile-list" DataURL="/api/accessprofiles/v1/accessprofile" v-model="Datatable"
+      <DataTable Name="accessprofile-list" DataURL="/api/iam/accessprofiles/v1/accessprofile" v-model="Datatable"
         :Columns="columns" :RowActions="rowActions">
       </DataTable>
 
@@ -72,7 +72,7 @@ export default {
       this.$emit('load', 'accessprofile-remove');
 
       var key = row.ds_key;
-      this.$http.delete(`/api/accessprofiles/v1/accessprofile/${key}`)
+      this.$http.delete(`/api/iam/accessprofiles/v1/accessprofile/${key}`)
         .then(() => {
           this.$utils.notify({
             message: 'O perfil foi excluído com sucesso',

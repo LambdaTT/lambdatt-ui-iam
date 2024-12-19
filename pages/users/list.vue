@@ -12,7 +12,7 @@
         </div>
       </template>
 
-      <DataTable Name="user-list" DataURL="/api/users/v1/user" v-model="Datatable" :Columns="columns"
+      <DataTable Name="user-list" DataURL="/api/iam/users/v1/user" v-model="Datatable" :Columns="columns"
         :RowActions="rowActions">
         <template #cell-avatar="row">
           <div class="q-pa-sm text-center">
@@ -88,7 +88,7 @@ export default {
       this.$emit('load', 'users-remove');
 
       var key = row.ds_key;
-      this.$http.delete(`/api/users/v1/user/${key}`)
+      this.$http.delete(`/api/iam/users/v1/user/${key}`)
         .then(() => {
           this.$utils.notify({
             message: 'O usuário foi excluído com sucesso',
