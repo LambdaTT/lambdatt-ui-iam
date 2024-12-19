@@ -30,11 +30,10 @@
 
 <script>
 // Services:
-import Auth from '../../../services/auth.js'
-import Permissions from '../../../services/permissions.js'
+import {auth, permissions} from '../../services.js'
 
 // Components:
-import UserInfo from '../../../components/common/userinfo.vue'
+import UserInfo from '../../components/userinfo.vue'
 
 export default {
   name: 'pages-iam-users-create',
@@ -139,10 +138,10 @@ export default {
   },
 
   beforeCreate() {
-    Auth.authenticate(this);
-    if (!Permissions.validatePermissions({ 'IAM_USER': 'C' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');
+    auth.authenticate(this);
+    if (!permissions.validatePermissions({ 'IAM_USER': 'C' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');
   },
 }
 </script>

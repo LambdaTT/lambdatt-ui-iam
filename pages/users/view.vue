@@ -30,12 +30,11 @@
 
 <script>
 // Services:
-import Auth from '../../../services/auth.js'
-import Permissions from '../../../services/permissions.js'
+import { auth, permissions } from '../../services.js'
 
 // Components:
-import UserInfo from '../../../components/common/userinfo.vue'
-import AuditInfoBlock from '../../../components/common/auditinfo.vue'
+import UserInfo from '../../components/userinfo.vue'
+import AuditInfoBlock from '../../components/auditinfo.vue'
 
 export default {
   name: 'pages-iam-user-view',
@@ -125,10 +124,10 @@ export default {
   },
 
   beforeCreate() {
-    Auth.authenticate(this);
-    if (!Permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
+    auth.authenticate(this);
+    if (!permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
   }
 }
 </script>

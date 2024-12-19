@@ -37,11 +37,10 @@
 
 <script>
 // Services:
-import Auth from '../../../services/auth.js'
-import Permissions from '../../../services/permissions.js'
+import {auth, permissions} from '../../services.js'
 
 // Components:
-import UserInfo from '../../../components/common/userinfo.vue'
+import UserInfo from '../../components/userinfo.vue'
 
 export default {
   name: 'pages-iam-user-edit',
@@ -54,8 +53,8 @@ export default {
     return {
       // Permissions:
       permissions: {
-        update: Permissions.validatePermissions({ 'IAM_USER': 'U' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
-        delete: Permissions.validatePermissions({ 'IAM_USER': 'D' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
+        update: permissions.validatePermissions({ 'IAM_USER': 'U' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
+        delete: permissions.validatePermissions({ 'IAM_USER': 'D' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
       },
 
       // User component:
@@ -208,10 +207,10 @@ export default {
   },
 
   beforeCreate() {
-    Auth.authenticate(this);
-    if (!Permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
+    auth.authenticate(this);
+    if (!permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
   },
 }
 </script>

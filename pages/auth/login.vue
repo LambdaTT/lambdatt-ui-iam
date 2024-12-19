@@ -74,7 +74,7 @@
 
 <script>
 // Services:
-import Permissions from '../../../services/permissions.js'
+import { permissions } from '../../services.js'
 
 export default {
   name: 'pages-iam-auth-login',
@@ -113,7 +113,7 @@ export default {
               localStorage.setItem('xsrf_token', response.data.xsrfToken);
             })
             .then(() => {
-              return Permissions.getUserPermissions();
+              return permissions.getUserPermissions();
             })
             .then(() => {
               return this.$http.get('/api/auth/v1/renew-token');
@@ -196,7 +196,7 @@ export default {
 
         })
         .then(() => {
-          return Permissions.getUserPermissions();
+          return permissions.getUserPermissions();
         })
         .then(() => {
           setTimeout(() => {

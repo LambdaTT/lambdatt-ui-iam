@@ -23,10 +23,10 @@
 
 <script>
 // Services:
-import Auth from '../../../services/auth.js'
+import { auth } from '../../services.js'
 
 // Components:
-import UserInfo from '../../../components/common/userinfo.vue'
+import UserInfo from '../../components/userinfo.vue'
 
 export default {
   name: 'pages-iam-users-myaccount',
@@ -49,7 +49,7 @@ export default {
       ]
     },
 
-    input(){
+    input() {
       return this.User.input
     }
   },
@@ -103,7 +103,7 @@ export default {
   },
 
   beforeCreate() {
-    Auth.authenticate(this);
+    auth.authenticate(this);
   },
 }
 </script>

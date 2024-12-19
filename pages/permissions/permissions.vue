@@ -156,8 +156,7 @@
 
 <script>
 // Services:
-import Auth from '../../../services/auth.js'
-import Permissions from '../../../services/permissions.js'
+import {auth, permissions} from '../../services.js'
 
 export default {
   name: 'pages-iam-permissions-permissions',
@@ -285,7 +284,7 @@ export default {
       if (permission.permission_type == 'E')
         this.entityPermissions[permission.permission_key] = permission;
       else if (permission.permission_type == 'C') {
-        if (this.customPermissions.hasOwnProperty(permission.permission_key))
+        if (this.custompermissions.hasOwnProperty(permission.permission_key))
           delete this.customPermissions[permission.permission_key];
         else
           this.customPermissions[permission.permission_key] = permission;
@@ -347,12 +346,12 @@ export default {
   },
 
   beforeCreate() {
-    Auth.authenticate(this);
-    if (!Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||
-      !Permissions.validatePermissions({ 'IAM_CUSTOM_PERMISSION': 'CR' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/forbidden');
+    auth.authenticate(this);
+    if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||
+      !permissions.validatePermissions({ 'IAM_CUSTOM_PERMISSION': 'CR' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/forbidden');
   }
 }
 </script>

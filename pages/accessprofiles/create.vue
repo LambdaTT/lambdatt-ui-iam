@@ -34,8 +34,7 @@
 
 <script>
 // Services:
-import Auth from '../../../services/auth.js'
-import Permissions from '../../../services/permissions.js'
+import { auth, permissions } from '../../services.js'
 
 export default {
   name: 'pages-iam-accessprofile-create',
@@ -99,8 +98,8 @@ export default {
   },
 
   beforeCreate() {
-    Auth.authenticate(this);
-    if (!Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
+    auth.authenticate(this);
+    if (!permissions.validatepermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
   },
 
   computed: {

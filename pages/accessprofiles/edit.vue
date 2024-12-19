@@ -46,8 +46,7 @@
 
 <script>
 // Services:
-import Auth from '../../../services/auth.js'
-import Permissions from '../../../services/permissions.js'
+import {auth, permissions} from '../../services.js'
 
 export default {
   name: 'pages-iam-accessprofile-create',
@@ -55,8 +54,8 @@ export default {
   data() {
     return {
       permissions: {
-        update: Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
-        delete: Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
+        update: permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
+        delete: permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
       },
       modules: [],
       selectedModules: [],
@@ -87,9 +86,9 @@ export default {
         await this.$http.delete(`/api/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
       } else return;
 
-      await Permissions.getUserPermissions();
-      if (!Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-        !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
+      await permissions.getUserPermissions();
+      if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+        !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
 
       this.getModules();
     }
@@ -217,9 +216,9 @@ export default {
   },
 
   beforeCreate() {
-    Auth.authenticate(this);
-    if (!Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
+    auth.authenticate(this);
+    if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
   },
 
   computed: {

@@ -30,8 +30,7 @@
 
 <script>
 // Services:
-import Auth from '../../../services/auth.js'
-import Permissions from '../../../services/permissions.js'
+import {auth, permissions} from '../../services.js'
 
 export default {
   name: 'pages-iam-user-list',
@@ -40,9 +39,9 @@ export default {
     return {
       // Permissions:
       permissions: {
-        create: Permissions.validatePermissions({ 'IAM_USER': 'C' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' }),
-        update: Permissions.validatePermissions({ 'IAM_USER': 'U' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
-        delete: Permissions.validatePermissions({ 'IAM_USER': 'D' }) && Permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
+        create: permissions.validatePermissions({ 'IAM_USER': 'C' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' }),
+        update: permissions.validatePermissions({ 'IAM_USER': 'U' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
+        delete: permissions.validatePermissions({ 'IAM_USER': 'D' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
       },
 
       //  Datatable:
@@ -109,8 +108,8 @@ export default {
   },
 
   beforeCreate() {
-    Auth.authenticate(this);
-    if (!Permissions.validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
+    auth.authenticate(this);
+    if (!permissions.validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
   }
 }
 
