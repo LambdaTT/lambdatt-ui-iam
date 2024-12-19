@@ -1,0 +1,55 @@
+<template>
+  <div class="row">
+    <div class="col-12 col-sm-12 col-md-6 q-pa-sm">
+      <InputField Label="Criado por:" Icon="fas fa-user-cog" type="text" readonly v-model="values.userCreated">
+      </InputField>
+    </div>
+    <div class="col-12 col-sm-12 col-md-6 q-pa-sm">
+      <InputField Label="Criado em:" Icon="fas fa-calendar" type="text" readonly v-model="values.dtCreated">
+      </InputField>
+    </div>
+    <div class="col-12 col-sm-12 col-md-6 q-pa-sm">
+      <InputField Label="Atualizado por:" Icon="fas fa-user-cog" type="text" readonly v-model="values.userUpdated">
+      </InputField>
+    </div>
+    <div class="col-12 col-sm-12 col-md-6 q-pa-sm">
+      <InputField Label="Atualizado em:" Icon="fas fa-calendar" type="text" readonly v-model="values.dtUpdated">
+      </InputField>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'components-common-auditinfo',
+
+  props: {
+    input: Object
+  },
+
+  data() {
+    return {
+      values: {
+        dtCreated: null,
+        dtUpdated: null,
+        userCreated: null,
+        userUpdated: null,
+      }
+    }
+  },
+
+  watch: {
+    input: {
+      handler(v) {
+        this.values = v;
+      },
+
+      depp: true
+    }
+  },
+
+  mounted() {
+    this.values = this.input;
+  }
+}
+</script>
