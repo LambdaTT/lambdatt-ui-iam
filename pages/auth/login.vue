@@ -7,8 +7,10 @@
             <q-card square bordered class="shadow-1">
               <q-card-section>
                 <div class="row">
-                  <h5 class="text-h5 text-center text-grey-8 q-my-md full-width"><img class="main-logo vertical-middle"
-                      alt="Logo ERP Agenciador" src="/resources/img/mqv-logo-horizontal.png" /></h5>
+                  <h5 class="text-h5 text-center text-grey-8 q-my-md full-width">
+                    <q-img class="main-logo vertical-middle" alt="Logo ERP Agenciador"
+                      src="/resources/img/logo-horizontal.png" />
+                  </h5>
                   <p class="text-grey-7 text-center full-width">Faça login para acessar o sistema.</p>
                 </div>
               </q-card-section>
