@@ -27,7 +27,7 @@
 
       <template #user-profiles>
         <Card Title="Perfis de Acesso" Icon="fas fa-id-card">
-          <q-option-group v-model="input.selected_profiles" :options="profiles" color="primary" type="checkbox" />
+          <q-option-group v-model="inputUser.selected_profiles" :options="profiles" color="primary" type="checkbox" />
         </Card>
       </template>
 
@@ -113,7 +113,7 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$http.put(`/api/iam/users/v2/user/${this.$route.params.key}`, data)
+      return this.$http.put(`/api/iam/users/v1/user/${this.$route.params.key}`, data)
         .then(() => {
           this.$router.push('/iam/users');
           this.$utils.notify({

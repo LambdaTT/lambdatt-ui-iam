@@ -97,9 +97,9 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$http.post('/api/iam/users/v2/user', data)
+      return this.$http.post('/api/iam/users/v1/user', data)
         .then((response) => {
-          this.$router.push(`/iam/user/edit/${response.data.ds_key}`);
+          this.$router.push(`/iam/users/edit/${response.data.ds_key}`);
           this.$utils.notify({
             message: "O novo usuário foi criado com sucesso.",
             type: 'positive',
