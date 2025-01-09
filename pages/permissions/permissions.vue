@@ -192,7 +192,7 @@ export default {
       this.$emit('load', 'list-acessprofiles');
       var response = await this.$http.get('/api/iam/accessprofiles/v1/accessprofile?do_active=Y')
         .catch((error) => {
-          this.$utils.notifyError(error.response);
+          this.$utils.notifyError(error);
           console.error(error);
         });
 
@@ -211,7 +211,7 @@ export default {
       this.$emit('load', 'list-system-modules');
       var response = await this.$http.get('/api/iam/applicationmodules/v1/module')
         .catch((error) => {
-          this.$utils.notifyError(error.response);
+          this.$utils.notifyError(error);
           console.error(error);
         });
 

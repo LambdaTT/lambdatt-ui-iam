@@ -81,7 +81,7 @@ export default {
           })
         })
         .catch((error) => {
-          this.$utils.notifyError(error.response);
+          this.$utils.notifyError(error);
           console.error("An error occurred on the attempt to delete accessprofile.", error);
         })
         .finally(() => {

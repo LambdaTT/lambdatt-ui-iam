@@ -91,7 +91,7 @@ export default {
             return;
           }
 
-          this.$utils.notifyError(error.response);
+          this.$utils.notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -109,7 +109,7 @@ export default {
           }));
         })
         .catch((error) => {
-          this.$utils.notifyError(error.response);
+          this.$utils.notifyError(error);
           console.error(error);
         })
         .finally(() => {

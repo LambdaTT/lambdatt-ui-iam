@@ -107,7 +107,7 @@ export default {
           });
         })
         .catch((error) => {
-          this.$utils.notifyError(error.response);
+          this.$utils.notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -125,7 +125,7 @@ export default {
           }))
         })
         .catch((error) => {
-          this.$utils.notifyError(error.response);
+          this.$utils.notifyError(error);
           console.error(error);
         })
     }
