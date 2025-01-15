@@ -3,14 +3,14 @@
     <Card Title="Dados do Usuário" Icon="fas fa-user-cog">
       <template #actions>
         <div class="row justify-end">
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn v-if="permissions.update" class="full-width" icon="fas fa-save" color="green" label="Salvar"
+          <div v-if="permissions.update" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
+            <q-btn class="full-width" icon="fas fa-save" color="green" label="Salvar"
               @click="save()">
               <q-tooltip>Salvar dados</q-tooltip>
             </q-btn>
           </div>
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn v-if="permissions.delete" class="full-width" icon="fas fa-trash-alt" color="red" label="Excluir"
+          <div v-if="permissions.delete" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
+            <q-btn class="full-width" icon="fas fa-trash-alt" color="red" label="Excluir"
               @click="remove()">
               <q-tooltip>Excluir dados</q-tooltip>
             </q-btn>

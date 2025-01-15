@@ -3,8 +3,8 @@
     <Card Title="Usuários Cadastrados" Icon="fas fa-user-cog">
       <template #actions>
         <div class="row justify-end">
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn v-if="permissions.create" class="full-width" icon="fas fa-plus" color="green" label="Adicionar"
+          <div v-if="permissions.create" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
+            <q-btn class="full-width" icon="fas fa-plus" color="green" label="Adicionar"
               to="/iam/users/new">
               <q-tooltip>Adicionar novo usuário</q-tooltip>
             </q-btn>
