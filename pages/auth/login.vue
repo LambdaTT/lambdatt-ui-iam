@@ -18,7 +18,7 @@
               <!-- Login Form -->
               <q-intersection v-show="showForgotPassForm == false" transition="jump-left">
                 <q-card-section>
-                  <q-form>
+                  <q-form @keyup.enter="handleEnterKey">
                     <InputField Label="E-mail" Icon="email" type="email" clearable v-model="input.ds_email"
                       :Error="inputError.ds_email" @focus="inputError.ds_email = false"></InputField>
                     <InputField Label="Senha" Icon="lock" type="password" clearable v-model="input.ds_password"
@@ -107,6 +107,13 @@ export default {
   },
 
   methods: {
+
+    handleEnterKey(event) {
+      if (event.key === 'Enter') {
+        this.login();
+      }
+    },
+
     validateForm() {
       var isInvalid = false;
       for (let k in this.input) {
