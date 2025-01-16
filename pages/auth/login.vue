@@ -164,9 +164,11 @@ export default {
         .then(() => {
           setTimeout(() => {
             if (!!this.$route.query.goTo)
-              this.$router.push(this.$route.query.goTo);
+              location.href = this.$route.query.goTo;
+              // this.$router.push(this.$route.query.goTo);
             else
-              this.$router.push('/');
+              location.href = '/';
+              // this.$router.push('/');
           }, 100);
         })
         .catch((error) => {
