@@ -99,7 +99,7 @@ export default {
 
   beforeCreate() {
     auth.authenticate(this);
-    if (!permissions.validatepermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
+    if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
   },
 
   computed: {
