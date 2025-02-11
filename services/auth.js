@@ -35,7 +35,6 @@ export default {
         localStorage.removeItem('iam_session_key');
         localStorage.removeItem('regularPermissions');
         localStorage.removeItem('customPermissions');
-        location.href = '/login';
       });
   }
 }

@@ -33,10 +33,10 @@
                 </q-card-section>
                 <q-card-section class="text-center">
                   <div class="row">
-                    <div class="col-6">
+                    <!-- <div class="col-6">
                       <q-checkbox size="md" v-model="rememberMe" val="md" label="Manter Logado" />
-                    </div>
-                    <div class="col-6 q-pa-sm">
+                    </div> -->
+                    <div class="col-12 q-pa-sm text-right">
                       <a href="javascript:void(0);" v-on:click="showForgotPassForm = true">
                         Esqueci a senha
                         <q-icon name="fas fa-chevron-right"></q-icon>
