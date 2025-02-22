@@ -37,10 +37,9 @@
                       <q-checkbox size="md" v-model="rememberMe" val="md" label="Manter Logado" />
                     </div> -->
                     <div class="col-12 q-pa-sm text-right">
-                      <a href="javascript:void(0);" v-on:click="showForgotPassForm = true">
-                        Esqueci a senha
-                        <q-icon name="fas fa-chevron-right"></q-icon>
-                      </a>
+                      <q-btn label="Esqueci a senha" icon-right="fas fa-chevron-right" flat color="primary"
+                        @click="showForgotPassForm = true">
+                      </q-btn>
                     </div>
                   </div>
                 </q-card-section>
@@ -61,13 +60,12 @@
                       v-on:click="recoveryPass()" label="Recuperar Senha" />
                   </div>
                 </q-card-section>
-                <q-card-section class="text-center">
+                <q-card-section>
                   <div class="row">
-                    <div class="col-6 q-pa-sm">
-                      <a href="javascript:void(0);" v-on:click="showForgotPassForm = false">
-                        <q-icon name="fas fa-chevron-left"></q-icon>
-                        Voltar ao login
-                      </a>
+                    <div class="col-12 q-pa-sm">
+                      <q-btn label="Voltar ao login" icon="fas fa-chevron-left" flat color="primary"
+                        @click="showForgotPassForm = false">
+                      </q-btn>
                     </div>
                   </div>
                 </q-card-section>
@@ -165,10 +163,10 @@ export default {
           setTimeout(() => {
             if (!!this.$route.query.goTo)
               location.href = this.$route.query.goTo;
-              // this.$router.push(this.$route.query.goTo);
+            // this.$router.push(this.$route.query.goTo);
             else
               location.href = '/';
-              // this.$router.push('/');
+            // this.$router.push('/');
           }, 100);
         })
         .catch((error) => {
