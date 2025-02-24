@@ -4,14 +4,21 @@ export default {
   getUserPermissions() {
     return http.get('/api/iam/permissions/v1/user-permissions')
       .then((response) => {
+        localStorage.removeItem('superAdmin');
+        localStorage.setItem('superAdmin', response.data.superAdmin);
+
         localStorage.removeItem('regularPermissions');
         localData.insert('regularPermissions', response.data.regularPermissions);
+
         localStorage.removeItem('customPermissions');
         localData.insert('customPermissions', response.data.customPermissions);
       })
   },
 
   canExecute(key) {
+    var isAdmin = localStorage.getItem('superAdmin') == 'Y';
+    if(isAdmin) return true
+
     localData.init('customPermissions');
     var permission = localData.first('customPermissions', { 'ds_key': key });
 
@@ -20,6 +27,9 @@ export default {
   },
 
   validatePermissions(requiredPermissions) {
+    var isAdmin = localStorage.getItem('superAdmin') == 'Y';
+    if(isAdmin) return true
+
     localData.init('regularPermissions');
     for (let entity in requiredPermissions) {
       let level = requiredPermissions[entity].toUpperCase();
