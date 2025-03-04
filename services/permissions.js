@@ -1,12 +1,23 @@
-import {http, localData} from 'src/modules/lambdatt-ui-toolcase/services.js'
+import { http, localData } from 'src/modules/lambdatt-ui-toolcase/services.js'
+
+var _isSuperAdmin = null;
+
+async function isSuperAdmin() {
+  if (_isSuperAdmin === null) {
+    try {
+      let response = await http.get('/api/iam/auth/v1/logged-user');
+      _isSuperAdmin = response.data?.do_is_superadmin == 'Y';
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  return _isSuperAdmin;
+}
 
 export default {
   getUserPermissions() {
     return http.get('/api/iam/permissions/v1/user-permissions')
       .then((response) => {
-        localStorage.removeItem('superAdmin');
-        localStorage.setItem('superAdmin', response.data.superAdmin);
-
         localStorage.removeItem('regularPermissions');
         localData.insert('regularPermissions', response.data.regularPermissions);
 
@@ -16,8 +27,7 @@ export default {
   },
 
   canExecute(key) {
-    var isAdmin = localStorage.getItem('superAdmin') == 'Y';
-    if(isAdmin) return true
+    if (isSuperAdmin()) return true
 
     localData.init('customPermissions');
     var permission = localData.first('customPermissions', { 'ds_key': key });
@@ -27,8 +37,7 @@ export default {
   },
 
   validatePermissions(requiredPermissions) {
-    var isAdmin = localStorage.getItem('superAdmin') == 'Y';
-    if(isAdmin) return true
+    if (isSuperAdmin()) return true
 
     localData.init('regularPermissions');
     for (let entity in requiredPermissions) {
