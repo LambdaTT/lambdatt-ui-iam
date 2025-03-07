@@ -107,7 +107,7 @@ export default {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
         { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/access-profiles" },
-        { label: 'Adicionar' },
+        { label: 'Adicionar', icon: 'fas fa-plus' },
       ]
     }
   }

@@ -64,7 +64,7 @@ export default {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
         { label: 'Usuários', icon: "fas fa-users", to: "/iam/users" },
-        { label: 'Ver Detalhes' },
+        { label: 'Ver Detalhes', icon: 'fas fa-eye' },
       ]
     }
   },
