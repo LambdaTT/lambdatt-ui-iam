@@ -71,7 +71,7 @@ export default {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
         { label: 'Usuários', icon: "fas fa-users", to: "/iam/users" },
-        { label: 'Editar' },
+        { label: 'Editar', icon: 'fas fa-pen-to-square' },
       ]
     },
 
