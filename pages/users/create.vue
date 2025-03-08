@@ -133,15 +133,13 @@ export default {
 
   async mounted() {
     this.$emit('load', 'data');
-    await this.listProfiles();
-    this.$emit('loaded', 'data');
-  },
-
-  beforeCreate() {
-    auth.authenticate(this);
+    await auth.authenticate(this);
     if (!permissions.validatePermissions({ 'IAM_USER': 'C' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');
+
+    await this.listProfiles();
+    this.$emit('loaded', 'data');
   },
 }
 </script>

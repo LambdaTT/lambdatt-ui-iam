@@ -187,6 +187,15 @@ export default {
     }
   },
 
+  computed: {
+    breadcrumb() {
+      return [
+        { label: 'Home', icon: "fas fa-home", to: "/" },
+        { label: 'Permissões', icon: "fas fa-key" },
+      ]
+    }
+  },
+
   methods: {
     async listProfiles() {
       this.$emit('load', 'list-acessprofiles');
@@ -330,28 +339,17 @@ export default {
     }
   },
 
-  computed: {
-    breadcrumb() {
-      return [
-        { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Permissões', icon: "fas fa-key" },
-      ]
-    }
-  },
-
-  created() {
-    this.listProfiles();
-    this.listSystemModules();
-    this.$persistentNotifications.showAll();
-  },
-
-  beforeCreate() {
-    auth.authenticate(this);
+  async mounted() {
+    await auth.authenticate(this);
     if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||
       !permissions.validatePermissions({ 'IAM_CUSTOM_PERMISSION': 'CR' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/forbidden');
+
+    this.listProfiles();
+    this.listSystemModules();
+    this.$persistentNotifications.showAll();
   }
 }
 </script>

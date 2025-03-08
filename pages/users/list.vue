@@ -107,7 +107,7 @@ export default {
     },
   },
 
-  beforeCreate() {
+  mounted() {
     auth.authenticate(this);
     if (!permissions.validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
   }

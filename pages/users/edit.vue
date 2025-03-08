@@ -4,14 +4,12 @@
       <template #actions>
         <div class="row justify-end">
           <div v-if="permissions.update" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-save" color="green" label="Salvar"
-              @click="save()">
+            <q-btn class="full-width" icon="fas fa-save" color="green" label="Salvar" @click="save()">
               <q-tooltip>Salvar dados</q-tooltip>
             </q-btn>
           </div>
           <div v-if="permissions.delete" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-trash-alt" color="red" label="Excluir"
-              @click="remove()">
+            <q-btn class="full-width" icon="fas fa-trash-alt" color="red" label="Excluir" @click="remove()">
               <q-tooltip>Excluir dados</q-tooltip>
             </q-btn>
           </div>
@@ -201,16 +199,14 @@ export default {
     }
   },
 
-  mounted() {
-    this.getData()
-    this.listProfiles()
-  },
-
-  beforeCreate() {
-    auth.authenticate(this);
+  async mounted() {
+    await auth.authenticate(this);
     if (!permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
+
+    this.getData()
+    this.listProfiles()
   },
 }
 </script>

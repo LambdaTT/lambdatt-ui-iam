@@ -92,7 +92,7 @@ export default {
     },
   },
 
-  beforeCreate() {
+  mounted() {
     auth.authenticate(this);
     if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' })) this.$router.push('/forbidden');
   }

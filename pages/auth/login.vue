@@ -82,9 +82,6 @@
 <script>
 import { useQuasar } from 'quasar'
 
-// Services:
-import { permissions } from '../../services.js'
-
 export default {
   name: 'pages-iam-auth-login',
   data() {
@@ -157,9 +154,6 @@ export default {
 
         })
         .then(() => {
-          return permissions.getUserPermissions();
-        })
-        .then(() => {
           setTimeout(() => {
             if (!!this.$route.query.goTo)
               // location.href = this.$route.query.goTo;
@@ -222,9 +216,6 @@ export default {
               };
               localStorage.setItem('iam_session_key', response.data.ds_key, cookieOptions);
               localStorage.setItem('xsrf_token', response.data.xsrfToken);
-            })
-            .then(() => {
-              return permissions.getUserPermissions();
             })
             .then(() => {
               return this.$http.get('/api/iam/auth/v1/renew-token');

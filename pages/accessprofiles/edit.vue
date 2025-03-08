@@ -46,7 +46,7 @@
 
 <script>
 // Services:
-import {auth, permissions} from '../../services.js'
+import { auth, permissions } from '../../services.js'
 
 export default {
   name: 'pages-iam-accessprofile-create',
@@ -68,6 +68,16 @@ export default {
       inputError: {
         ds_title: false,
       }
+    }
+  },
+
+  computed: {
+    breadcrumb() {
+      return [
+        { label: 'Home', icon: "fas fa-home", to: "/" },
+        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/access-profiles" },
+        { label: 'Editar' },
+      ]
     }
   },
 
@@ -184,51 +194,43 @@ export default {
         })
     },
 
+    getProfileData() {
+      // Get Access profile data:
+      this.$emit('load', 'profile-data');
+      this.$http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+        .then((response) => {
+          for (let k in this.input) {
+            if (k in response.data)
+              this.input[k] = response.data[k];
+          }
+        })
+        .then(() => this.getModules())
+        .catch((error) => {
+          if (error.response.status == 404) {
+            this.$utils.notify({
+              message: 'Perfil de acesso não encontrado.',
+              type: 'negative',
+              position: 'top-right'
+            })
+            this.$router.push('/iam/access-profiles');
+            return;
+          }
+          this.$utils.notifyError(error);
+          console.error("An error has occurred on the attempt to retrieve user's data.", error);
+        })
+        .finally(() => {
+          this.$emit('loaded', 'profile-data');
+        });
+    }
+
   },
 
-  created() {
-    // Get Access profile data:
-    this.$emit('load', 'profile-data');
-    this.$http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
-      .then((response) => {
-        for (let k in this.input) {
-          if (k in response.data)
-            this.input[k] = response.data[k];
-        }
-      })
-      .then(() => this.getModules())
-      .catch((error) => {
-        if (error.response.status == 404) {
-          this.$utils.notify({
-            message: 'Perfil de acesso não encontrado.',
-            type: 'negative',
-            position: 'top-right'
-          })
-          this.$router.push('/iam/access-profiles');
-          return;
-        }
-        this.$utils.notifyError(error);
-        console.error("An error has occurred on the attempt to retrieve user's data.", error);
-      })
-      .finally(() => {
-        this.$emit('loaded', 'profile-data');
-      });
-  },
-
-  beforeCreate() {
-    auth.authenticate(this);
+  async mounted() {
+    await auth.authenticate(this);
     if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
-  },
 
-  computed: {
-    breadcrumb() {
-      return [
-        { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/access-profiles" },
-        { label: 'Editar' },
-      ]
-    }
-  }
+    this.getProfileData()
+  },
 }
 </script>

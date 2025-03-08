@@ -6,16 +6,13 @@ export default {
   getUserPermissions() {
     return http.get('/api/iam/permissions/v1/user-permissions')
       .then((response) => {
+        this.isSuperAdmin = response.data?.isSuperAdmin == 'Y';
+
         localStorage.removeItem('regularPermissions');
         localData.insert('regularPermissions', response.data.regularPermissions);
 
         localStorage.removeItem('customPermissions');
         localData.insert('customPermissions', response.data.customPermissions);
-
-        http.get('/api/iam/auth/v1/logged-user')
-          .then((response) => {
-            this.isSuperAdmin = response.data?.do_is_superadmin == 'Y';
-          });
       })
   },
 

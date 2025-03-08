@@ -98,12 +98,9 @@ export default {
     }
   },
 
-  mounted() {
+  async mounted() {
+    await auth.authenticate(this);
     this.getData();
-  },
-
-  beforeCreate() {
-    auth.authenticate(this);
   },
 }
 </script>

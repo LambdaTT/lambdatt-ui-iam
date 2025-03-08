@@ -118,16 +118,14 @@ export default {
     }
   },
 
-  mounted() {
-    this.getData()
-    this.listProfiles()
-  },
-
-  beforeCreate() {
-    auth.authenticate(this);
+  async mounted() {
+    await auth.authenticate(this);
     if (!permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
-  }
+
+    this.getData()
+    this.listProfiles()
+  },
 }
 </script>
