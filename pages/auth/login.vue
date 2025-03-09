@@ -1,5 +1,5 @@
 <template>
-  <div class="text-grey-9">
+  <div class="text-grey-8">
     <q-layout view="hHh Lpr lff" container-fluid style="height: 300px" class="shadow-2 rounded-borders">
       <q-page-container>
         <q-page :padding="false" class="flex flex-center bg-loginpage">
