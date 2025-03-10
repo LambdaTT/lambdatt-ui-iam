@@ -55,7 +55,7 @@
               <div v-for="(mod, index) in permissions" :key="index">
                 <q-expansion-item header-class="q-pa-md bg-grey-8 text-white text-h6" expand-icon-class="text-white"
                   bordered group="system-modules" icon="fas fa-cube" :label="mod.ds_title" :default-opened="index == 0">
-                  <q-card>
+                  <q-card style="overflow-x: scroll;">
                     <q-card-section>
                       <table class="permissions-table full-width">
                         <thead>
@@ -293,7 +293,7 @@ export default {
       if (permission.permission_type == 'E')
         this.entityPermissions[permission.permission_key] = permission;
       else if (permission.permission_type == 'C') {
-        if (this.custompermissions.hasOwnProperty(permission.permission_key))
+        if (this.customPermissions.hasOwnProperty(permission.permission_key))
           delete this.customPermissions[permission.permission_key];
         else
           this.customPermissions[permission.permission_key] = permission;
@@ -315,13 +315,7 @@ export default {
       this.$emit('load', 'save-permissions');
       await this.$http.put(`/api/iam/accessprofiles/v1/permission/${this.profileId}`, input)
         .then(() => {
-          return this.$http.get('/api/iam/permissions/v1/user-permissions');
-        })
-        .then((response) => {
-          localStorage.removeItem('regularPermissions');
-          this.$localData.insert('regularPermissions', response.data.regularPermissions);
-          localStorage.removeItem('customPermissions');
-          this.$localData.insert('customPermissions', response.data.customPermissions);
+          return permissions.getUserPermissions();
         })
         .catch(function (error) {
           console.error(error);

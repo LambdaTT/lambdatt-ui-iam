@@ -2,25 +2,23 @@ import { http, localData } from 'src/modules/lambdatt-ui-toolcase/services.js'
 
 export default {
   isSuperAdmin: null,
+  regularPermissions: [],
+  customPermissions: [],
 
   getUserPermissions() {
     return http.get('/api/iam/permissions/v1/user-permissions')
       .then((response) => {
         this.isSuperAdmin = response.data?.isSuperAdmin == 'Y';
 
-        localStorage.removeItem('regularPermissions');
-        localData.insert('regularPermissions', response.data.regularPermissions);
-
-        localStorage.removeItem('customPermissions');
-        localData.insert('customPermissions', response.data.customPermissions);
+        this.regularPermissions = response.data.regularPermissions;
+        this.customPermissions = response.data.customPermissions;
       })
   },
 
   canExecute(key) {
     if (this.isSuperAdmin) return true
 
-    localData.init('customPermissions');
-    var permission = localData.first('customPermissions', { 'ds_key': key });
+    var permission = this.customPermissions.find(p => p.ds_key == key);
 
     if (!!permission) return true;
     else return false;
@@ -29,11 +27,10 @@ export default {
   validatePermissions(requiredPermissions) {
     if (this.isSuperAdmin) return true
 
-    localData.init('regularPermissions');
     for (let entity in requiredPermissions) {
       let level = requiredPermissions[entity].toUpperCase();
 
-      let p = localData.first('regularPermissions', { 'ds_entity_name': entity });
+      let p = this.regularPermissions.find(p => p.ds_entity_name == entity);
       if (!p) return false;
 
       if (level.includes('C') && p.do_create != 'Y') return false;
