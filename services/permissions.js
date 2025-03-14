@@ -9,7 +9,6 @@ export default {
     return http.get('/api/iam/permissions/v1/user-permissions')
       .then((response) => {
         this.isSuperAdmin = response.data?.isSuperAdmin == 'Y';
-
         this.regularPermissions = response.data.regularPermissions;
         this.customPermissions = response.data.customPermissions;
       })
@@ -25,6 +24,9 @@ export default {
   },
 
   validatePermissions(requiredPermissions) {
+    // console.log('Required:', requiredPermissions);
+    console.log('Super Admin:', this.isSuperAdmin);
+    
     if (this.isSuperAdmin) return true
 
     for (let entity in requiredPermissions) {
