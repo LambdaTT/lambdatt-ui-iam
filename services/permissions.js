@@ -23,10 +23,7 @@ export default {
     else return false;
   },
 
-  validatePermissions(requiredPermissions) {
-    // console.log('Required:', requiredPermissions);
-    console.log('Super Admin:', this.isSuperAdmin);
-    
+  validatePermissions(requiredPermissions) {    
     if (this.isSuperAdmin) return true
 
     for (let entity in requiredPermissions) {
