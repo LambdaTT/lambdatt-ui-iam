@@ -23,7 +23,7 @@ export default {
     else return false;
   },
 
-  validatePermissions(requiredPermissions) {    
+  validatePermissions(requiredPermissions) {
     if (this.isSuperAdmin) return true
 
     for (let entity in requiredPermissions) {
