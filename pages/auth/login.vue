@@ -8,7 +8,7 @@
               <q-card-section>
                 <div class="row">
                   <h5 class="text-h5 text-center text-grey-8 q-my-md full-width">
-                    <q-img class="main-logo vertical-middle" alt="Logo ERP Agenciador"
+                    <q-img class="main-logo vertical-middle" alt="Logo Sindi App"
                       src="/resources/img/logo-horizontal.png" />
                   </h5>
                   <p class="text-grey-7 text-center full-width">Faça login para acessar o sistema.</p>
@@ -157,10 +157,10 @@ export default {
           setTimeout(() => {
             if (!!this.$route.query.goTo)
               // location.href = this.$route.query.goTo;
-            this.$router.push(this.$route.query.goTo);
+              this.$router.push(this.$route.query.goTo);
             else
               // location.href = '/';
-            this.$router.push('/');
+              this.$router.push('/');
           }, 100);
         })
         .catch((error) => {
@@ -189,6 +189,13 @@ export default {
 
       this.$q.loading.show();
       return this.$http.post('/api/iam/users/v1/request-password-reset', { ds_email: this.recoveryEmail })
+        .then(() => {
+          this.$utils.notify({
+            message: 'Um e-mail, contendo instruções de recuperação foi enviado ao endereço fornecido.',
+            type: 'positive',
+            position: 'top-right'
+          })
+        })
         .catch((error) => {
           this.$utils.notifyError(error);
           console.error("An error has occurred on the attempt to recovery password.", error);
