@@ -11,11 +11,11 @@
       <InputField Label="Criado em:" Icon="fas fa-calendar" type="text" readonly v-model="values.dtCreated">
       </InputField>
     </div>
-    <div v-if="!!values.userUpdated" class="col-12 col-sm-12 col-md-6">
+    <div class="col-12 col-sm-12 col-md-6">
       <InputField Label="Atualizado por:" Icon="fas fa-user-cog" type="text" readonly v-model="values.userUpdated">
       </InputField>
     </div>
-    <div v-if="!!values.dtUpdated" class="col-12 col-sm-12 col-md-6">
+    <div class="col-12 col-sm-12 col-md-6">
       <InputField Label="Atualizado em:" Icon="fas fa-calendar" type="text" readonly v-model="values.dtUpdated">
       </InputField>
     </div>
