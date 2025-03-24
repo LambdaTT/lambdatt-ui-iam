@@ -132,26 +132,34 @@ export default {
       delete user.avatar;
 
       // -- Form
-      this.$utils.validateForm(user, this.inputError);
-
-      // -- Password
-      if (user.ds_password !== this.control.ds_password_confirm) {
-        this.inputError.ds_password = true;
-        this.inputError.ds_password_confirm = true;
-      }
+      if(!this.$utils.validateForm(user, this.inputError)) return false;
 
       // -- Email
       if (this.confirmEmail && (user.ds_email !== this.control.ds_email_confirm)) {
         this.inputError.ds_email = true;
         this.inputError.ds_email_confirm = true;
+        this.$utils.notify({
+          message: 'Os emails inseridos são diferentes',
+          type: 'negative',
+          position: 'top-right'
+        })
+        return false;
       }
 
-      // -- Return if any Error
-      for (let k in this.inputError) {
-        if (this.inputError[k] === true)
+      // -- Password
+      if(user.ds_password !== '' && user.ds_password !== null) {
+        if (user.ds_password !== this.control.ds_password_confirm) {
+          this.inputError.ds_password = true;
+          this.inputError.ds_password_confirm = true;
+          this.$utils.notify({
+            message: 'As senhas inseridas são diferentes',
+            type: 'negative',
+            position: 'top-right'
+          });
           return false;
+        }
       }
-
+      
       return true;
     },
 
