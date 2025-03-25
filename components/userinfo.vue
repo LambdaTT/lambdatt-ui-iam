@@ -52,15 +52,16 @@
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_password') && !readonly" class="col-12 col-md-6">
-      <InputField type="password" :Label="`${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`" Icon="fas fa-key" clearable
-        :readonly="readonly" v-model="input.ds_password" :Error="inputError.ds_password"
+      <InputField type="password" :Label="`${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`"
+        Icon="fas fa-key" clearable :readonly="readonly" v-model="input.ds_password" :Error="inputError.ds_password"
         @focus="() => { if (requiredPass) inputError.ds_password = false; else delete inputError.ds_password }">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_password_confirm') && !readonly" class="col-12 col-md-6">
-      <InputField type="password" :Label="`Confirmar ${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`" Icon="fas fa-check" clearable
-        :readonly="readonly" v-model="control.ds_password_confirm" :disable="!input.ds_password"
-        :Error="inputError.ds_password_confirm" @focus="delete inputError.ds_password_confirm">
+      <InputField type="password" :Label="`Confirmar ${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`"
+        Icon="fas fa-check" clearable :readonly="readonly" v-model="control.ds_password_confirm"
+        :disable="!input.ds_password" :Error="inputError.ds_password_confirm"
+        @focus="delete inputError.ds_password_confirm">
       </InputField>
     </div>
   </div>
@@ -87,7 +88,6 @@ export default {
   data() {
     return {
       input: {
-        id_fmn_file_avatar: null,
         ds_first_name: null,
         ds_last_name: null,
         ds_phone1: null,
@@ -132,7 +132,7 @@ export default {
       delete user.avatar;
 
       // -- Form
-      if(!this.$utils.validateForm(user, this.inputError)) return false;
+      if (!this.$utils.validateForm(user, this.inputError)) return false;
 
       // -- Email
       if (this.confirmEmail && (user.ds_email !== this.control.ds_email_confirm)) {
@@ -147,7 +147,7 @@ export default {
       }
 
       // -- Password
-      if(user.ds_password !== '' && user.ds_password !== null) {
+      if (user.ds_password !== '' && user.ds_password !== null) {
         if (user.ds_password !== this.control.ds_password_confirm) {
           this.inputError.ds_password = true;
           this.inputError.ds_password_confirm = true;
@@ -159,7 +159,7 @@ export default {
           return false;
         }
       }
-      
+
       return true;
     },
 
