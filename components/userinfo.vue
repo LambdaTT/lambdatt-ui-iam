@@ -16,12 +16,12 @@
 
     <!-- Data -->
     <div v-if="!shouldHide('ds_first_name')" class="col-12 col-md-6">
-      <InputField type="text" Label="Nome" Icon="fas fa-user-tie" clearable :readonly="readonly"
+      <InputField type="text" Label="Nome*" Icon="fas fa-user-tie" clearable :readonly="readonly"
         v-model="input.ds_first_name" :Error="inputError.ds_first_name" @focus="inputError.ds_first_name = false">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_last_name')" class="col-12 col-md-6">
-      <InputField type="text" Label="Sobrenome" Icon="fas fa-user-tie" clearable :readonly="readonly"
+      <InputField type="text" Label="Sobrenome*" Icon="fas fa-user-tie" clearable :readonly="readonly"
         v-model="input.ds_last_name" :Error="inputError.ds_last_name" @focus="inputError.ds_last_name = false">
       </InputField>
     </div>
@@ -41,24 +41,24 @@
       &nbsp;
     </div>
     <div v-if="!shouldHide('ds_email')" :class="`col-12 ${confirmEmail ? 'col-md-6' : ''}`">
-      <InputField type="text" Label="Email" Icon="fas fa-at" clearable :readonly="readonly" v-model="input.ds_email"
+      <InputField type="text" Label="Email*" Icon="fas fa-at" clearable :readonly="readonly" v-model="input.ds_email"
         :Error="inputError.ds_email" @focus="inputError.ds_email = false">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_email_confirm') && confirmEmail" class="col-12 col-md-6">
-      <InputField type="text" Label="Confirmar Email" Icon="fas fa-check" clearable :readonly="readonly"
+      <InputField type="text" Label="Confirmar Email*" Icon="fas fa-check" clearable :readonly="readonly"
         v-model="control.ds_email_confirm" :disable="!input.ds_email" :Error="inputError.ds_email_confirm"
         @focus="delete inputError.ds_email_confirm">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_password') && !readonly" class="col-12 col-md-6">
-      <InputField type="password" :Label="`${requiredPass ? '' : 'Nova'} Senha`" Icon="fas fa-key" clearable
+      <InputField type="password" :Label="`${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`" Icon="fas fa-key" clearable
         :readonly="readonly" v-model="input.ds_password" :Error="inputError.ds_password"
         @focus="() => { if (requiredPass) inputError.ds_password = false; else delete inputError.ds_password }">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_password_confirm') && !readonly" class="col-12 col-md-6">
-      <InputField type="password" :Label="`Confirmar ${requiredPass ? '' : 'Nova'} Senha`" Icon="fas fa-check" clearable
+      <InputField type="password" :Label="`Confirmar ${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`" Icon="fas fa-check" clearable
         :readonly="readonly" v-model="control.ds_password_confirm" :disable="!input.ds_password"
         :Error="inputError.ds_password_confirm" @focus="delete inputError.ds_password_confirm">
       </InputField>
