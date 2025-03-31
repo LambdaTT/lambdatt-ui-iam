@@ -7,12 +7,11 @@
     </div>
 
     <!-- Photo -->
-    <div v-if="!shouldHide('avatar')" class="col-4"> &nbsp; </div>
-    <div class="col-12 col-md-4 flex justify-center items-center">
+    <div class="col-12">
       <PhotoPicker v-if="!shouldHide('avatar') && input.avatar" DefaultImgPath="/resources/img/unknown-user.jpg"
-        v-model="input.avatar" :disable="readonly"></PhotoPicker>
+        v-model="input.avatar" :disable="readonly">
+      </PhotoPicker>
     </div>
-    <div v-if="!shouldHide('avatar')" class="col-4"> &nbsp; </div>
 
     <!-- Data -->
     <div v-if="!shouldHide('ds_first_name')" class="col-12 col-md-6">
