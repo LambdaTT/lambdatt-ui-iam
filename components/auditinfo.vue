@@ -44,8 +44,10 @@ export default {
 
   watch: {
     input: {
-      handler(v) {
-        this.values = v;
+      handler() {
+        for (let k in this.input)
+          if (k in this.values)
+            this.values[k] = this.input[k];
       },
 
       depp: true
