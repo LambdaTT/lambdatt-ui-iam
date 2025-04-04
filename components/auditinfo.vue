@@ -1,8 +1,8 @@
 <template>
-  <div class="col-12 q-pa-xs" v-if="showTitle">
-    <div class="q-pa-xs" style="font-size: 1.2rem;">Auditoria</div>
-  </div>
   <div class="row">
+    <div class="col-12 q-pa-xs" v-if="showTitle">
+      <div class="q-pa-xs" style="font-size: 1.2rem;">Auditoria</div>
+    </div>
     <div class="col-12 col-md-6">
       <InputField Label="Criado por:" Icon="fas fa-user-cog" type="text" readonly v-model="values.userCreated">
       </InputField>
