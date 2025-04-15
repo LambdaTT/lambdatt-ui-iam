@@ -66,9 +66,9 @@ export default {
           sort: false,
           searchable: false,
         },
-        { label: 'Nome', field: 'fullName', sort: 6 },
+        { label: 'Nome', field: 'fullName', sort: 8 },
         { label: 'E-mail', field: 'ds_email', sort: 3 },
-        { label: 'Último Acesso', field: 'dtLastAccess', sort: 7 },
+        { label: 'Último Acesso', field: 'dtLastAccess', sort: 9 },
       ]
     },
 
