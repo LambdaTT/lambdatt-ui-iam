@@ -14,13 +14,18 @@ export default {
       })
   },
 
-  canExecute(key) {
+  canExecute(keys) {
     if (this.isSuperAdmin) return true
 
-    var permission = this.customPermissions.find(p => p.ds_key == key);
-
-    if (!!permission) return true;
-    else return false;
+    if (keys instanceof Array) {
+      for (let i = 0; i < keys.length; i++) {
+        if (this.canExecute(keys[i]) === false) return false;
+      }
+      return true;
+    } else {
+      var permission = this.customPermissions.find(p => p.ds_key == keys);
+      return !!permission;
+    }
   },
 
   validatePermissions(requiredPermissions) {
