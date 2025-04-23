@@ -11,16 +11,16 @@ export default {
         this.loggedUser = response.data;
         $component.$emit('loaded', 'auth');
       })
-      .catch((error) => {
-        console.error(error);
-        if (error.response.status == 401) {
-          localStorage.removeItem('xsrf_token');
-          localStorage.removeItem('iam_session_key');
-          localStorage.removeItem('regularPermissions');
-          localStorage.removeItem('customPermissions');
-          location.href = `/login?goTo=${$component.$route.path}`;
-        }
-      });
+      // .catch((error) => {
+      //   console.error(error);
+      //   if (error.response.status == 401) {
+      //     localStorage.removeItem('xsrf_token');
+      //     localStorage.removeItem('iam_session_key');
+      //     localStorage.removeItem('regularPermissions');
+      //     localStorage.removeItem('customPermissions');
+      //     location.href = `/login?goTo=${$component.$route.path}`;
+      //   }
+      // });
   },
 
   logout($component) {
