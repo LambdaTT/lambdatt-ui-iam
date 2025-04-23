@@ -4,13 +4,14 @@ export default {
   loggedUser: null,
 
   authenticate: function ($component) {
-    $component.$emit('load', 'auth');
+    // $component.$emit('load', 'auth');
+    $component.$emit('loaded', 'auth');
 
-    return http.get('/api/iam/auth/v1/logged-user')
-      .then((response) => {
-        this.loggedUser = response.data;
-        $component.$emit('loaded', 'auth');
-      })
+    // return http.get('/api/iam/auth/v1/logged-user')
+    //   .then((response) => {
+    //     this.loggedUser = response.data;
+    //     $component.$emit('loaded', 'auth');
+    //   })
       // .catch((error) => {
       //   console.error(error);
       //   if (error.response.status == 401) {
