@@ -51,8 +51,8 @@ export default {
 
     columns() {
       return [
-        { label: 'Nome', field: 'ds_title', sort: 1 },
-        { label: 'Ativo?', field: 'activeText', sort: 6, align: 'center' },
+        { label: 'Nome', field: 'ds_title' },
+        { label: 'Ativo?', field: 'activeText', align: 'center' },
       ]
     },
 
