@@ -131,133 +131,114 @@ export default {
       return true;
     },
 
-    login() {
+    async login() {
       if (!this.validateForm()) return false;
 
       this.$q.loading.show();
-      return this.$http.post('/api/iam/auth/v1/login', this.input)
-        .then((response) => {
-          var cookieOptions = {
-            expires: '30m',
-            path: '/'
-          };
-          localStorage.setItem('iam_session_key', response.data.ds_key, cookieOptions);
-          localStorage.setItem('xsrf_token', response.data.xsrfToken);
 
-          if (this.rememberMe) {
-            return this.$http.get('/api/iam/auth/v1/renew-token')
-              .then((response) => {
-                localStorage.setItem('authtoken', response.data.ds_hash);
-              });
-          }
+      try {
+        const loginResponse = await this.$http.post('/api/iam/auth/v1/login', this.input)
 
-        })
-        .then(() => {
-          setTimeout(() => {
-            if (!!this.$route.query.goTo)
-              // location.href = this.$route.query.goTo;
-              this.$router.push(this.$route.query.goTo);
-            else
-              // location.href = '/';
-              this.$router.push('/');
-          }, 100);
-        })
-        .catch((error) => {
-          console.error(error);
-          this.$utils.notifyError(error);
+        localStorage.setItem('iam_session_key', loginResponse.data.ds_key);
+        localStorage.setItem('xsrf_token', loginResponse.data.xsrfToken);
 
-          this.$http.delete('/api/iam/auth/v1/logout')
-            .then(() => {
-              localStorage.removeItem('authtoken');
-              localStorage.removeItem('xsrf_token');
-              localStorage.removeItem('iam_session_key');
-              localStorage.removeItem('regularPermissions');
-              localStorage.removeItem('customPermissions');
-            })
-        })
-        .finally(() => {
-          this.$q.loading.hide();
-        })
+        if (this.rememberMe) {
+          const tknResponse = await this.$http.get('/api/iam/auth/v1/renew-token')
+          localStorage.setItem('authtoken', tknResponse.data.ds_hash);
+        }
+
+        setTimeout(() => {
+          if (!!this.$route.query.goTo)
+            this.$router.push(this.$route.query.goTo);
+          else
+            this.$router.push('/');
+        }, 100);
+      } catch (error) {
+        console.error(error);
+        this.$utils.notifyError(error);
+
+        await this.$http.delete('/api/iam/auth/v1/logout')
+        localStorage.removeItem('authtoken');
+        localStorage.removeItem('xsrf_token');
+        localStorage.removeItem('iam_session_key');
+        localStorage.removeItem('regularPermissions');
+        localStorage.removeItem('customPermissions');
+      } finally {
+        this.$q.loading.hide();
+      }
     },
 
-    recoveryPass() {
+    async autoLogin() {
+      this.$q.loading.show();
+
+      try {
+        const response = await this.$http.post(`/api/iam/auth/v1/login-token/${localStorage.getItem('authtoken')}`)
+
+        localStorage.setItem('iam_session_key', response.data.ds_key, cookieOptions);
+        localStorage.setItem('xsrf_token', response.data.xsrfToken);
+
+        const tknResponse = await this.$http.get('/api/iam/auth/v1/renew-token');
+        localStorage.setItem('authtoken', tknResponse.data.ds_hash);
+
+        // Set renewed token
+        if (!!this.$route.query.goTo)
+          this.$router.push(this.$route.query.goTo);
+        else
+          this.$router.push('/');
+
+      } catch (error) {
+        if (error.response.status != 401) {
+          this.$utils.notifyError(error);
+          console.error("An error has occurred on the attempt to perform automatic login.", error);
+        }
+
+        await this.$http.delete('/api/iam/auth/v1/logout')
+        localStorage.removeItem('authtoken');
+        localStorage.removeItem('xsrf_token');
+        localStorage.removeItem('iam_session_key');
+        localStorage.removeItem('regularPermissions');
+        localStorage.removeItem('customPermissions');
+      } finally {
+        this.$q.loading.hide();
+      }
+    },
+
+    async recoveryPass() {
       if (!this.recoveryEmail || this.recoveryEmail == '') {
         this.inputError.recoveryEmail = true;
         return false;
       }
 
       this.$q.loading.show();
-      return this.$http.post('/api/iam/users/v1/request-password-reset', { ds_email: this.recoveryEmail })
-        .then(() => {
-          this.$utils.notify({
-            message: 'Um e-mail, contendo instruções de recuperação foi enviado ao endereço fornecido.',
-            type: 'positive',
-            position: 'top-right'
-          })
+
+      try {
+        this.$http.post('/api/iam/users/v1/request-password-reset', { ds_email: this.recoveryEmail })
+        this.$utils.notify({
+          message: 'Um e-mail, contendo instruções de recuperação foi enviado ao endereço fornecido.',
+          type: 'positive',
+          position: 'top-right'
         })
-        .catch((error) => {
-          this.$utils.notifyError(error);
-          console.error("An error has occurred on the attempt to recovery password.", error);
-        })
-        .finally(() => {
-          this.$q.loading.hide();
-        });
+      } catch (error) {
+        this.$utils.notifyError(error);
+        console.error("An error has occurred on the attempt to recovery password.", error);
+      } finally {
+        this.$q.loading.hide();
+      }
+    },
+  },
+
+  async mounted() {
+    try {
+      await this.$http.get('/api/iam/auth/v1/logged-user')
+      this.$router.push('/');
+    } catch (error) {
+      if (error.response?.status == 401 && localStorage.getItem('authtoken')) {
+        this.autoLogin();
+      } else {
+        this.$q.loading.hide();
+      }
     }
   },
-
-  created() {
-    this.$q.loading.show();
-
-    this.$http.get('/api/iam/auth/v1/logged-user')
-      .then(() => {
-        this.$router.push('/');
-      })
-      .catch(() => {
-        if (localStorage.getItem('authtoken')) {
-          return this.$http.post(`/api/iam/auth/v1/login-token/${localStorage.getItem('authtoken')}`)
-            .then((response) => {
-              var cookieOptions = {
-                expires: '30m',
-                path: '/'
-              };
-              localStorage.setItem('iam_session_key', response.data.ds_key, cookieOptions);
-              localStorage.setItem('xsrf_token', response.data.xsrfToken);
-            })
-            .then(() => {
-              return this.$http.get('/api/iam/auth/v1/renew-token');
-            })
-            .then((response) => {
-              // Set renewed token
-              localStorage.setItem('authtoken', response.data.ds_hash);
-              if (!!this.$route.query.goTo)
-                this.$router.push(this.$route.query.goTo);
-              else
-                this.$router.push('/');
-            })
-            .catch((error) => {
-              if (error.response.status != 401) {
-                this.$utils.notifyError(error);
-                console.error("An error has occurred on the attempt to perform automatic login.", error);
-              }
-
-              this.$http.delete('/api/iam/auth/v1/logout')
-                .then(() => {
-                  localStorage.removeItem('authtoken');
-                  localStorage.removeItem('xsrf_token');
-                  localStorage.removeItem('iam_session_key');
-                  localStorage.removeItem('regularPermissions');
-                  localStorage.removeItem('customPermissions');
-                })
-            })
-            .finally(() => {
-              this.$q.loading.hide();
-            })
-        } else {
-          this.$q.loading.hide();
-        }
-      });
-  },
-
 }
 </script>
 
@@ -284,13 +265,13 @@ export default {
   height: 100%;
   opacity: 0.5;
   background-image: url('/resources/img/bg-login.jpg');
-  background-size: cover;
   /* Adjusts the width to fit the screen */
+  background-size: cover;
   background-position-x: center;
   background-repeat: no-repeat;
-  /* width: 100vw; */
   /* Ensures the image takes up the full viewport width */
-  /* height: 100vh; */
+  /* width: 100vw; */
   /* Ensures the image takes up the full viewport height */
+  /* height: 100vh; */
 }
 </style>
