@@ -68,7 +68,7 @@ export default {
         },
         { label: 'Nome', field: 'fullName' },
         { label: 'E-mail', field: 'ds_email' },
-        { label: 'Último Acesso', field: 'dtLastAccess' },
+        { label: 'Último Acesso', field: 'dtLastAccess', sorBy: 'dt_last_access' },
       ]
     },
 
