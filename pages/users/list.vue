@@ -63,7 +63,7 @@ export default {
           name: 'avatar',
           field: 'avatar',
           label: 'Avatar',
-          sort: false,
+          sortable: false,
           searchable: false,
         },
         { label: 'Nome', field: 'fullName' },
