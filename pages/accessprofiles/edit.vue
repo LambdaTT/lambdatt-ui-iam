@@ -110,7 +110,6 @@ export default {
       for (let k in this.input) {
         let field = this.input[k];
         if ((!field || field == '') && k in this.inputError) {
-          console.log[k];
           this.inputError[k] = true;
           isInvalid = true;
         }
