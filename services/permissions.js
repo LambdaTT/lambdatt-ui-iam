@@ -1,5 +1,8 @@
 import { http, localData } from 'src/modules/lambdatt-ui-toolcase/services.js'
 
+const REQUIRE_ALL = 1; // All permissions must be granted
+const REQUIRE_ANY = 2; // At least one permission must be granted
+
 export default {
   isSuperAdmin: null,
   regularPermissions: [],
@@ -14,35 +17,53 @@ export default {
       })
   },
 
-  canExecute(keys) {
+  canExecute(keys, mode = REQUIRE_ALL) {
     if (this.isSuperAdmin) return true
 
     if (keys instanceof Array) {
+      let result = false;
+
       for (let i = 0; i < keys.length; i++) {
-        if (this.canExecute(keys[i]) === false) return false;
+        result = this.canExecute(keys[i], mode);
+        if (result && mode === REQUIRE_ANY) break;
       }
-      return true;
+
+      return result;
     } else {
       var permission = this.customPermissions.find(p => p.ds_key == keys);
       return !!permission;
     }
   },
 
-  validatePermissions(requiredPermissions) {
+  validatePermissions(requiredPermissions, mode = REQUIRE_ALL) {
     if (this.isSuperAdmin) return true
 
+    const lvlDict = {
+      'C': 'do_create',
+      'R': 'do_read',
+      'U': 'do_update',
+      'D': 'do_delete'
+    };
+
+    let result = false;
     for (let entity in requiredPermissions) {
       let level = requiredPermissions[entity].toUpperCase();
 
       let p = this.regularPermissions.find(p => p.ds_entity_name == entity);
-      if (!p) return false;
+      if (!p && mode === REQUIRE_ALL) return false;
+      else if (!p) continue;
 
-      if (level.includes('C') && p.do_create != 'Y') return false;
-      if (level.includes('R') && p.do_read != 'Y') return false;
-      if (level.includes('U') && p.do_update != 'Y') return false;
-      if (level.includes('D') && p.do_delete != 'Y') return false;
+      for (let i = 0; i < level.length; i++) {
+        let translated = lvlDict[level[i]];
+        if (!translated) {
+          console.warn(`Invalid permission level: ${level[i]} for entity: ${entity}`);
+          continue;
+        }
+        result = p[translated] == 'Y';
+        if (!result && mode === REQUIRE_ANY) break;
+      }
     }
 
-    return true;
+    return result;
   }
 }
