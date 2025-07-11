@@ -1,4 +1,4 @@
-import { http, localData } from 'src/modules/lambdatt-ui-toolcase/services.js'
+import { http, localData, utils } from 'src/modules/lambdatt-ui-toolcase/services.js'
 
 const REQUIRE_ALL = 1; // All permissions must be granted
 const REQUIRE_ANY = 2; // At least one permission must be granted
@@ -18,17 +18,17 @@ export default {
   },
 
   canExecute(keys, mode = REQUIRE_ALL) {
-    if (this.isSuperAdmin) return true
+    if (this.isSuperAdmin || utils.empty(keys)) return true
 
     if (keys instanceof Array) {
-      let result = false;
+      let allow = false;
 
       for (let i = 0; i < keys.length; i++) {
-        result = this.canExecute(keys[i], mode);
-        if (result && mode === REQUIRE_ANY) break;
+        allow = this.canExecute(keys[i], mode);
+        if (allow && mode === REQUIRE_ANY) break;
       }
 
-      return result;
+      return allow;
     } else {
       var permission = this.customPermissions.find(p => p.ds_key == keys);
       return !!permission;
@@ -36,7 +36,7 @@ export default {
   },
 
   validatePermissions(requiredPermissions, mode = REQUIRE_ALL) {
-    if (this.isSuperAdmin) return true
+    if (this.isSuperAdmin || utils.empty(requiredPermissions)) return true
 
     const lvlDict = {
       'C': 'do_create',
