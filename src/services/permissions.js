@@ -10,7 +10,7 @@ export default {
   customPermissions: [],
 
   getUserPermissions() {
-    return TOOLCASE.SERVICES.http.get(ENDPOINTS.PERMISSIONS.USER_PERMISSIONS)
+    return TOOLCASE.SERVICES.http.get(ENDPOINTS.PERMISSIONS.READ)
       .then((response) => {
         this.isSuperAdmin = response.data?.isSuperAdmin == 'Y';
         this.regularPermissions = response.data.regularPermissions;

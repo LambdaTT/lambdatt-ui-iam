@@ -34,10 +34,14 @@ function mapPages() {
 
   const pagesMap = {};
   for (const path in pages) {
+    console.log("PATH", path);
     const mod = pages[path];
     // Extract the page name from the file path
     const pageName = path.split('/').pop().replace(/\.\w+$/, '');
-    pagesMap[pageName] = mod.default;
+    pagesMap[pageName] = {
+      path: '/iam/',
+      component: mod.default
+    };
   }
   return pagesMap;
 }

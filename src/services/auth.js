@@ -20,7 +20,7 @@ export default {
         localStorage.removeItem('iam_session_key');
         localStorage.removeItem('regularPermissions');
         localStorage.removeItem('customPermissions');
-        // getRouter().push(`/login?goTo=${getCurrentRoute().path}`)
+        TOOLCASE.SERVICES.routehelpers.getRouter().push(`/login?goTo=${TOOLCASE.SERVICES.routehelpers.getCurrentRoute().path}`)
       }
     } finally {
       TOOLCASE.SERVICES.eventbroadcaster.$broadcast('loaded', 'auth');

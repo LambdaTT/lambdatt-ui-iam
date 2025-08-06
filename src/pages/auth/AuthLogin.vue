@@ -80,6 +80,7 @@
 
 <script>
 import { useQuasar } from 'quasar'
+import ENDPOINTS from '../../ENDPOINTS';
 
 export default {
   name: 'pages-iam-auth-login',
@@ -101,7 +102,6 @@ export default {
   },
 
   methods: {
-
     handleEnterKey(event) {
       if (event.key === 'Enter') {
         this.login();
@@ -137,13 +137,13 @@ export default {
       this.$q.loading.show();
 
       try {
-        const loginResponse = await this.$toolcase.services.http.post('/api/iam/auth/v1/login', this.input)
+        const loginResponse = await this.$toolcase.services.http.post(ENDPOINTS.AUTH.LOGIN, this.input)
 
         localStorage.setItem('iam_session_key', loginResponse.data.ds_key);
         localStorage.setItem('xsrf_token', loginResponse.data.xsrfToken);
 
         if (this.rememberMe) {
-          const tknResponse = await this.$toolcase.services.http.get('/api/iam/auth/v1/renew-token')
+          const tknResponse = await this.$toolcase.services.http.get(ENDPOINTS.AUTH.RENEW_TOKEN)
           localStorage.setItem('authtoken', tknResponse.data.ds_hash);
         }
 
@@ -157,7 +157,7 @@ export default {
         console.error(error);
         this.$toolcase.services.utils.notifyError(error);
 
-        await this.$toolcase.services.http.delete('/api/iam/auth/v1/logout')
+        await this.$toolcase.services.http.delete(ENDPOINTS.AUTH.LOGOUT)
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
@@ -172,12 +172,12 @@ export default {
       this.$q.loading.show();
 
       try {
-        const response = await this.$toolcase.services.http.post(`/api/iam/auth/v1/login-token/${localStorage.getItem('authtoken')}`)
+        const response = await this.$toolcase.services.http.post(`${ENDPOINTS.AUTH.LOGIN_TOKEN}/${localStorage.getItem('authtoken')}`)
 
         localStorage.setItem('iam_session_key', response.data.ds_key, cookieOptions);
         localStorage.setItem('xsrf_token', response.data.xsrfToken);
 
-        const tknResponse = await this.$toolcase.services.http.get('/api/iam/auth/v1/renew-token');
+        const tknResponse = await this.$toolcase.services.http.get(ENDPOINTS.AUTH.RENEW_TOKEN);
         localStorage.setItem('authtoken', tknResponse.data.ds_hash);
 
         // Set renewed token
@@ -192,7 +192,7 @@ export default {
           console.error("An error has occurred on the attempt to perform automatic login.", error);
         }
 
-        await this.$toolcase.services.http.delete('/api/iam/auth/v1/logout')
+        await this.$toolcase.services.http.delete(ENDPOINTS.AUTH.LOGOUT)
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
@@ -212,7 +212,7 @@ export default {
       this.$q.loading.show();
 
       try {
-        this.$toolcase.services.http.post('/api/iam/users/v1/request-password-reset', { ds_email: this.recoveryEmail })
+        this.$toolcase.services.http.post(ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET, { ds_email: this.recoveryEmail })
         this.$toolcase.services.utils.notify({
           message: 'Um e-mail, contendo instruções de recuperação foi enviado ao endereço fornecido.',
           type: 'positive',
@@ -229,7 +229,7 @@ export default {
 
   async mounted() {
     try {
-      await this.$toolcase.services.http.get('/api/iam/auth/v1/logged-user')
+      await this.$toolcase.services.http.get(ENDPOINTS.AUTH.LOGGED_USER)
       this.$router.push('/');
     } catch (error) {
       if (error.response?.status == 401 && localStorage.getItem('authtoken')) {
