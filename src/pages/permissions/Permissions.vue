@@ -1,6 +1,6 @@
 <template>
-  <Page Title="Gerenciar Permissões" :Breadcrumb="breadcrumb">
-    <Card Title="Permissões por Perfil" Icon="fas fa-key">
+  <La1Page Title="Gerenciar Permissões" :Breadcrumb="breadcrumb">
+    <La1Card Title="Permissões por Perfil" Icon="fas fa-key">
       <template #actions>
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
@@ -108,19 +108,21 @@
         </div>
 
       </template>
-    </Card>
+    </La1Card>
 
     <!-- Modal: Create Exec Permission -->
-    <Modal Title="Adicionar Permissão de Execução" Icon="fas fa-key" Persistent v-model="showExecPermissionModal"
+    <La1Modal Title="Adicionar Permissão de Execução" Icon="fas fa-key" Persistent v-model="showExecPermissionModal"
       :Actions="execPermissionModalActions" @hide="resetInput">
       <div>
         <div class=" q-pa-xs">
           <p style="border:1px solid; padding:5px; background-color:#f0f0f0; font-weight: bold;"
             class="text-warning text-justify">
             <i class="fas fa-exclamation-triangle"></i> A permissão de execução é um tipo
-            especial de permissão que permite controlar ações específicas do usuário no sistema, como emitir relatórios,
+            especial de permissão que permite controlar ações específicas do usuário no sistema, como emitir
+            relatórios,
             por
-            exemplo. Quando criada, esta permissão ficará disponível para todos os perfis que possuírem acesso ao módulo
+            exemplo. Quando criada, esta permissão ficará disponível para todos os perfis que possuírem acesso ao
+            módulo
             selecionado e não poderá ser excluída posteriormente.
           </p>
         </div>
@@ -149,15 +151,12 @@
           </div>
         </div>
       </div>
-    </Modal>
+    </La1Modal>
 
-  </Page>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import { auth, permissions } from '../../services.js'
-
 export default {
   name: 'pages-iam-permissions-permissions',
 
@@ -199,9 +198,9 @@ export default {
   methods: {
     async listProfiles() {
       this.$emit('load', 'list-acessprofiles');
-      var response = await this.$http.get('/api/iam/accessprofiles/v1/accessprofile?do_active=Y')
+      var response = await this.$toolcase.services.http.get('/api/iam/accessprofiles/v1/accessprofile?do_active=Y')
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         });
 
@@ -218,9 +217,9 @@ export default {
 
     async listSystemModules() {
       this.$emit('load', 'list-system-modules');
-      var response = await this.$http.get('/api/iam/applicationmodules/v1/module')
+      var response = await this.$toolcase.services.http.get('/api/iam/applicationmodules/v1/module')
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         });
 
@@ -241,7 +240,7 @@ export default {
         if (this.systemModules[i].value == this.input.id_apm_module)
           moduleName = this.systemModules[i].label.toSlug();
       }
-      this.input.ds_key = moduleName + '-' + (this.input.ds_title != null ? this.input.ds_title.toSlug() + "-" : "") + this.$utils.uniqid();
+      this.input.ds_key = moduleName + '-' + (this.input.ds_title != null ? this.input.ds_title.toSlug() + "-" : "") + this.$toolcase.services.utils.uniqid();
     },
 
     resetInput() {
@@ -257,9 +256,9 @@ export default {
       this.customPermissions = {};
 
       if (!!this.profileId) {
-        var response = await this.$http.get(`/api/iam/accessprofiles/v1/permission/${this.profileId}`).catch(function (response) {
+        var response = await this.$toolcase.services.http.get(`/api/iam/accessprofiles/v1/permission/${this.profileId}`).catch(function (response) {
           console.error("An error has occurred on the attempt to get profile's permissions.", response);
-          this.$utils.notifyError(response);
+          this.$toolcase.services.utils.notifyError(response);
         });
 
         this.permissions = response.data;
@@ -269,18 +268,18 @@ export default {
     },
 
     async createExecPermission() {
-      if (this.$utils.validateForm(this.input, this.inputError) == false) return;
+      if (this.$toolcase.services.utils.validateForm(this.input, this.inputError) == false) return;
 
       this.$emit('load', 'create-execpermission');
-      await this.$http.post('/api/iam/accessprofiles/v1/permission', this.input)
+      await this.$toolcase.services.http.post('/api/iam/accessprofiles/v1/permission', this.input)
         .catch((error) => {
           console.error(error);
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
         });
 
       await this.getPermissions();
 
-      this.$utils.notify({
+      this.$toolcase.services.utils.notify({
         message: "A permissão de execução foi criada com sucesso.",
         type: 'positive',
         position: 'top-right'
@@ -301,7 +300,7 @@ export default {
     },
 
     checkForChanges() {
-      return (this.$utils.objectSize(this.entityPermissions) > 0 || this.$utils.objectSize(this.customPermissions) > 0);
+      return (this.$toolcase.services.utils.objectSize(this.entityPermissions) > 0 || this.$toolcase.services.utils.objectSize(this.customPermissions) > 0);
     },
 
     async save() {
@@ -310,16 +309,16 @@ export default {
         customPermissions: this.customPermissions,
       };
 
-      if (this.$utils.objectSize(input) < 1) return;
+      if (this.$toolcase.services.utils.objectSize(input) < 1) return;
 
       this.$emit('load', 'save-permissions');
-      await this.$http.put(`/api/iam/accessprofiles/v1/permission/${this.profileId}`, input)
+      await this.$toolcase.services.http.put(`/api/iam/accessprofiles/v1/permission/${this.profileId}`, input)
         .then(() => {
-          return permissions.getUserPermissions();
+          return this.$iam.services.permissions.getUserPermissions();
         })
         .catch(function (error) {
           console.error(error);
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
         })
 
       await this.getPermissions();
@@ -335,11 +334,11 @@ export default {
 
   async mounted() {
     await auth.authenticate(this);
-    if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||
-      !permissions.validatePermissions({ 'IAM_CUSTOM_PERMISSION': 'CR' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/forbidden');
+    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_CUSTOM_PERMISSION': 'CR' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/forbidden');
 
     this.listProfiles();
     this.listSystemModules();

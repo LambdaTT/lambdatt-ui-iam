@@ -1,4 +1,5 @@
-import { http, localData, utils } from 'src/modules/lambdatt-ui-toolcase/services.js'
+import { TOOLCASE } from 'src/modules/lambdatt-ui-toolcase'
+import ENDPOINTS from '../ENDPOINTS';
 
 const REQUIRE_ALL = 1; // All permissions must be granted
 const REQUIRE_ANY = 2; // At least one permission must be granted
@@ -9,7 +10,7 @@ export default {
   customPermissions: [],
 
   getUserPermissions() {
-    return http.get('/api/iam/permissions/v1/user-permissions')
+    return TOOLCASE.SERVICES.http.get(ENDPOINTS.PERMISSIONS.USER_PERMISSIONS)
       .then((response) => {
         this.isSuperAdmin = response.data?.isSuperAdmin == 'Y';
         this.regularPermissions = response.data.regularPermissions;

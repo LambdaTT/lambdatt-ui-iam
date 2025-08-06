@@ -1,6 +1,6 @@
 <template>
-  <Page Title="Editar Perfil de Acesso" :Breadcrumb="breadcrumb">
-    <Card Title="Dados do Perfil" Icon="fas fa-id-card">
+  <La1Page Title="Editar Perfil de Acesso" :Breadcrumb="breadcrumb">
+    <La1Card Title="Dados do Perfil" Icon="fas fa-id-card">
       <template #actions>
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
@@ -36,26 +36,23 @@
       </div>
 
       <template #section-modules>
-        <Card Title="Módulos do Perfil" Icon="fas fa-puzzle-piece">
+        <La1Card Title="Módulos do Perfil" Icon="fas fa-puzzle-piece">
           <q-option-group v-model="selectedModules" :options="modules" color="primary" type="checkbox" />
-        </Card>
+        </La1Card>
       </template>
-    </Card>
-  </Page>
+    </La1Card>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import { auth, permissions } from '../../services.js'
-
 export default {
   name: 'pages-iam-accessprofile-create',
 
   data() {
     return {
       permissions: {
-        update: permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
-        delete: permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
+        update: this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
+        delete: this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
       },
       modules: [],
       selectedModules: [],
@@ -87,18 +84,18 @@ export default {
       // Add:
       if (this.selectedModules.length > this.selectedModulesControl.length) {
         this.selectedModulesControl.push(modKey);
-        await this.$http.post(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
+        await this.$toolcase.services.http.post(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
       }
       // Remove:
       else if (this.selectedModules.length < this.selectedModulesControl.length) {
         let idx = this.selectedModulesControl.indexOf(modKey);
         this.selectedModulesControl.splice(idx, 1);
-        await this.$http.delete(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
+        await this.$toolcase.services.http.delete(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
       } else return;
 
-      await permissions.getUserPermissions();
-      if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-        !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
+      await this.$iam.services.permissions.getUserPermissions();
+      if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+        !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
 
       this.getModules();
     }
@@ -116,7 +113,7 @@ export default {
       }
 
       if (isInvalid) {
-        this.$utils.notify({
+        this.$toolcase.services.utils.notify({
           message: "Preencha o formulário corretamente",
           type: "negative",
           position: 'top-right'
@@ -131,17 +128,17 @@ export default {
       if (!this.validateForm()) return false;
 
       this.$emit('load', 'save-accessprofile');
-      return this.$http.put(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`, this.input)
+      return this.$toolcase.services.http.put(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`, this.input)
         .then(() => {
           this.$router.push('/iam/access-profiles');
-          this.$utils.notify({
+          this.$toolcase.services.utils.notify({
             message: "Os dados do perfil de acesso foram salvos com sucesso.",
             type: 'positive',
             position: 'top-right'
           });
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -154,9 +151,9 @@ export default {
 
       this.$emit('load', 'accessprofile-remove');
 
-      this.$http.delete(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+      this.$toolcase.services.http.delete(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
         .then(() => {
-          this.$utils.notify({
+          this.$toolcase.services.utils.notify({
             message: 'O perfil foi excluído com sucesso',
             type: 'positive',
             position: 'top-right'
@@ -164,7 +161,7 @@ export default {
           this.$router.push('/iam/access-profiles');
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -173,7 +170,7 @@ export default {
     },
 
     getModules() {
-      return this.$http.get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
+      return this.$toolcase.services.http.get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
         .then((response) => {
           this.modules = [];
           this.selectedModules = [];
@@ -196,7 +193,7 @@ export default {
     getProfileData() {
       // Get Access profile data:
       this.$emit('load', 'profile-data');
-      this.$http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+      this.$toolcase.services.http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.input) {
             if (k in response.data)
@@ -206,7 +203,7 @@ export default {
         .then(() => this.getModules())
         .catch((error) => {
           if (error.response.status == 404) {
-            this.$utils.notify({
+            this.$toolcase.services.utils.notify({
               message: 'Perfil de acesso não encontrado.',
               type: 'negative',
               position: 'top-right'
@@ -214,7 +211,7 @@ export default {
             this.$router.push('/iam/access-profiles');
             return;
           }
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -226,8 +223,8 @@ export default {
 
   async mounted() {
     await auth.authenticate(this);
-    if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
+    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
 
     this.getProfileData()
   },

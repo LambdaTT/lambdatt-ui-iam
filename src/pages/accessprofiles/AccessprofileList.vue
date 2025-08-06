@@ -1,6 +1,6 @@
 <template>
-  <Page Title="Gerenciar Perfis de Acesso" :Breadcrumb="breadcrumb">
-    <Card Title="Perfis Cadastrados" Icon="fas fa-id-card">
+  <La1Page Title="Gerenciar Perfis de Acesso" :Breadcrumb="breadcrumb">
+    <La1Card Title="Perfis Cadastrados" Icon="fas fa-id-card">
       <template #actions>
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
@@ -16,14 +16,11 @@
         :Columns="columns" :RowActions="rowActions">
       </DataTable>
 
-    </Card>
-  </Page>
+    </La1Card>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import {auth, permissions} from '../../services.js'
-
 export default {
   name: 'pages-iam-accessprofile-list',
 
@@ -31,9 +28,9 @@ export default {
     return {
       // Permissions:
       permissions: {
-        create: permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'C' }),
-        update: permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
-        delete: permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
+        create: this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'C' }),
+        update: this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
+        delete: this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
       },
 
       // Datatable:
@@ -72,16 +69,16 @@ export default {
       this.$emit('load', 'accessprofile-remove');
 
       var key = row.ds_key;
-      this.$http.delete(`/api/iam/accessprofiles/v1/accessprofile/${key}`)
+      this.$toolcase.services.http.delete(`/api/iam/accessprofiles/v1/accessprofile/${key}`)
         .then(() => {
-          this.$utils.notify({
+          this.$toolcase.services.utils.notify({
             message: 'O perfil foi excluído com sucesso',
             type: 'positive',
             position: 'top-right'
           })
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error("An error occurred on the attempt to delete accessprofile.", error);
         })
         .finally(() => {
@@ -94,7 +91,7 @@ export default {
 
   mounted() {
     auth.authenticate(this);
-    if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' })) this.$router.push('/forbidden');
+    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' })) this.$router.push('/forbidden');
   }
 }
 

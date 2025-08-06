@@ -1,6 +1,6 @@
 <template>
-  <Page Title="Adicionar Perfil de Acesso" :Breadcrumb="breadcrumb">
-    <Card Title="Dados do Perfil" Icon="fas fa-id-card">
+  <La1Page Title="Adicionar Perfil de Acesso" :Breadcrumb="breadcrumb">
+    <La1Card Title="Dados do Perfil" Icon="fas fa-id-card">
       <template #actions>
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
@@ -28,14 +28,11 @@
         </div>
       </div>
 
-    </Card>
-  </Page>
+    </La1Card>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import { auth, permissions } from '../../services.js'
-
 export default {
   name: 'pages-iam-accessprofile-create',
 
@@ -63,7 +60,7 @@ export default {
       }
 
       if (isInvalid) {
-        this.$utils.notify({
+        this.$toolcase.services.utils.notify({
           message: "Preencha o formulário corretamente",
           type: "negative",
           position: 'top-right'
@@ -78,17 +75,17 @@ export default {
       if (!this.validateForm()) return false;
 
       this.$emit('load', 'save-accessprofile');
-      return this.$http.post('/api/iam/accessprofiles/v1/accessprofile', this.input)
+      return this.$toolcase.services.http.post('/api/iam/accessprofiles/v1/accessprofile', this.input)
         .then((response) => {
           this.$router.push(`/iam/access-profiles/edit/${response.data.ds_key}`);
-          this.$utils.notify({
+          this.$toolcase.services.utils.notify({
             message: "O novo perfil de acesso foi criado com sucesso.",
             type: 'positive',
             position: 'top-right'
           });
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -98,8 +95,8 @@ export default {
   },
 
   mounted() {
-    auth.authenticate(this);
-    if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
+    this.$iam.services.auth.authenticate(this);
+    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
   },
 
   computed: {

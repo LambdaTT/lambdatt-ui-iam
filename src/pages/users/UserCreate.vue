@@ -1,6 +1,6 @@
 <template>
-  <Page Title="Adicionar Usuário" :Breadcrumb="breadcrumb">
-    <Card Title="Dados do Usuário" Icon="fas fa-user-cog">
+  <La1Page Title="Adicionar Usuário" :Breadcrumb="breadcrumb">
+    <La1Card Title="Dados do Usuário" Icon="fas fa-user-cog">
       <template #actions>
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
@@ -16,31 +16,21 @@
         </div>
       </template>
 
-      <UserInfo v-model="User" confirmEmail requiredPass></UserInfo>
+      <IamUserInfo v-model="User" confirmEmail requiredPass></IamUserInfo>
 
       <template #user-profiles>
-        <Card Title="Perfis de Acesso" Icon="fas fa-id-card">
+        <La1Card Title="Perfis de Acesso" Icon="fas fa-id-card">
           <q-option-group v-model="inputUser.selected_profiles" :options="profiles" color="primary" type="checkbox" />
-        </Card>
+        </La1Card>
       </template>
 
-    </Card>
-  </Page>
+    </La1Card>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import { auth, permissions } from '../../services.js'
-
-// Components:
-import UserInfo from '../../components/userinfo.vue'
-
 export default {
   name: 'pages-iam-users-create',
-
-  components: {
-    UserInfo
-  },
 
   data() {
     return {
@@ -69,7 +59,7 @@ export default {
   methods: {
     validateForm() {
       if (this.inputUser.selected_profiles.length < 1) {
-        this.$utils.notify({
+        this.$toolcase.services.utils.notify({
           message: "Selecione ao menos 1 perfil de acesso.",
           type: "negative",
           position: 'top-right'
@@ -97,17 +87,17 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$http.post('/api/iam/users/v1/user', data)
+      return this.$toolcase.services.http.post('/api/iam/users/v1/user', data)
         .then((response) => {
           this.$router.push(`/iam/users/edit/${response.data.ds_key}`);
-          this.$utils.notify({
+          this.$toolcase.services.utils.notify({
             message: "O novo usuário foi criado com sucesso.",
             type: 'positive',
             position: 'top-right'
           });
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -117,7 +107,7 @@ export default {
 
     listProfiles() {
       // Retrieve Access Profiles list:
-      return this.$http.get('/api/iam/accessprofiles/v1/accessprofile')
+      return this.$toolcase.services.http.get('/api/iam/accessprofiles/v1/accessprofile')
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,
@@ -125,7 +115,7 @@ export default {
           }))
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         })
     }
@@ -133,10 +123,10 @@ export default {
 
   async mounted() {
     this.$emit('load', 'data');
-    await auth.authenticate(this);
-    if (!permissions.validatePermissions({ 'IAM_USER': 'C' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');
+    await this.$iam.services.auth.authenticate(this);
+    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'C' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');
 
     await this.listProfiles();
     this.$emit('loaded', 'data');

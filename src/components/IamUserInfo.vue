@@ -131,13 +131,13 @@ export default {
       delete user.avatar;
 
       // -- Form
-      if (!this.$utils.validateForm(user, this.inputError)) return false;
+      if (!this.$toolcase.services.utils.validateForm(user, this.inputError)) return false;
 
       // -- Email
       if (this.confirmEmail && (user.ds_email !== this.control.ds_email_confirm)) {
         this.inputError.ds_email = true;
         this.inputError.ds_email_confirm = true;
-        this.$utils.notify({
+        this.$toolcase.services.utils.notify({
           message: 'Os emails inseridos são diferentes',
           type: 'negative',
           position: 'top-right'
@@ -150,7 +150,7 @@ export default {
         if (user.ds_password !== this.control.ds_password_confirm) {
           this.inputError.ds_password = true;
           this.inputError.ds_password_confirm = true;
-          this.$utils.notify({
+          this.$toolcase.services.utils.notify({
             message: 'As senhas inseridas são diferentes',
             type: 'negative',
             position: 'top-right'

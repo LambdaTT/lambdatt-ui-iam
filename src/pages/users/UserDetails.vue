@@ -1,6 +1,6 @@
 <template>
-  <Page Title="Detalhes do Usuário" :Breadcrumb="breadcrumb">
-    <Card Title="Informações do Usuário" Icon="fas fa-user-cog">
+  <La1Page Title="Detalhes do Usuário" :Breadcrumb="breadcrumb">
+    <La1Card Title="Informações do Usuário" Icon="fas fa-user-cog">
       <template #actions>
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
@@ -11,38 +11,26 @@
         </div>
       </template>
 
-      <UserInfo v-model="User" readonly></UserInfo>
+      <IamUserInfo v-model="User" readonly></IamUserInfo>
 
       <template #audit-info>
-        <AuditInfoBlock :input="inputUser"></AuditInfoBlock>
+        <IamAuditInfo :input="inputUser"></IamAuditInfo>
       </template>
 
       <template #user-profiles>
-        <Card Title="Perfis de Acesso" Icon="fas fa-id-card">
+        <La1Card Title="Perfis de Acesso" Icon="fas fa-id-card">
           <q-option-group :disable="true" v-model="inputUser.selected_profiles" :options="profiles" color="primary"
             type="checkbox" />
-        </Card>
+        </La1Card>
       </template>
 
-    </Card>
-  </Page>
+    </La1Card>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import { auth, permissions } from '../../services.js'
-
-// Components:
-import UserInfo from '../../components/userinfo.vue'
-import AuditInfoBlock from '../../components/auditinfo.vue'
-
 export default {
   name: 'pages-iam-user-view',
-
-  components: {
-    AuditInfoBlock,
-    UserInfo,
-  },
 
   data() {
     return {
@@ -72,7 +60,7 @@ export default {
   methods: {
     getData() {
       this.$emit('load', 'users-data');
-      return this.$http.get(`/api/iam/users/v1/user/${this.$route.params.key}`)
+      return this.$toolcase.services.http.get(`/api/iam/users/v1/user/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.inputUser)
             if (k in response.data)
@@ -82,7 +70,7 @@ export default {
         })
         .catch((error) => {
           if (error.response.status == 404) {
-            this.$utils.notify({
+            this.$toolcase.services.utils.notify({
               message: 'Usuário não encontrado.',
               type: 'negative',
               position: 'top-right'
@@ -91,7 +79,7 @@ export default {
             return;
           }
 
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -101,7 +89,7 @@ export default {
 
     listProfiles() {
       this.$emit('load', 'profiles-list');
-      this.$http.get('/api/iam/accessprofiles/v1/accessprofile')
+      this.$toolcase.services.http.get('/api/iam/accessprofiles/v1/accessprofile')
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,
@@ -109,7 +97,7 @@ export default {
           }));
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -119,10 +107,10 @@ export default {
   },
 
   async mounted() {
-    await auth.authenticate(this);
-    if (!permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
+    await this.$iam.services.auth.authenticate(this);
+    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
 
     this.getData()
     this.listProfiles()

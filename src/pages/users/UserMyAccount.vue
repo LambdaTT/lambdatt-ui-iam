@@ -1,6 +1,6 @@
 <template>
-  <Page Title="Minha Conta" :Breadcrumb="breadcrumb">
-    <Card Title="Meus Dados Pessoais" Icon="fas fa-user">
+  <La1Page Title="Minha Conta" :Breadcrumb="breadcrumb">
+    <La1Card Title="Meus Dados Pessoais" Icon="fas fa-user">
       <template #actions>
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
@@ -16,24 +16,14 @@
         </div>
       </template>
 
-      <UserInfo v-model="User"></UserInfo>
-    </Card>
-  </Page>
+      <IamUserInfo v-model="User"></IamUserInfo>
+    </La1Card>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import { auth } from '../../services.js'
-
-// Components:
-import UserInfo from '../../components/userinfo.vue'
-
 export default {
   name: 'pages-iam-users-myaccount',
-
-  components: {
-    UserInfo
-  },
 
   data() {
     return {
@@ -65,16 +55,16 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$http.put(`/api/iam/users/v1/my-account`, data)
+      return this.$toolcase.services.http.put(`/api/iam/users/v1/my-account`, data)
         .then(() => {
-          this.$utils.notify({
+          this.$toolcase.services.utils.notify({
             message: "Seus dados foram salvos com sucesso.",
             type: 'positive',
             position: 'top-right'
           });
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -84,12 +74,12 @@ export default {
 
     getData() {
       this.$emit('load', 'users-data');
-      return this.$http.get(`/api/iam/users/v1/my-account`)
+      return this.$toolcase.services.http.get(`/api/iam/users/v1/my-account`)
         .then((response) => {
           this.User.read(response.data)
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -99,7 +89,7 @@ export default {
   },
 
   async mounted() {
-    await auth.authenticate(this);
+    await this.$iam.services.auth.authenticate(this);
     this.getData();
   },
 }

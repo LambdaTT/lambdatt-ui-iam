@@ -1,6 +1,6 @@
 <template>
-  <Page Title="Detalhes do Perfil de Acesso" :Breadcrumb="breadcrumb">
-    <Card Title="Dados do Perfil" Icon="fas fa-id-card">
+  <La1Page Title="Detalhes do Perfil de Acesso" :Breadcrumb="breadcrumb">
+    <La1Card Title="Dados do Perfil" Icon="fas fa-id-card">
       <template #actions>
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
@@ -29,32 +29,22 @@
       </div>
 
       <template #audit-info>
-        <AuditInfoBlock :input="userData"></AuditInfoBlock>
+        <IamAuditInfo :input="userData"></IamAuditInfo>
       </template>
 
       <template #section-modules>
-        <Card Title="Módulos do Perfil" Icon="fas fa-puzzle-piece">
+        <La1Card Title="Módulos do Perfil" Icon="fas fa-puzzle-piece">
           <q-option-group disable v-model="selectedModules" :options="modules" color="primary" type="checkbox" />
-        </Card>
+        </La1Card>
       </template>
 
-    </Card>
-  </Page>
+    </La1Card>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import { auth, permissions } from '../../services.js'
-
-// Components:
-import AuditInfoBlock from '../../components/auditinfo.vue'
-
 export default {
   name: 'pages-iam-accessprofile-create',
-
-  components: {
-    AuditInfoBlock
-  },
 
   data() {
     return {
@@ -76,7 +66,7 @@ export default {
 
   methods: {
     getModules() {
-      return this.$http.get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
+      return this.$toolcase.services.http.get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
         .then((response) => {
           this.modules = [];
           this.selectedModules = [];
@@ -96,14 +86,14 @@ export default {
     getProfileData() {
       // Get Access profile data:
       this.$emit('load', 'profile-data');
-      this.$http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+      this.$toolcase.services.http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
         .then((response) => {
           this.userData = response.data;
         })
         .then(() => this.getModules())
         .catch((error) => {
           if (error.response.status == 404) {
-            this.$utils.notify({
+            this.$toolcase.services.utils.notify({
               message: 'Perfil de acesso não encontrado.',
               type: 'negative',
               position: 'top-right'
@@ -111,7 +101,7 @@ export default {
             this.$router.push('/iam/access-profiles');
             return;
           }
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -121,9 +111,9 @@ export default {
   },
 
   async mounted() {
-    await auth.authenticate(this);
-    if (!permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
+    await this.$iam.services.auth.authenticate(this);
+    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
 
     this.getProfileData();
   },

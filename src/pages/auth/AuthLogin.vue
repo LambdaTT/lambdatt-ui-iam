@@ -119,7 +119,7 @@ export default {
       }
 
       if (isInvalid) {
-        this.$utils.notify({
+        this.$toolcase.services.utils.notify({
           message: "Preencha o formulário corretamente",
           type: "negative",
           position: 'top-right'
@@ -137,13 +137,13 @@ export default {
       this.$q.loading.show();
 
       try {
-        const loginResponse = await this.$http.post('/api/iam/auth/v1/login', this.input)
+        const loginResponse = await this.$toolcase.services.http.post('/api/iam/auth/v1/login', this.input)
 
         localStorage.setItem('iam_session_key', loginResponse.data.ds_key);
         localStorage.setItem('xsrf_token', loginResponse.data.xsrfToken);
 
         if (this.rememberMe) {
-          const tknResponse = await this.$http.get('/api/iam/auth/v1/renew-token')
+          const tknResponse = await this.$toolcase.services.http.get('/api/iam/auth/v1/renew-token')
           localStorage.setItem('authtoken', tknResponse.data.ds_hash);
         }
 
@@ -155,9 +155,9 @@ export default {
         }, 100);
       } catch (error) {
         console.error(error);
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
 
-        await this.$http.delete('/api/iam/auth/v1/logout')
+        await this.$toolcase.services.http.delete('/api/iam/auth/v1/logout')
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
@@ -172,12 +172,12 @@ export default {
       this.$q.loading.show();
 
       try {
-        const response = await this.$http.post(`/api/iam/auth/v1/login-token/${localStorage.getItem('authtoken')}`)
+        const response = await this.$toolcase.services.http.post(`/api/iam/auth/v1/login-token/${localStorage.getItem('authtoken')}`)
 
         localStorage.setItem('iam_session_key', response.data.ds_key, cookieOptions);
         localStorage.setItem('xsrf_token', response.data.xsrfToken);
 
-        const tknResponse = await this.$http.get('/api/iam/auth/v1/renew-token');
+        const tknResponse = await this.$toolcase.services.http.get('/api/iam/auth/v1/renew-token');
         localStorage.setItem('authtoken', tknResponse.data.ds_hash);
 
         // Set renewed token
@@ -188,11 +188,11 @@ export default {
 
       } catch (error) {
         if (error.response.status != 401) {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error("An error has occurred on the attempt to perform automatic login.", error);
         }
 
-        await this.$http.delete('/api/iam/auth/v1/logout')
+        await this.$toolcase.services.http.delete('/api/iam/auth/v1/logout')
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
@@ -212,14 +212,14 @@ export default {
       this.$q.loading.show();
 
       try {
-        this.$http.post('/api/iam/users/v1/request-password-reset', { ds_email: this.recoveryEmail })
-        this.$utils.notify({
+        this.$toolcase.services.http.post('/api/iam/users/v1/request-password-reset', { ds_email: this.recoveryEmail })
+        this.$toolcase.services.utils.notify({
           message: 'Um e-mail, contendo instruções de recuperação foi enviado ao endereço fornecido.',
           type: 'positive',
           position: 'top-right'
         })
       } catch (error) {
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
         console.error("An error has occurred on the attempt to recovery password.", error);
       } finally {
         this.$q.loading.hide();
@@ -229,7 +229,7 @@ export default {
 
   async mounted() {
     try {
-      await this.$http.get('/api/iam/auth/v1/logged-user')
+      await this.$toolcase.services.http.get('/api/iam/auth/v1/logged-user')
       this.$router.push('/');
     } catch (error) {
       if (error.response?.status == 401 && localStorage.getItem('authtoken')) {

@@ -104,7 +104,7 @@ export default {
 
     checkPassConfirmation() {
       if (this.form.ds_password != this.form.confirm_pass) {
-        this.$utils.notify({
+        this.$toolcase.services.utils.notify({
           message: "As senhas não coincidem",
           type: 'negative',
           position: 'top-right'
@@ -120,7 +120,7 @@ export default {
     },
 
     async save() {
-      if (!this.$utils.validateForm(this.form, this.formError)) return;
+      if (!this.$toolcase.services.utils.validateForm(this.form, this.formError)) return;
       if (!this.checkPassConfirmation()) return;
 
       const payload = {
@@ -128,22 +128,22 @@ export default {
       }
 
       try {
-        await this.$http.put(`/api/iam/users/v1/change-pass/${this.token}`, payload)
+        await this.$toolcase.services.http.put(`/api/iam/users/v1/change-pass/${this.token}`, payload)
         this.done = true;
       } catch (error) {
         this.error = true;
-        this.$utils.notifyError(error);
+        this.$toolcase.services.utils.notifyError(error);
         console.error(error);
       }
     },
 
     async validateToken() {
       try {
-        await this.$http.get(`/api/iam/auth/v1/validate-token/${this.token}`)
+        await this.$toolcase.services.http.get(`/api/iam/auth/v1/validate-token/${this.token}`)
       } catch (error) {
         this.error = true;
         if (error.response.status != 401) {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error(error);
         }
       }

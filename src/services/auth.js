@@ -1,5 +1,6 @@
-import { http, eventbroadcaster } from 'src/modules/lambdatt-ui-toolcase/services.js'
-import { getCurrentRoute, getRouter } from 'src/boot/global-helpers';
+import { TOOLCASE } from 'src/modules/lambdatt-ui-toolcase'
+import ENDPOINTS from '../ENDPOINTS';
+// import { getCurrentRoute, getRouter } from 'src/boot/global-helpers';
 
 export default {
   loggedUser: null,
@@ -7,10 +8,10 @@ export default {
   async authenticate() {
     if (navigator.onLine === false) return;
 
-    eventbroadcaster.$broadcast('load', 'auth');
+    TOOLCASE.SERVICES.eventbroadcaster.$broadcast('load', 'auth');
 
     try {
-      const response = await http.get('/api/iam/auth/v1/logged-user')
+      const response = await TOOLCASE.SERVICES.http.get(ENDPOINTS.AUTH.LOGGED_USER)
       this.loggedUser = response.data;
     } catch (error) {
       console.error(error);
@@ -19,24 +20,24 @@ export default {
         localStorage.removeItem('iam_session_key');
         localStorage.removeItem('regularPermissions');
         localStorage.removeItem('customPermissions');
-        getRouter().push(`/login?goTo=${getCurrentRoute().path}`)
+        // getRouter().push(`/login?goTo=${getCurrentRoute().path}`)
       }
     } finally {
-      eventbroadcaster.$broadcast('loaded', 'auth');
+      TOOLCASE.SERVICES.eventbroadcaster.$broadcast('loaded', 'auth');
     }
   },
 
-  logout($component) {
-    $component.$emit('load', 'logout');
+  logout() {
+    TOOLCASE.SERVICES.eventbroadcaster.$broadcast('load', 'logout');
 
-    var url = '/api/iam/auth/v1/logout';
+    var url = ENDPOINTS.AUTH.LOGOUT;
 
     if (localStorage.getItem('authtoken'))
       url += '?token=' + localStorage.getItem('authtoken');
 
-    return http.delete(url)
+    return TOOLCASE.SERVICES.http.delete(url)
       .then(function () {
-        $component.$emit('loaded', 'logout');
+        TOOLCASE.SERVICES.eventbroadcaster.$broadcast('loaded', 'logout');
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');

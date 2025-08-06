@@ -1,11 +1,10 @@
 <template>
-  <Page Title="Gerenciar Usuários" :Breadcrumb="breadcrumb">
-    <Card Title="Usuários Cadastrados" Icon="fas fa-user-cog">
+  <La1Page Title="Gerenciar Usuários" :Breadcrumb="breadcrumb">
+    <La1Card Title="Usuários Cadastrados" Icon="fas fa-user-cog">
       <template #actions>
         <div class="row justify-end">
           <div v-if="permissions.create" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-plus" color="green" label="Adicionar"
-              to="/iam/users/new">
+            <q-btn class="full-width" icon="fas fa-plus" color="green" label="Adicionar" to="/iam/users/new">
               <q-tooltip>Adicionar novo usuário</q-tooltip>
             </q-btn>
           </div>
@@ -24,14 +23,11 @@
         </template>
       </DataTable>
 
-    </Card>
-  </Page>
+    </La1Card>
+  </La1Page>
 </template>
 
 <script>
-// Services:
-import {auth, permissions} from '../../services.js'
-
 export default {
   name: 'pages-iam-user-list',
 
@@ -39,9 +35,9 @@ export default {
     return {
       // Permissions:
       permissions: {
-        create: permissions.validatePermissions({ 'IAM_USER': 'C' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' }),
-        update: permissions.validatePermissions({ 'IAM_USER': 'U' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
-        delete: permissions.validatePermissions({ 'IAM_USER': 'D' }) && permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
+        create: this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'C' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' }),
+        update: this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'U' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
+        delete: this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'D' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
       },
 
       //  Datatable:
@@ -88,16 +84,16 @@ export default {
       this.$emit('load', 'users-remove');
 
       var key = row.ds_key;
-      this.$http.delete(`/api/iam/users/v1/user/${key}`)
+      this.$toolcase.services.http.delete(`/api/iam/users/v1/user/${key}`)
         .then(() => {
-          this.$utils.notify({
+          this.$toolcase.services.utils.notify({
             message: 'O usuário foi excluído com sucesso',
             type: 'positive',
             position: 'top-right'
           })
         })
         .catch((error) => {
-          this.$utils.notifyError(error);
+          this.$toolcase.services.utils.notifyError(error);
           console.error("An error occurred on the attempt to delete users.", error);
         })
         .finally(() => {
@@ -108,8 +104,8 @@ export default {
   },
 
   mounted() {
-    auth.authenticate(this);
-    if (!permissions.validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
+    this.$iam.services.auth.authenticate(this);
+    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
   }
 }
 
