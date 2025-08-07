@@ -3,6 +3,8 @@
 // Enpoints:
 import ENDPOINTS from './src/ENDPOINTS.js'
 
+export const NAME = 'iam'
+
 function mapServices() {
   const services = import.meta.globEager('./src/services/**/*.js');
 
@@ -10,9 +12,11 @@ function mapServices() {
   for (const path in services) {
     const mod = services[path];
     // Extract the service name from the file path
-    const serviceName = path.split('/').pop().replace(/\.\w+$/, '');
-    servicesMap[serviceName] = mod.default;
+    const parts = path.split('/');
+    const serviceName = parts.pop().replace(/\.\w+$/, '');
+    servicesMap[`${parts.join('.')}.${serviceName}`] = mod.default;
   }
+
   return servicesMap;
 }
 
@@ -59,34 +63,10 @@ function mapLayouts() {
   return layoutsMap;
 }
 
-function registerComponents(app) {
-  const components = mapComponents();
-
-  for (const componentName in components) {
-    app.component(componentName, components[componentName]);
-  }
-}
-
-export const IAM = {
+export default {
   ENDPOINTS,
   SERVICES: mapServices(),
   COMPONENTS: mapComponents(),
   PAGES: mapPages(),
   LAYOUTS: mapLayouts(),
-  autoWire(app) {
-    // 1) sync register all components
-    registerComponents(app)
-
-    // 2) bootstrap `$iam` scope
-    app.config.globalProperties.$iam = {
-      ENDPOINTS: ENDPOINTS,
-      services: mapServices(),
-      pages: mapPages(),
-      layouts: mapLayouts(),
-    }
-  }
-}
-
-export function autoWire(app) {
-  IAM.autoWire(app);
 }
