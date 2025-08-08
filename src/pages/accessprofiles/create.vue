@@ -33,6 +33,8 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS';
+
 export default {
   name: 'pages-iam-accessprofile-create',
 
@@ -75,9 +77,9 @@ export default {
       if (!this.validateForm()) return false;
 
       this.$emit('load', 'save-accessprofile');
-      return this.$getService('toolcase/http').post('/api/iam/accessprofiles/v1/accessprofile', this.input)
+      return this.$getService('toolcase/http').post(ENDPOINTS.PROFILES.PROFILE, this.input)
         .then((response) => {
-          this.$router.push(`/iam/access-profiles/edit/${response.data.ds_key}`);
+          this.$router.push(`/iam/accessprofiles/edit/${response.data.ds_key}`);
           this.$getService('toolcase/utils').notify({
             message: "O novo perfil de acesso foi criado com sucesso.",
             type: 'positive',
@@ -94,8 +96,8 @@ export default {
     },
   },
 
-  mounted() {
-    this.$getService('iam/auth').authenticate(this);
+  async mounted() {
+    await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
   },
 
@@ -103,7 +105,7 @@ export default {
     breadcrumb() {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/access-profiles" },
+        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles" },
         { label: 'Adicionar', icon: 'fas fa-plus' },
       ]
     }

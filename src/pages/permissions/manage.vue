@@ -157,8 +157,10 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS'
+
 export const __PAGE_CONFIG = {
-  route: '/iam/permissions',
+  route: 'iam/permissions',
 }
 
 export default {
@@ -202,7 +204,7 @@ export default {
   methods: {
     async listProfiles() {
       this.$emit('load', 'list-acessprofiles');
-      var response = await this.$getService('toolcase/http').get('/api/iam/accessprofiles/v1/accessprofile?do_active=Y')
+      var response = await this.$getService('toolcase/http').get(ENDPOINTS.PROFILES.PROFILE)
         .catch((error) => {
           this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
@@ -221,7 +223,7 @@ export default {
 
     async listSystemModules() {
       this.$emit('load', 'list-system-modules');
-      var response = await this.$getService('toolcase/http').get('/api/iam/applicationmodules/v1/module')
+      var response = await this.$getService('toolcase/http').get('/modcontrol/v1/module')
         .catch((error) => {
           this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
@@ -260,12 +262,13 @@ export default {
       this.customPermissions = {};
 
       if (!!this.profileId) {
-        var response = await this.$getService('toolcase/http').get(`/api/iam/accessprofiles/v1/permission/${this.profileId}`).catch(function (response) {
-          console.error("An error has occurred on the attempt to get profile's permissions.", response);
-          this.$getService('toolcase/utils').notifyError(response);
-        });
-
-        this.permissions = response.data;
+        try {
+          const response = await this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.PERMISSION}/${this.profileId}`)
+          this.permissions = response.data;
+        } catch (err) {
+          console.error("An error has occurred on the attempt to get profile's permissions.", err);
+          this.$getService('toolcase/utils').notifyError(err);
+        }
       }
 
       this.$emit('loaded', 'get-permissions');
@@ -275,7 +278,7 @@ export default {
       if (this.$getService('toolcase/utils').validateForm(this.input, this.inputError) == false) return;
 
       this.$emit('load', 'create-execpermission');
-      await this.$getService('toolcase/http').post('/api/iam/accessprofiles/v1/permission', this.input)
+      await this.$getService('toolcase/http').post(ENDPOINTS.PROFILES.PERMISSION, this.input)
         .catch((error) => {
           console.error(error);
           this.$getService('toolcase/utils').notifyError(error);
@@ -316,7 +319,7 @@ export default {
       if (this.$getService('toolcase/utils').objectSize(input) < 1) return;
 
       this.$emit('load', 'save-permissions');
-      await this.$getService('toolcase/http').put(`/api/iam/accessprofiles/v1/permission/${this.profileId}`, input)
+      await this.$getService('toolcase/http').put(`${ENDPOINTS.PROFILES.PERMISSION}/${this.profileId}`, input)
         .then(() => {
           return this.$getService('iam/permissions').getUserPermissions();
         })
@@ -337,7 +340,7 @@ export default {
   },
 
   async mounted() {
-    await auth.authenticate(this);
+    await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||

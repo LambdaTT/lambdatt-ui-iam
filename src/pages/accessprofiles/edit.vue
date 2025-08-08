@@ -45,6 +45,12 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS';
+
+export const __PAGE_CONFIG = {
+  params: ['key']
+}
+
 export default {
   name: 'pages-iam-accessprofile-create',
 
@@ -72,7 +78,7 @@ export default {
     breadcrumb() {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/access-profiles" },
+        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles" },
         { label: 'Editar' },
       ]
     }
@@ -84,13 +90,13 @@ export default {
       // Add:
       if (this.selectedModules.length > this.selectedModulesControl.length) {
         this.selectedModulesControl.push(modKey);
-        await this.$getService('toolcase/http').post(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
+        await this.$getService('toolcase/http').post(`${ENDPOINTS.PROFILES.MODULE}/${this.$route.params.key}/${modKey}`);
       }
       // Remove:
       else if (this.selectedModules.length < this.selectedModulesControl.length) {
         let idx = this.selectedModulesControl.indexOf(modKey);
         this.selectedModulesControl.splice(idx, 1);
-        await this.$getService('toolcase/http').delete(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}/${modKey}`);
+        await this.$getService('toolcase/http').delete(`${ENDPOINTS.PROFILES.MODULE}/${this.$route.params.key}/${modKey}`);
       } else return;
 
       await this.$getService('iam/permissions').getUserPermissions();
@@ -128,9 +134,9 @@ export default {
       if (!this.validateForm()) return false;
 
       this.$emit('load', 'save-accessprofile');
-      return this.$getService('toolcase/http').put(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`, this.input)
+      return this.$getService('toolcase/http').put(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`, this.input)
         .then(() => {
-          this.$router.push('/iam/access-profiles');
+          this.$router.push('/iam/accessprofiles');
           this.$getService('toolcase/utils').notify({
             message: "Os dados do perfil de acesso foram salvos com sucesso.",
             type: 'positive',
@@ -151,14 +157,14 @@ export default {
 
       this.$emit('load', 'accessprofile-remove');
 
-      this.$getService('toolcase/http').delete(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+      this.$getService('toolcase/http').delete(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`)
         .then(() => {
           this.$getService('toolcase/utils').notify({
             message: 'O perfil foi excluído com sucesso',
             type: 'positive',
             position: 'top-right'
           })
-          this.$router.push('/iam/access-profiles');
+          this.$router.push('/iam/accessprofiles');
         })
         .catch((error) => {
           this.$getService('toolcase/utils').notifyError(error);
@@ -170,7 +176,7 @@ export default {
     },
 
     getModules() {
-      return this.$getService('toolcase/http').get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
+      return this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.MODULE}/${this.$route.params.key}`)
         .then((response) => {
           this.modules = [];
           this.selectedModules = [];
@@ -193,7 +199,7 @@ export default {
     getProfileData() {
       // Get Access profile data:
       this.$emit('load', 'profile-data');
-      this.$getService('toolcase/http').get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+      this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.input) {
             if (k in response.data)
@@ -208,7 +214,7 @@ export default {
               type: 'negative',
               position: 'top-right'
             })
-            this.$router.push('/iam/access-profiles');
+            this.$router.push('/iam/accessprofiles');
             return;
           }
           this.$getService('toolcase/utils').notifyError(error);
@@ -222,7 +228,7 @@ export default {
   },
 
   async mounted() {
-    await auth.authenticate(this);
+    await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
 

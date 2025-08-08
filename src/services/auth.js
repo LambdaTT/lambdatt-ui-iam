@@ -1,10 +1,9 @@
 import $sys from 'src/lambdatt.js';
 import ENDPOINTS from '../ENDPOINTS';
-// import { getCurrentRoute, getRouter } from 'src/boot/global-helpers';
+
+var loggedUser = null;
 
 export default {
-  loggedUser: null,
-
   async authenticate() {
     if (navigator.onLine === false) return;
 
@@ -12,7 +11,7 @@ export default {
 
     try {
       const response = await $sys.getService('toolcase/http').get(ENDPOINTS.AUTH.LOGGED_USER)
-      this.loggedUser = response.data;
+      loggedUser = response.data;
     } catch (error) {
       console.error(error);
       if (error.response?.status == 401) {
@@ -30,7 +29,7 @@ export default {
   logout() {
     $sys.getService('toolcase/eventbroadcaster').$broadcast('load', 'logout');
 
-    var url = $sys.getModule('iam').ENDPOINTS.AUTH.LOGOUT;
+    var url = ENDPOINTS.AUTH.LOGOUT;
 
     if (localStorage.getItem('authtoken'))
       url += '?token=' + localStorage.getItem('authtoken');
@@ -44,5 +43,9 @@ export default {
         localStorage.removeItem('regularPermissions');
         localStorage.removeItem('customPermissions');
       });
+  },
+
+  getLoggedUser() {
+    return loggedUser;
   }
 }

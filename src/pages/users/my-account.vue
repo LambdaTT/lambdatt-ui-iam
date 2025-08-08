@@ -22,6 +22,12 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS'
+
+export const __PAGE_CONFIG = {
+  route: 'iam/my-account'
+};
+
 export default {
   name: 'pages-iam-users-myaccount',
 
@@ -55,7 +61,7 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$getService('toolcase/http').put(`/api/iam/users/v1/my-account`, data)
+      return this.$getService('toolcase/http').put(ENDPOINTS.USERS.MY_ACCOUNT, data)
         .then(() => {
           this.$getService('toolcase/utils').notify({
             message: "Seus dados foram salvos com sucesso.",
@@ -74,7 +80,7 @@ export default {
 
     getData() {
       this.$emit('load', 'users-data');
-      return this.$getService('toolcase/http').get(`/api/iam/users/v1/my-account`)
+      return this.$getService('toolcase/http').get(ENDPOINTS.USERS.MY_ACCOUNT)
         .then((response) => {
           this.User.read(response.data)
         })
@@ -89,7 +95,7 @@ export default {
   },
 
   async mounted() {
-    await this.$getService('iam/auth').authenticate(this);
+    await this.$getService('iam/auth').authenticate();
     this.getData();
   },
 }

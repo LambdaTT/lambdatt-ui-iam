@@ -63,6 +63,12 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS';
+
+export const __PAGE_CONFIG = {
+  route: 'iam/resetpass/:token',
+};
+
 export default {
   name: 'pages-iam-user-resetpass',
 
@@ -128,7 +134,7 @@ export default {
       }
 
       try {
-        await this.$getService('toolcase/http').put(`/api/iam/users/v1/change-pass/${this.token}`, payload)
+        await this.$getService('toolcase/http').put(`${ENDPOINTS.USERS.RESET_PASS.CHANGE}/${this.token}`, payload)
         this.done = true;
       } catch (error) {
         this.error = true;
@@ -139,7 +145,7 @@ export default {
 
     async validateToken() {
       try {
-        await this.$getService('toolcase/http').get(`/api/iam/auth/v1/validate-token/${this.token}`)
+        await this.$getService('toolcase/http').get(`${ENDPOINTS.AUTH.VALIDATE_TOKEN}/${this.token}`)
       } catch (error) {
         this.error = true;
         if (error.response.status != 401) {

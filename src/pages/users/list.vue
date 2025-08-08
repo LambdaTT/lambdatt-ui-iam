@@ -4,14 +4,14 @@
       <template #actions>
         <div class="row justify-end">
           <div v-if="permissions.create" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-plus" color="green" label="Adicionar" to="/iam/users/new">
+            <q-btn class="full-width" icon="fas fa-plus" color="green" label="Adicionar" to="/iam/users/create">
               <q-tooltip>Adicionar novo usuário</q-tooltip>
             </q-btn>
           </div>
         </div>
       </template>
 
-      <DataTable Name="user-list" DataURL="/api/iam/users/v1/user" v-model="Datatable" :Columns="columns"
+      <DataTable Name="user-list" :DataURL="ENDPOINTS.USERS.USER" v-model="Datatable" :Columns="columns"
         :RowActions="rowActions">
         <template #cell-avatar="row">
           <div class="q-pa-sm text-center">
@@ -28,8 +28,10 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS'
+
 export const __PAGE_CONFIG = {
-  route: '/iam/users',
+  route: 'iam/users',
 }
 
 export default {
@@ -46,6 +48,8 @@ export default {
 
       //  Datatable:
       Datatable: {},
+
+      ENDPOINTS
     }
   },
 
@@ -74,7 +78,7 @@ export default {
 
     rowActions() {
       return [
-        { icon: 'fas fa-eye', label: 'Visualizar', tooltip: 'Ver Detalhes', fn: (row) => { this.$router.push(`/iam/users/view/${row.ds_key}`) } },
+        { icon: 'fas fa-eye', label: 'Visualizar', tooltip: 'Ver Detalhes', fn: (row) => { this.$router.push(`/iam/users/details/${row.ds_key}`) } },
         { icon: 'fas fa-edit', label: 'Editar', tooltip: 'Editar Informações', hide: !this.permissions.update, fn: (row) => { this.$router.push(`/iam/users/edit/${row.ds_key}`) } },
         { icon: 'fas fa-trash-alt', label: 'Excluir', tooltip: 'Excluir Registro', hide: !this.permissions.delete, fn: this.remove },
       ]
@@ -88,7 +92,7 @@ export default {
       this.$emit('load', 'users-remove');
 
       var key = row.ds_key;
-      this.$getService('toolcase/http').delete(`/api/iam/users/v1/user/${key}`)
+      this.$getService('toolcase/http').delete(`${ENDPOINTS.USERS.USER}/${key}`)
         .then(() => {
           this.$getService('toolcase/utils').notify({
             message: 'O usuário foi excluído com sucesso',
@@ -108,7 +112,7 @@ export default {
   },
 
   mounted() {
-    this.$getService('iam/auth').authenticate(this);
+    this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
   }
 }

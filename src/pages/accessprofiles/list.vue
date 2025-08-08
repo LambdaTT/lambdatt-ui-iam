@@ -5,15 +5,15 @@
         <div class="row justify-end">
           <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
             <q-btn v-if="permissions.create" class="full-width" icon="fas fa-plus" color="green" label="Adicionar"
-              to="/iam/access-profiles/new">
+              to="/iam/accessprofiles/create">
               <q-tooltip>Adicionar novo perfil de acesso</q-tooltip>
             </q-btn>
           </div>
         </div>
       </template>
 
-      <DataTable Name="accessprofile-list" DataURL="/api/iam/accessprofiles/v1/accessprofile" v-model="Datatable"
-        :Columns="columns" :RowActions="rowActions">
+      <DataTable Name="accessprofile-list" :DataURL="ENDPOINTS.PROFILES.PROFILE" v-model="Datatable" :Columns="columns"
+        :RowActions="rowActions">
       </DataTable>
 
     </La1Card>
@@ -21,6 +21,12 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS';
+
+export const __PAGE_CONFIG = {
+  route: 'iam/accessprofiles'
+}
+
 export default {
   name: 'pages-iam-accessprofile-list',
 
@@ -35,6 +41,8 @@ export default {
 
       // Datatable:
       Datatable: {},
+
+      ENDPOINTS: ENDPOINTS,
     }
   },
 
@@ -55,8 +63,8 @@ export default {
 
     rowActions() {
       return [
-        { icon: 'fas fa-eye', label: 'Visualizar', tooltip: 'Ver Detalhes', fn: (row) => { this.$router.push(`/iam/access-profiles/view/${row.ds_key}`) } },
-        { icon: 'fas fa-edit', label: 'Editar', tooltip: 'Editar Informações', hide: !this.permissions.update, fn: (row) => { this.$router.push(`/iam/access-profiles/edit/${row.ds_key}`) } },
+        { icon: 'fas fa-eye', label: 'Visualizar', tooltip: 'Ver Detalhes', fn: (row) => { this.$router.push(`/iam/accessprofiles/details/${row.ds_key}`) } },
+        { icon: 'fas fa-edit', label: 'Editar', tooltip: 'Editar Informações', hide: !this.permissions.update, fn: (row) => { this.$router.push(`/iam/accessprofiles/edit/${row.ds_key}`) } },
         { icon: 'fas fa-trash-alt', label: 'Excluir', tooltip: 'Excluir Perfil de Acesso', hide: !this.permissions.delete, fn: this.remove },
       ]
     }
@@ -69,7 +77,7 @@ export default {
       this.$emit('load', 'accessprofile-remove');
 
       var key = row.ds_key;
-      this.$getService('toolcase/http').delete(`/api/iam/accessprofiles/v1/accessprofile/${key}`)
+      this.$getService('toolcase/http').delete(`${ENDPOINTS.PROFILES.PROFILE}/${key}`)
         .then(() => {
           this.$getService('toolcase/utils').notify({
             message: 'O perfil foi excluído com sucesso',
@@ -90,7 +98,7 @@ export default {
   },
 
   mounted() {
-    auth.authenticate(this);
+    this.$getService('iam/auth').authenticate(this);
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' })) this.$router.push('/forbidden');
   }
 }

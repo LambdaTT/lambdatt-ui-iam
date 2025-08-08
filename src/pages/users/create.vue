@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS'
+
 export default {
   name: 'pages-iam-users-create',
 
@@ -87,7 +89,7 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$getService('toolcase/http').post('/api/iam/users/v1/user', data)
+      return this.$getService('toolcase/http').post(ENDPOINTS.USERS.USER, data)
         .then((response) => {
           this.$router.push(`/iam/users/edit/${response.data.ds_key}`);
           this.$getService('toolcase/utils').notify({
@@ -107,7 +109,7 @@ export default {
 
     listProfiles() {
       // Retrieve Access Profiles list:
-      return this.$getService('toolcase/http').get('/api/iam/accessprofiles/v1/accessprofile')
+      return this.$getService('toolcase/http').get(ENDPOINTS.PROFILES.PROFILE)
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,
@@ -123,7 +125,7 @@ export default {
 
   async mounted() {
     this.$emit('load', 'data');
-    await this.$getService('iam/auth').authenticate(this);
+    await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');

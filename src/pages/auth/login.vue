@@ -82,6 +82,10 @@
 import { useQuasar } from 'quasar'
 import ENDPOINTS from '../../ENDPOINTS';
 
+export const __PAGE_CONFIG = {
+  route: false
+}
+
 export default {
   name: 'pages-iam-auth-login',
   data() {

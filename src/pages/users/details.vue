@@ -29,6 +29,8 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS'
+
 export const __PAGE_CONFIG = {
   params: ['key']
 };
@@ -64,7 +66,7 @@ export default {
   methods: {
     getData() {
       this.$emit('load', 'users-data');
-      return this.$getService('toolcase/http').get(`/api/iam/users/v1/user/${this.$route.params.key}`)
+      return this.$getService('toolcase/http').get(`${ENDPOINTS.USERS.USER}/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.inputUser)
             if (k in response.data)
@@ -79,7 +81,7 @@ export default {
               type: 'negative',
               position: 'top-right'
             })
-            this.$router.push('/iam/users/list');
+            this.$router.push('/iam/users');
             return;
           }
 
@@ -93,7 +95,7 @@ export default {
 
     listProfiles() {
       this.$emit('load', 'profiles-list');
-      this.$getService('toolcase/http').get('/api/iam/accessprofiles/v1/accessprofile')
+      this.$getService('toolcase/http').get(ENDPOINTS.PROFILES.PROFILE)
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,
@@ -111,7 +113,7 @@ export default {
   },
 
   async mounted() {
-    await this.$getService('iam/auth').authenticate(this);
+    await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');

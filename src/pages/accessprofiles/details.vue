@@ -43,6 +43,12 @@
 </template>
 
 <script>
+import ENDPOINTS from '../../ENDPOINTS';
+
+export const __PAGE_CONFIG = {
+  params: ['key']
+}
+
 export default {
   name: 'pages-iam-accessprofile-create',
 
@@ -58,7 +64,7 @@ export default {
     breadcrumb() {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/access-profiles" },
+        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles" },
         { label: 'Ver Detalhes' },
       ]
     }
@@ -66,7 +72,7 @@ export default {
 
   methods: {
     getModules() {
-      return this.$getService('toolcase/http').get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
+      return this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.MODULE}/${this.$route.params.key}`)
         .then((response) => {
           this.modules = [];
           this.selectedModules = [];
@@ -86,7 +92,7 @@ export default {
     getProfileData() {
       // Get Access profile data:
       this.$emit('load', 'profile-data');
-      this.$getService('toolcase/http').get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+      this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`)
         .then((response) => {
           this.userData = response.data;
         })
@@ -98,7 +104,7 @@ export default {
               type: 'negative',
               position: 'top-right'
             })
-            this.$router.push('/iam/access-profiles');
+            this.$router.push('/iam/accessprofiles');
             return;
           }
           this.$getService('toolcase/utils').notifyError(error);
