@@ -41,8 +41,8 @@ export default {
     return {
       // Permissions:
       permissions: {
-        update: this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'U' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
-        delete: this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'D' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
+        update: this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'U' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
+        delete: this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'D' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
       },
 
       // User component:
@@ -73,7 +73,7 @@ export default {
   methods: {
     validateForm() {
       if (this.inputUser.selected_profiles.length < 1) {
-        this.$toolcase.services.utils.notify({
+        this.$getService('toolcase/utils').notify({
           message: "Selecione ao menos 1 perfil de acesso.",
           type: "negative",
           position: 'top-right'
@@ -101,17 +101,17 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$toolcase.services.http.put(`/api/iam/users/v1/user/${this.$route.params.key}`, data)
+      return this.$getService('toolcase/http').put(`/api/iam/users/v1/user/${this.$route.params.key}`, data)
         .then(() => {
           this.$router.push('/iam/users');
-          this.$toolcase.services.utils.notify({
+          this.$getService('toolcase/utils').notify({
             message: "Os dados do usuário foram salvos com sucesso.",
             type: 'positive',
             position: 'top-right'
           });
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -124,9 +124,9 @@ export default {
 
       this.$emit('load', 'user-remove');
 
-      this.$toolcase.services.http.delete(`/api/iam/users/v1/user/${this.$route.params.key}`)
+      this.$getService('toolcase/http').delete(`/api/iam/users/v1/user/${this.$route.params.key}`)
         .then(() => {
-          this.$toolcase.services.utils.notify({
+          this.$getService('toolcase/utils').notify({
             message: 'O usuário foi excluído com sucesso',
             type: 'positive',
             position: 'top-right'
@@ -134,7 +134,7 @@ export default {
           this.$router.push('/iam/users');
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -144,7 +144,7 @@ export default {
 
     getData() {
       this.$emit('load', 'users-data');
-      return this.$toolcase.services.http.get(`/api/iam/users/v1/user/${this.$route.params.key}`)
+      return this.$getService('toolcase/http').get(`/api/iam/users/v1/user/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.inputUser)
             if (k in response.data)
@@ -153,7 +153,7 @@ export default {
         })
         .catch((error) => {
           if (error.response.status == 404) {
-            this.$toolcase.services.utils.notify({
+            this.$getService('toolcase/utils').notify({
               message: 'Usuário não encontrado.',
               type: 'negative',
               position: 'top-right'
@@ -162,7 +162,7 @@ export default {
             return;
           }
 
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -172,7 +172,7 @@ export default {
 
     listProfiles() {
       this.$emit('load', 'profiles-list');
-      this.$toolcase.services.http.get('/api/iam/accessprofiles/v1/accessprofile')
+      this.$getService('toolcase/http').get('/api/iam/accessprofiles/v1/accessprofile')
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,
@@ -180,7 +180,7 @@ export default {
           }));
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -190,10 +190,10 @@ export default {
   },
 
   async mounted() {
-    await this.$iam.services.auth.authenticate(this);
-    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
+    await this.$getService('iam/auth').authenticate(this);
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'R' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
 
     this.getData()
     this.listProfiles()

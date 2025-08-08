@@ -66,7 +66,7 @@ export default {
 
   methods: {
     getModules() {
-      return this.$toolcase.services.http.get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
+      return this.$getService('toolcase/http').get(`/api/iam/accessprofiles/v1/module/${this.$route.params.key}`)
         .then((response) => {
           this.modules = [];
           this.selectedModules = [];
@@ -86,14 +86,14 @@ export default {
     getProfileData() {
       // Get Access profile data:
       this.$emit('load', 'profile-data');
-      this.$toolcase.services.http.get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
+      this.$getService('toolcase/http').get(`/api/iam/accessprofiles/v1/accessprofile/${this.$route.params.key}`)
         .then((response) => {
           this.userData = response.data;
         })
         .then(() => this.getModules())
         .catch((error) => {
           if (error.response.status == 404) {
-            this.$toolcase.services.utils.notify({
+            this.$getService('toolcase/utils').notify({
               message: 'Perfil de acesso não encontrado.',
               type: 'negative',
               position: 'top-right'
@@ -101,7 +101,7 @@ export default {
             this.$router.push('/iam/access-profiles');
             return;
           }
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -111,9 +111,9 @@ export default {
   },
 
   async mounted() {
-    await this.$iam.services.auth.authenticate(this);
-    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
+    await this.$getService('iam/auth').authenticate(this);
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
 
     this.getProfileData();
   },

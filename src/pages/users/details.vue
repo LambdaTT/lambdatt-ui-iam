@@ -29,6 +29,10 @@
 </template>
 
 <script>
+export const __PAGE_CONFIG = {
+  params: ['key']
+};
+
 export default {
   name: 'pages-iam-user-view',
 
@@ -60,7 +64,7 @@ export default {
   methods: {
     getData() {
       this.$emit('load', 'users-data');
-      return this.$toolcase.services.http.get(`/api/iam/users/v1/user/${this.$route.params.key}`)
+      return this.$getService('toolcase/http').get(`/api/iam/users/v1/user/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.inputUser)
             if (k in response.data)
@@ -70,16 +74,16 @@ export default {
         })
         .catch((error) => {
           if (error.response.status == 404) {
-            this.$toolcase.services.utils.notify({
+            this.$getService('toolcase/utils').notify({
               message: 'Usuário não encontrado.',
               type: 'negative',
               position: 'top-right'
             })
-            this.$router.push('/iam/users');
+            this.$router.push('/iam/users/list');
             return;
           }
 
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -89,7 +93,7 @@ export default {
 
     listProfiles() {
       this.$emit('load', 'profiles-list');
-      this.$toolcase.services.http.get('/api/iam/accessprofiles/v1/accessprofile')
+      this.$getService('toolcase/http').get('/api/iam/accessprofiles/v1/accessprofile')
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,
@@ -97,7 +101,7 @@ export default {
           }));
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -107,10 +111,10 @@ export default {
   },
 
   async mounted() {
-    await this.$iam.services.auth.authenticate(this);
-    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'R' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
+    await this.$getService('iam/auth').authenticate(this);
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'R' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) this.$router.push('/forbidden');
 
     this.getData()
     this.listProfiles()

@@ -55,16 +55,16 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$toolcase.services.http.put(`/api/iam/users/v1/my-account`, data)
+      return this.$getService('toolcase/http').put(`/api/iam/users/v1/my-account`, data)
         .then(() => {
-          this.$toolcase.services.utils.notify({
+          this.$getService('toolcase/utils').notify({
             message: "Seus dados foram salvos com sucesso.",
             type: 'positive',
             position: 'top-right'
           });
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -74,12 +74,12 @@ export default {
 
     getData() {
       this.$emit('load', 'users-data');
-      return this.$toolcase.services.http.get(`/api/iam/users/v1/my-account`)
+      return this.$getService('toolcase/http').get(`/api/iam/users/v1/my-account`)
         .then((response) => {
           this.User.read(response.data)
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
@@ -89,7 +89,7 @@ export default {
   },
 
   async mounted() {
-    await this.$iam.services.auth.authenticate(this);
+    await this.$getService('iam/auth').authenticate(this);
     this.getData();
   },
 }

@@ -14,7 +14,8 @@ function mapServices() {
     // Extract the service name from the file path
     const parts = path.split('/');
     const serviceName = parts.pop().replace(/\.\w+$/, '');
-    servicesMap[`${parts.join('.')}.${serviceName}`] = mod.default;
+    const serviceUri = [...parts.slice(3), serviceName].join('.');
+    servicesMap[serviceUri] = mod.default;
   }
 
   return servicesMap;
@@ -38,13 +39,21 @@ function mapPages() {
 
   const pagesMap = {};
   for (const path in pages) {
-    console.log("PATH", path);
     const mod = pages[path];
+    const configs = mod.__PAGE_CONFIG ?? {};
+    const extras = configs.extras ?? {};
+    const params = configs.params ?? [];
+
     // Extract the page name from the file path
-    const pageName = path.split('/').pop().replace(/\.\w+$/, '');
-    pagesMap[pageName] = {
-      path: '/iam/',
-      component: mod.default
+    const parts = path.split('/');
+    const pageName = parts.pop().replace(/\.\w+$/, '').toLowerCase();
+    const pageUrl = `${NAME}/${[...parts.slice(3), pageName].join('/')}`;
+    const pageRoute = configs.route ?? `${pageUrl}${params.length > 0 ? `/:${params.join('/:')}` : ''}`
+
+    pagesMap[pageUrl] = {
+      path: pageRoute,
+      component: mod.default,
+      extras
     };
   }
   return pagesMap;

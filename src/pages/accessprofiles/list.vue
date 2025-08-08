@@ -28,9 +28,9 @@ export default {
     return {
       // Permissions:
       permissions: {
-        create: this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'C' }),
-        update: this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
-        delete: this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
+        create: this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'C' }),
+        update: this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
+        delete: this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
       },
 
       // Datatable:
@@ -69,16 +69,16 @@ export default {
       this.$emit('load', 'accessprofile-remove');
 
       var key = row.ds_key;
-      this.$toolcase.services.http.delete(`/api/iam/accessprofiles/v1/accessprofile/${key}`)
+      this.$getService('toolcase/http').delete(`/api/iam/accessprofiles/v1/accessprofile/${key}`)
         .then(() => {
-          this.$toolcase.services.utils.notify({
+          this.$getService('toolcase/utils').notify({
             message: 'O perfil foi excluído com sucesso',
             type: 'positive',
             position: 'top-right'
           })
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error("An error occurred on the attempt to delete accessprofile.", error);
         })
         .finally(() => {
@@ -91,7 +91,7 @@ export default {
 
   mounted() {
     auth.authenticate(this);
-    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' })) this.$router.push('/forbidden');
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' })) this.$router.push('/forbidden');
   }
 }
 

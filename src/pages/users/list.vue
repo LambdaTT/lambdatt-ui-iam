@@ -28,6 +28,10 @@
 </template>
 
 <script>
+export const __PAGE_CONFIG = {
+  route: '/iam/users',
+}
+
 export default {
   name: 'pages-iam-user-list',
 
@@ -35,9 +39,9 @@ export default {
     return {
       // Permissions:
       permissions: {
-        create: this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'C' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' }),
-        update: this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'U' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
-        delete: this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'D' }) && this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
+        create: this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' }),
+        update: this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'U' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
+        delete: this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'D' }) && this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
       },
 
       //  Datatable:
@@ -84,16 +88,16 @@ export default {
       this.$emit('load', 'users-remove');
 
       var key = row.ds_key;
-      this.$toolcase.services.http.delete(`/api/iam/users/v1/user/${key}`)
+      this.$getService('toolcase/http').delete(`/api/iam/users/v1/user/${key}`)
         .then(() => {
-          this.$toolcase.services.utils.notify({
+          this.$getService('toolcase/utils').notify({
             message: 'O usuário foi excluído com sucesso',
             type: 'positive',
             position: 'top-right'
           })
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error("An error occurred on the attempt to delete users.", error);
         })
         .finally(() => {
@@ -104,8 +108,8 @@ export default {
   },
 
   mounted() {
-    this.$iam.services.auth.authenticate(this);
-    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
+    this.$getService('iam/auth').authenticate(this);
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
   }
 }
 

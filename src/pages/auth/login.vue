@@ -119,7 +119,7 @@ export default {
       }
 
       if (isInvalid) {
-        this.$toolcase.services.utils.notify({
+        this.$getService('toolcase/utils').notify({
           message: "Preencha o formulário corretamente",
           type: "negative",
           position: 'top-right'
@@ -137,13 +137,13 @@ export default {
       this.$q.loading.show();
 
       try {
-        const loginResponse = await this.$toolcase.services.http.post(ENDPOINTS.AUTH.LOGIN, this.input)
+        const loginResponse = await this.$getService('toolcase/http').post(ENDPOINTS.AUTH.LOGIN, this.input)
 
         localStorage.setItem('iam_session_key', loginResponse.data.ds_key);
         localStorage.setItem('xsrf_token', loginResponse.data.xsrfToken);
 
         if (this.rememberMe) {
-          const tknResponse = await this.$toolcase.services.http.get(ENDPOINTS.AUTH.RENEW_TOKEN)
+          const tknResponse = await this.$getService('toolcase/http').get(ENDPOINTS.AUTH.RENEW_TOKEN)
           localStorage.setItem('authtoken', tknResponse.data.ds_hash);
         }
 
@@ -155,9 +155,9 @@ export default {
         }, 100);
       } catch (error) {
         console.error(error);
-        this.$toolcase.services.utils.notifyError(error);
+        this.$getService('toolcase/utils').notifyError(error);
 
-        await this.$toolcase.services.http.delete(ENDPOINTS.AUTH.LOGOUT)
+        await this.$getService('toolcase/http').delete(ENDPOINTS.AUTH.LOGOUT)
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
@@ -172,12 +172,12 @@ export default {
       this.$q.loading.show();
 
       try {
-        const response = await this.$toolcase.services.http.post(`${ENDPOINTS.AUTH.LOGIN_TOKEN}/${localStorage.getItem('authtoken')}`)
+        const response = await this.$getService('toolcase/http').post(`${ENDPOINTS.AUTH.LOGIN_TOKEN}/${localStorage.getItem('authtoken')}`)
 
         localStorage.setItem('iam_session_key', response.data.ds_key, cookieOptions);
         localStorage.setItem('xsrf_token', response.data.xsrfToken);
 
-        const tknResponse = await this.$toolcase.services.http.get(ENDPOINTS.AUTH.RENEW_TOKEN);
+        const tknResponse = await this.$getService('toolcase/http').get(ENDPOINTS.AUTH.RENEW_TOKEN);
         localStorage.setItem('authtoken', tknResponse.data.ds_hash);
 
         // Set renewed token
@@ -188,11 +188,11 @@ export default {
 
       } catch (error) {
         if (error.response.status != 401) {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error("An error has occurred on the attempt to perform automatic login.", error);
         }
 
-        await this.$toolcase.services.http.delete(ENDPOINTS.AUTH.LOGOUT)
+        await this.$getService('toolcase/http').delete(ENDPOINTS.AUTH.LOGOUT)
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
@@ -212,14 +212,14 @@ export default {
       this.$q.loading.show();
 
       try {
-        this.$toolcase.services.http.post(ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET, { ds_email: this.recoveryEmail })
-        this.$toolcase.services.utils.notify({
+        this.$getService('toolcase/http').post(ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET, { ds_email: this.recoveryEmail })
+        this.$getService('toolcase/utils').notify({
           message: 'Um e-mail, contendo instruções de recuperação foi enviado ao endereço fornecido.',
           type: 'positive',
           position: 'top-right'
         })
       } catch (error) {
-        this.$toolcase.services.utils.notifyError(error);
+        this.$getService('toolcase/utils').notifyError(error);
         console.error("An error has occurred on the attempt to recovery password.", error);
       } finally {
         this.$q.loading.hide();
@@ -229,7 +229,7 @@ export default {
 
   async mounted() {
     try {
-      await this.$toolcase.services.http.get(ENDPOINTS.AUTH.LOGGED_USER)
+      await this.$getService('toolcase/http').get(ENDPOINTS.AUTH.LOGGED_USER)
       this.$router.push('/');
     } catch (error) {
       if (error.response?.status == 401 && localStorage.getItem('authtoken')) {

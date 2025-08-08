@@ -60,7 +60,7 @@ export default {
       }
 
       if (isInvalid) {
-        this.$toolcase.services.utils.notify({
+        this.$getService('toolcase/utils').notify({
           message: "Preencha o formulário corretamente",
           type: "negative",
           position: 'top-right'
@@ -75,17 +75,17 @@ export default {
       if (!this.validateForm()) return false;
 
       this.$emit('load', 'save-accessprofile');
-      return this.$toolcase.services.http.post('/api/iam/accessprofiles/v1/accessprofile', this.input)
+      return this.$getService('toolcase/http').post('/api/iam/accessprofiles/v1/accessprofile', this.input)
         .then((response) => {
           this.$router.push(`/iam/access-profiles/edit/${response.data.ds_key}`);
-          this.$toolcase.services.utils.notify({
+          this.$getService('toolcase/utils').notify({
             message: "O novo perfil de acesso foi criado com sucesso.",
             type: 'positive',
             position: 'top-right'
           });
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -95,8 +95,8 @@ export default {
   },
 
   mounted() {
-    this.$iam.services.auth.authenticate(this);
-    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
+    this.$getService('iam/auth').authenticate(this);
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/forbidden');
   },
 
   computed: {

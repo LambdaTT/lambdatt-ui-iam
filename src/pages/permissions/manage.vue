@@ -157,6 +157,10 @@
 </template>
 
 <script>
+export const __PAGE_CONFIG = {
+  route: '/iam/permissions',
+}
+
 export default {
   name: 'pages-iam-permissions-permissions',
 
@@ -198,9 +202,9 @@ export default {
   methods: {
     async listProfiles() {
       this.$emit('load', 'list-acessprofiles');
-      var response = await this.$toolcase.services.http.get('/api/iam/accessprofiles/v1/accessprofile?do_active=Y')
+      var response = await this.$getService('toolcase/http').get('/api/iam/accessprofiles/v1/accessprofile?do_active=Y')
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         });
 
@@ -217,9 +221,9 @@ export default {
 
     async listSystemModules() {
       this.$emit('load', 'list-system-modules');
-      var response = await this.$toolcase.services.http.get('/api/iam/applicationmodules/v1/module')
+      var response = await this.$getService('toolcase/http').get('/api/iam/applicationmodules/v1/module')
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         });
 
@@ -240,7 +244,7 @@ export default {
         if (this.systemModules[i].value == this.input.id_apm_module)
           moduleName = this.systemModules[i].label.toSlug();
       }
-      this.input.ds_key = moduleName + '-' + (this.input.ds_title != null ? this.input.ds_title.toSlug() + "-" : "") + this.$toolcase.services.utils.uniqid();
+      this.input.ds_key = moduleName + '-' + (this.input.ds_title != null ? this.input.ds_title.toSlug() + "-" : "") + this.$getService('toolcase/utils').uniqid();
     },
 
     resetInput() {
@@ -256,9 +260,9 @@ export default {
       this.customPermissions = {};
 
       if (!!this.profileId) {
-        var response = await this.$toolcase.services.http.get(`/api/iam/accessprofiles/v1/permission/${this.profileId}`).catch(function (response) {
+        var response = await this.$getService('toolcase/http').get(`/api/iam/accessprofiles/v1/permission/${this.profileId}`).catch(function (response) {
           console.error("An error has occurred on the attempt to get profile's permissions.", response);
-          this.$toolcase.services.utils.notifyError(response);
+          this.$getService('toolcase/utils').notifyError(response);
         });
 
         this.permissions = response.data;
@@ -268,18 +272,18 @@ export default {
     },
 
     async createExecPermission() {
-      if (this.$toolcase.services.utils.validateForm(this.input, this.inputError) == false) return;
+      if (this.$getService('toolcase/utils').validateForm(this.input, this.inputError) == false) return;
 
       this.$emit('load', 'create-execpermission');
-      await this.$toolcase.services.http.post('/api/iam/accessprofiles/v1/permission', this.input)
+      await this.$getService('toolcase/http').post('/api/iam/accessprofiles/v1/permission', this.input)
         .catch((error) => {
           console.error(error);
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
         });
 
       await this.getPermissions();
 
-      this.$toolcase.services.utils.notify({
+      this.$getService('toolcase/utils').notify({
         message: "A permissão de execução foi criada com sucesso.",
         type: 'positive',
         position: 'top-right'
@@ -300,7 +304,7 @@ export default {
     },
 
     checkForChanges() {
-      return (this.$toolcase.services.utils.objectSize(this.entityPermissions) > 0 || this.$toolcase.services.utils.objectSize(this.customPermissions) > 0);
+      return (this.$getService('toolcase/utils').objectSize(this.entityPermissions) > 0 || this.$getService('toolcase/utils').objectSize(this.customPermissions) > 0);
     },
 
     async save() {
@@ -309,16 +313,16 @@ export default {
         customPermissions: this.customPermissions,
       };
 
-      if (this.$toolcase.services.utils.objectSize(input) < 1) return;
+      if (this.$getService('toolcase/utils').objectSize(input) < 1) return;
 
       this.$emit('load', 'save-permissions');
-      await this.$toolcase.services.http.put(`/api/iam/accessprofiles/v1/permission/${this.profileId}`, input)
+      await this.$getService('toolcase/http').put(`/api/iam/accessprofiles/v1/permission/${this.profileId}`, input)
         .then(() => {
-          return this.$iam.services.permissions.getUserPermissions();
+          return this.$getService('iam/permissions').getUserPermissions();
         })
         .catch(function (error) {
           console.error(error);
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
         })
 
       await this.getPermissions();
@@ -334,11 +338,11 @@ export default {
 
   async mounted() {
     await auth.authenticate(this);
-    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_CUSTOM_PERMISSION': 'CR' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/forbidden');
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_CUSTOM_PERMISSION': 'CR' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/forbidden');
 
     this.listProfiles();
     this.listSystemModules();

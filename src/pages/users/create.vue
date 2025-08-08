@@ -59,7 +59,7 @@ export default {
   methods: {
     validateForm() {
       if (this.inputUser.selected_profiles.length < 1) {
-        this.$toolcase.services.utils.notify({
+        this.$getService('toolcase/utils').notify({
           message: "Selecione ao menos 1 perfil de acesso.",
           type: "negative",
           position: 'top-right'
@@ -87,17 +87,17 @@ export default {
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$emit('load', 'save-user');
-      return this.$toolcase.services.http.post('/api/iam/users/v1/user', data)
+      return this.$getService('toolcase/http').post('/api/iam/users/v1/user', data)
         .then((response) => {
           this.$router.push(`/iam/users/edit/${response.data.ds_key}`);
-          this.$toolcase.services.utils.notify({
+          this.$getService('toolcase/utils').notify({
             message: "O novo usuário foi criado com sucesso.",
             type: 'positive',
             position: 'top-right'
           });
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         })
         .finally(() => {
@@ -107,7 +107,7 @@ export default {
 
     listProfiles() {
       // Retrieve Access Profiles list:
-      return this.$toolcase.services.http.get('/api/iam/accessprofiles/v1/accessprofile')
+      return this.$getService('toolcase/http').get('/api/iam/accessprofiles/v1/accessprofile')
         .then((response) => {
           this.profiles = response.data.map(prf => ({
             label: prf.ds_title,
@@ -115,7 +115,7 @@ export default {
           }))
         })
         .catch((error) => {
-          this.$toolcase.services.utils.notifyError(error);
+          this.$getService('toolcase/utils').notifyError(error);
           console.error(error);
         })
     }
@@ -123,10 +123,10 @@ export default {
 
   async mounted() {
     this.$emit('load', 'data');
-    await this.$iam.services.auth.authenticate(this);
-    if (!this.$iam.services.permissions.validatePermissions({ 'IAM_USER': 'C' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$iam.services.permissions.validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');
+    await this.$getService('iam/auth').authenticate(this);
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');
 
     await this.listProfiles();
     this.$emit('loaded', 'data');
