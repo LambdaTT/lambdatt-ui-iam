@@ -10,7 +10,7 @@
                   <h5 class="text-h5 text-center text-grey-8 q-my-md full-width">
                     <q-img class="main-logo vertical-middle" src="/resources/img/main-logo.png" />
                   </h5>
-                  <p class="text-grey-7 text-center full-width">Faça login para acessar o sistema.</p>
+                  <p class="text-grey-7 text-center full-width">Entre com suas credenciais de acesso.</p>
                 </div>
               </q-card-section>
 
