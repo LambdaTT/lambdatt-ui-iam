@@ -6,11 +6,9 @@
           <div class="row">
             <q-card square bordered class="shadow-1">
               <q-card-section>
-                <div class="row">
-                  <h5 class="text-h5 text-center text-grey-8 q-my-md full-width">
-                    <q-img class="main-logo vertical-middle" src="/resources/img/main-logo.png" />
-                  </h5>
-                  <p class="text-grey-7 text-center full-width">Entre com suas credenciais de acesso.</p>
+                <div class="row q-pa-md">
+                  <q-img class="main-logo full-width vertical-middle" :src="logoSrc" />
+                  <p class="text-grey-7 text-center full-width q-mt-md">Entre com suas credenciais de acesso.</p>
                 </div>
               </q-card-section>
 
@@ -88,6 +86,14 @@ export const __PAGE_CONFIG = {
 
 export default {
   name: 'pages-iam-auth-login',
+
+  props: {
+    logoSrc: {
+      type: String,
+      default: '/resources/img/main-logo.png'
+    }
+  },
+
   data() {
     return {
       $q: useQuasar(),
@@ -249,10 +255,6 @@ export default {
 <style scoped>
 .q-card {
   width: 360px;
-}
-
-.main-logo {
-  max-width: 220px;
 }
 
 .bg-loginpage {
