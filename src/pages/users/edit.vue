@@ -109,7 +109,7 @@ export default {
       this.$emit('load', 'save-user');
       return this.$getService('toolcase/http').put(`${ENDPOINTS.USERS.USER}/${this.$route.params.key}`, data)
         .then(() => {
-          this.$router.push('/iam/users');
+          this.$router.push('/iam/users/list');
           this.$getService('toolcase/utils').notify({
             message: "Os dados do usuário foram salvos com sucesso.",
             type: 'positive',
@@ -137,7 +137,7 @@ export default {
             type: 'positive',
             position: 'top-right'
           })
-          this.$router.push('/iam/users');
+          this.$router.push('/iam/users/list');
         })
         .catch((error) => {
           this.$getService('toolcase/utils').notifyError(error);

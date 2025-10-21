@@ -23,10 +23,6 @@
 <script>
 import ENDPOINTS from '../../ENDPOINTS';
 
-export const __PAGE_CONFIG = {
-  route: 'iam/accessprofiles'
-}
-
 export default {
   name: 'pages-iam-accessprofile-list',
 

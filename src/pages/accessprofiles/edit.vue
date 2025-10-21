@@ -136,7 +136,7 @@ export default {
       this.$emit('load', 'save-accessprofile');
       return this.$getService('toolcase/http').put(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`, this.input)
         .then(() => {
-          this.$router.push('/iam/accessprofiles');
+          this.$router.push('/iam/accessprofiles/list');
           this.$getService('toolcase/utils').notify({
             message: "Os dados do perfil de acesso foram salvos com sucesso.",
             type: 'positive',
@@ -164,7 +164,7 @@ export default {
             type: 'positive',
             position: 'top-right'
           })
-          this.$router.push('/iam/accessprofiles');
+          this.$router.push('/iam/accessprofiles/list');
         })
         .catch((error) => {
           this.$getService('toolcase/utils').notifyError(error);

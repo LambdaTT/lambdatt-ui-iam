@@ -30,10 +30,6 @@
 <script>
 import ENDPOINTS from '../../ENDPOINTS'
 
-export const __PAGE_CONFIG = {
-  route: 'iam/users',
-}
-
 export default {
   name: 'pages-iam-user-list',
 
