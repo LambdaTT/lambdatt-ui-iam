@@ -25,12 +25,11 @@
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_phone1')" class="col-12 col-md-6">
-      <InputField type="text" Label="Telefone" Icon="fas fa-phone" clearable :readonly="readonly"
-        v-model="input.ds_phone1" Mask="(##) #####-####"></InputField>
+      <InputField type="phone" Label="Telefone" clearable :readonly="readonly" v-model="input.ds_phone1"></InputField>
     </div>
     <div v-if="!shouldHide('ds_phone2')" class="col-12 col-md-6">
-      <InputField type="text" Label="Telefone Adicional" Icon="fas fa-phone" clearable :readonly="readonly"
-        v-model="input.ds_phone2" Mask="(##) #####-####"></InputField>
+      <InputField type="phone" Label="Telefone Adicional" clearable :readonly="readonly" v-model="input.ds_phone2">
+      </InputField>
     </div>
     <div v-if="!shouldHide('ds_company')" class="col-12 col-md-6">
       <InputField type="text" Label="Empresa" Icon="fas fa-building" clearable :readonly="readonly"
