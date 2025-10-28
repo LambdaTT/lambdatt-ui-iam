@@ -117,7 +117,7 @@ export default {
   },
 
   async mounted() {
-    await this.$getService('iam/auth').authenticate(this);
+    await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
 

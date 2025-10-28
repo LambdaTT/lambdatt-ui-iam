@@ -94,7 +94,7 @@ export default {
   },
 
   mounted() {
-    this.$getService('iam/auth').authenticate(this);
+    this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' })) this.$router.push('/forbidden');
   }
 }
