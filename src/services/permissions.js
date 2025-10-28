@@ -37,6 +37,8 @@ export default {
   },
 
   validatePermissions(requiredPermissions, mode = REQUIRE_ALL) {
+    const utils = $sys.getService('toolcase/utils');
+    
     if (this.isSuperAdmin || utils.empty(requiredPermissions)) return true
 
     const lvlDict = {
