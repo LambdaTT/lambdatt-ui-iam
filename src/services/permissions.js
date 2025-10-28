@@ -19,6 +19,8 @@ export default {
   },
 
   canExecute(keys, mode = REQUIRE_ALL) {
+    const utils = $sys.getService('toolcase/utils');
+    
     if (this.isSuperAdmin || utils.empty(keys)) return true
 
     if (keys instanceof Array) {
