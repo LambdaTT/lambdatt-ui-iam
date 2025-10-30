@@ -101,7 +101,7 @@ export default {
 
       await this.$getService('iam/permissions').getUserPermissions();
       if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-        !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
+        !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/error/forbidden');
 
       this.getModules();
     }
@@ -230,7 +230,7 @@ export default {
   async mounted() {
     await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/forbidden');
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/error/forbidden');
 
     this.getProfileData()
   },

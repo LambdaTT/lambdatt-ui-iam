@@ -109,7 +109,7 @@ export default {
 
   mounted() {
     this.$getService('iam/auth').authenticate();
-    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/forbidden');
+    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'R' })) this.$router.push('/error/forbidden');
   }
 }
 

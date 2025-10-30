@@ -345,7 +345,7 @@ export default {
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_PERMISSION': 'RU' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_CUSTOM_PERMISSION': 'CR' }) ||
-      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/forbidden');
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_CUSTOM_PERMISSION': 'CRUD' })) this.$router.push('/error/forbidden');
 
     this.listProfiles();
     this.listSystemModules();

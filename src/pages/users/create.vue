@@ -128,7 +128,7 @@ export default {
     await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/forbidden');
+      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/error/forbidden');
 
     await this.listProfiles();
     this.$emit('loaded', 'data');
