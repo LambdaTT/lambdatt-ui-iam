@@ -12,23 +12,23 @@ export default {
     try {
       const response = await http.get('/api/iam/auth/v1/logged-user')
       this.loggedUser = response.data;
+      return true;
     } catch (error) {
-      console.error(error);
       if (error.response?.status == 401) {
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
         localStorage.removeItem('regularPermissions');
         localStorage.removeItem('customPermissions');
         getRouter().push(`/login?goTo=${getCurrentRoute().path}`)
+        return false;
       }
+      console.error(error);
     } finally {
       eventbroadcaster.$broadcast('loaded', 'auth');
     }
   },
 
   logout($component) {
-    $component.$emit('load', 'logout');
-
     var url = '/api/iam/auth/v1/logout';
 
     if (localStorage.getItem('authtoken'))
@@ -36,7 +36,6 @@ export default {
 
     return http.delete(url)
       .then(function () {
-        $component.$emit('loaded', 'logout');
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');

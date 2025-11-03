@@ -8,13 +8,15 @@ export default {
   regularPermissions: [],
   customPermissions: [],
 
-  getUserPermissions() {
-    return http.get('/api/iam/permissions/v1/user-permissions')
-      .then((response) => {
-        this.isSuperAdmin = response.data?.isSuperAdmin == 'Y';
-        this.regularPermissions = response.data.regularPermissions;
-        this.customPermissions = response.data.customPermissions;
-      })
+  async getUserPermissions() {
+    try {
+      const response = await http.get('/api/iam/permissions/v1/user-permissions');
+      this.isSuperAdmin = response.data?.isSuperAdmin == 'Y';
+      this.regularPermissions = response.data.regularPermissions;
+      this.customPermissions = response.data.customPermissions;
+    } catch (err) {
+      console.error(err);
+    }
   },
 
   canExecute(keys, mode = REQUIRE_ALL) {
