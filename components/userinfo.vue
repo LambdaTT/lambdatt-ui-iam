@@ -15,7 +15,7 @@
               <div class="col-12 form-note">Campos marcados com <span class="required">*</span> são obrigatórios.</div>
             </div>
             <q-space></q-space>
-            <div v-if="editPass" class="col-auto col-md-auto">
+            <div v-if="editPass && input.id_iam_user" class="col-auto col-md-auto">
               <q-btn label="Alterar Senha" icon="fas fa-key" color="grey-9" @click="showPasswordModal = true"></q-btn>
             </div>
           </div>
@@ -66,14 +66,15 @@
       </q-card>
     </div>
 
-    <Modal Label="Alterar Senha" Icon="fas fa-key" v-model="showPasswordModal" :Actions="modalActions">
-      {{ inputError }}
-      <InputField Label="Nova Senha" Icon="fas fa-key" type="password" v-model="control.ds_password"
-        :Error="inputError.ds_password" @focus="delete inputError.ds_password">
-      </InputField>
-      <InputField Label="Confirmar Nova Senha" Icon="fas fa-key" type="password" v-model="control.ds_email_confirm"
-        :Error="inputError.ds_password_confirm" @focus="delete inputError.ds_password_confirm">
-      </InputField>
+    <Modal Title="Alterar Senha" Icon="fas fa-key" v-model="showPasswordModal" :Actions="modalActions" @hide="resetControl">
+      <div class="q-pa-sm q-pa-md-none">
+        <InputField Label="Nova Senha" Icon="fas fa-key" type="password" v-model="control.ds_password"
+          :Error="inputError.ds_password" @focus="delete inputError.ds_password">
+        </InputField>
+        <InputField Label="Confirmar Nova Senha" Icon="fas fa-key" type="password" v-model="control.ds_password_confirm"
+          :Error="inputError.ds_password_confirm" @focus="delete inputError.ds_password_confirm">
+        </InputField>
+      </div>
     </Modal>
   </div>
 </template>
@@ -104,6 +105,7 @@ export default {
   data() {
     return {
       input: {
+        id_iam_user: null,
         ds_first_name: null,
         ds_last_name: null,
         ds_phone1: null,
@@ -144,7 +146,7 @@ export default {
 
     modalActions() {
       return [
-        { label: 'Salvar', icon: 'save', color: 'positive', fn: async () => { this.savePassword } }
+        { label: 'Salvar', icon: 'save', color: 'positive', fn: this.savePassword }
       ]
     }
   },
@@ -171,18 +173,18 @@ export default {
       }
 
       // -- Password
-      // if (user.ds_password !== '' && user.ds_password !== null) {
-      //   if (user.ds_password !== this.control.ds_password_confirm) {
-      //     this.inputError.ds_password = true;
-      //     this.inputError.ds_password_confirm = true;
-      //     this.$utils.notify({
-      //       message: 'As senhas inseridas são diferentes',
-      //       type: 'negative',
-      //       position: 'top-right'
-      //     });
-      //     return false;
-      //   }
-      // }
+      if (user.ds_password !== '' && user.ds_password !== null) {
+        if (user.ds_password !== this.control.ds_password_confirm) {
+          this.inputError.ds_password = true;
+          this.inputError.ds_password_confirm = true;
+          this.$utils.notify({
+            message: 'As senhas inseridas são diferentes',
+            type: 'negative',
+            position: 'top-right'
+          });
+          return false;
+        }
+      }
 
       return true;
     },
@@ -204,7 +206,7 @@ export default {
       return this.HideFields.includes(element);
     },
 
-    isValidPassword() {
+    isValidNewPassword() {
       if(this.control.ds_password === '' || this.control.ds_password === null) {
         this.inputError.ds_password = true;
         this.$utils.notify({
@@ -239,9 +241,19 @@ export default {
       return true;
     },
 
+    resetControl() {
+      Object.keys(this.control).forEach(key => this.control[key] = null);
+    },
+
     savePassword() {
-      if(!this.isValidPassword()) return;
-      return this.$http.post()
+      if(!this.isValidNewPassword()) return;
+
+      const data = {
+        id_iam_user: this.input.id_iam_user,
+        ds_password: this.control.ds_password
+      }
+
+      return this.$http.put('/api/iam/users/v1/admin-change-pass', data)
         .then(() => {
           this.$utils.notify({
             message: 'Senha atualizada com sucesso',
@@ -250,14 +262,10 @@ export default {
           });
         })
         .catch((error) => {
-          this.$utils.notify({
-            message: 'Houve um erro ao tentar salvar a senha, tente novamente mais tarde',
-            type: 'negative',
-            position: 'top-right'
-          });
+          this.$utils.notifyError(error);
           console.error('An error occurred while attempting to save the password.', error);
         })
-        .finally(() => this.showPasswordModal = false)
+        .finally(() => { this.showPasswordModal = false; this.resetControl() })
     }
   },
 
