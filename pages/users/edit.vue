@@ -21,7 +21,7 @@
         </div>
       </template>
 
-      <UserInfo v-model="User"></UserInfo>
+      <UserInfo editPass v-model="User"></UserInfo>
 
       <template #user-profiles>
         <Card Title="Perfis de Acesso" Icon="fas fa-id-card">

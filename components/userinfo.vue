@@ -1,72 +1,86 @@
 <template>
   <div class="row">
-    <div class="col-12 q-pa-xs" v-if="showTitle">
-      <div class="q-pa-xs">
-        <h1>Informações do Usuário</h1>
+    <div class="col-12 q-pt-sm" :class="bordered? 'q-pb-sm':''">
+      <div v-if="!shouldHide('avatar') && input.avatar" class="col-12 avatar">
+        <PhotoPicker DefaultImgPath="/resources/img/unknown-user.jpg"
+          v-model="input.avatar" :disable="readonly">
+        </PhotoPicker>
       </div>
+      <q-card flat :bordered="bordered" class="card" :class="bordered? 'q-pa-xs':''">
+        <div class="row">
+          <div class="col-12 row items-center q-pa-sm">
+            <div class="col-auto">
+              <!-- <q-icon name="fas fa-user" size="1.4em" class="q-mr-sm"  style="padding-bottom: 6px;"></q-icon> -->
+              <span style="font-size: 1.4em;">Usuário</span>
+              <div class="col-12 form-note">Campos marcados com <span class="required">*</span> são obrigatórios.</div>
+            </div>
+            <q-space></q-space>
+            <div v-if="editPass" class="col-auto col-md-auto">
+              <q-btn label="Alterar Senha" icon="fas fa-key" color="grey-9" @click="showPasswordModal = true"></q-btn>
+            </div>
+          </div>
+          <div v-if="!shouldHide('ds_first_name')" class="col-12 col-md-6">
+            <InputField type="text" Label="Nome*" Icon="fas fa-user-tie" clearable :readonly="readonly"
+              v-model="input.ds_first_name" :Error="inputError.ds_first_name" @focus="inputError.ds_first_name = false">
+            </InputField>
+          </div>
+          <div v-if="!shouldHide('ds_last_name')" class="col-12 col-md-6">
+            <InputField type="text" Label="Sobrenome*" Icon="fas fa-user-tie" clearable :readonly="readonly"
+              v-model="input.ds_last_name" :Error="inputError.ds_last_name" @focus="inputError.ds_last_name = false">
+            </InputField>
+          </div>
+          <div v-if="!shouldHide('ds_phone1')" class="col-12 col-md-6">
+            <InputField type="phone" Label="Telefone" clearable :readonly="readonly"
+              v-model="input.ds_phone1"></InputField>
+          </div>
+          <div v-if="!shouldHide('ds_phone2')" class="col-12 col-md-6">
+            <InputField type="phone" Label="Telefone Adicional" clearable :readonly="readonly"
+              v-model="input.ds_phone2"></InputField>
+          </div>
+          <div v-if="!shouldHide('ds_email')" class="col-12 col-md-6">
+            <InputField type="text" Label="Email*" Icon="fas fa-at" clearable :readonly="readonly" v-model="input.ds_email"
+              :Error="inputError.ds_email" @focus="inputError.ds_email = false">
+            </InputField>
+          </div>
+          <div v-if="!shouldHide('ds_email') && confirmEmail" class="col-12 col-md-6">
+            <InputField type="text" Label="Confirmar Email*" Icon="fas fa-at" clearable :readonly="readonly" v-model="control.ds_email_confirm"
+              :Error="inputError.ds_email" @focus="inputError.ds_email = false">
+            </InputField>
+          </div>
+          <div v-if="createPass && !readonly" class="col-12 col-md-6">
+            <InputField type="password" Label="Senha" Icon="fas fa-key" clearable :readonly="readonly" v-model="input.ds_password" 
+              :Error="inputError.ds_password" @focus="() => inputError.ds_password = false">
+            </InputField>
+          </div>
+          <div v-if="createPass && !readonly" class="col-12 col-md-6">
+            <InputField type="password" Label="Confirmar Senha" Icon="fas fa-check" clearable :readonly="readonly" 
+              v-model="control.ds_password_confirm" :disable="!input.ds_password"
+              :Error="inputError.ds_password_confirm" @focus="delete inputError.ds_password_confirm">
+            </InputField>
+          </div>
+          <div v-if="!shouldHide('ds_company')" class="col-12 col-md-6">
+            <InputField type="text" Label="Empresa" Icon="fas fa-building" clearable :readonly="readonly"
+              v-model="input.ds_company"></InputField>
+          </div>
+        </div>
+      </q-card>
     </div>
 
-    <!-- Photo -->
-    <div class="col-12">
-      <PhotoPicker v-if="!shouldHide('avatar') && input.avatar" DefaultImgPath="/resources/img/unknown-user.jpg"
-        v-model="input.avatar" :disable="readonly">
-      </PhotoPicker>
-    </div>
-
-    <!-- Data -->
-    <div v-if="!shouldHide('ds_first_name')" class="col-12 col-md-6">
-      <InputField type="text" Label="Nome*" Icon="fas fa-user-tie" clearable :readonly="readonly"
-        v-model="input.ds_first_name" :Error="inputError.ds_first_name" @focus="inputError.ds_first_name = false">
+    <Modal Label="Alterar Senha" Icon="fas fa-key" v-model="showPasswordModal" :Actions="modalActions">
+      {{ inputError }}
+      <InputField Label="Nova Senha" Icon="fas fa-key" type="password" v-model="control.ds_password"
+        :Error="inputError.ds_password" @focus="delete inputError.ds_password">
       </InputField>
-    </div>
-    <div v-if="!shouldHide('ds_last_name')" class="col-12 col-md-6">
-      <InputField type="text" Label="Sobrenome*" Icon="fas fa-user-tie" clearable :readonly="readonly"
-        v-model="input.ds_last_name" :Error="inputError.ds_last_name" @focus="inputError.ds_last_name = false">
+      <InputField Label="Confirmar Nova Senha" Icon="fas fa-key" type="password" v-model="control.ds_email_confirm"
+        :Error="inputError.ds_password_confirm" @focus="delete inputError.ds_password_confirm">
       </InputField>
-    </div>
-    <div v-if="!shouldHide('ds_phone1')" class="col-12 col-md-6">
-      <InputField type="phone" Label="Telefone" clearable :readonly="readonly"
-        v-model="input.ds_phone1"></InputField>
-    </div>
-    <div v-if="!shouldHide('ds_phone2')" class="col-12 col-md-6">
-      <InputField type="phone" Label="Telefone Adicional" clearable :readonly="readonly"
-        v-model="input.ds_phone2"></InputField>
-    </div>
-    <div v-if="!shouldHide('ds_company')" class="col-12 col-md-6">
-      <InputField type="text" Label="Empresa" Icon="fas fa-building" clearable :readonly="readonly"
-        v-model="input.ds_company"></InputField>
-    </div>
-    <div v-if="HideFields.length == 0" class="col-12 col-md-6">
-      &nbsp;
-    </div>
-    <div v-if="!shouldHide('ds_email')" :class="`col-12 ${confirmEmail ? 'col-md-6' : ''}`">
-      <InputField type="text" Label="Email*" Icon="fas fa-at" clearable :readonly="readonly" v-model="input.ds_email"
-        :Error="inputError.ds_email" @focus="inputError.ds_email = false">
-      </InputField>
-    </div>
-    <div v-if="!shouldHide('ds_email_confirm') && confirmEmail" class="col-12 col-md-6">
-      <InputField type="text" Label="Confirmar Email*" Icon="fas fa-check" clearable :readonly="readonly"
-        v-model="control.ds_email_confirm" :disable="!input.ds_email" :Error="inputError.ds_email_confirm"
-        @focus="delete inputError.ds_email_confirm">
-      </InputField>
-    </div>
-    <div v-if="!shouldHide('ds_password') && !readonly" class="col-12 col-md-6">
-      <InputField type="password" :Label="`${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`"
-        Icon="fas fa-key" clearable :readonly="readonly" v-model="input.ds_password" :Error="inputError.ds_password"
-        @focus="() => { if (requiredPass) inputError.ds_password = false; else delete inputError.ds_password }">
-      </InputField>
-    </div>
-    <div v-if="!shouldHide('ds_password_confirm') && !readonly" class="col-12 col-md-6">
-      <InputField type="password" :Label="`Confirmar ${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`"
-        Icon="fas fa-check" clearable :readonly="readonly" v-model="control.ds_password_confirm"
-        :disable="!input.ds_password" :Error="inputError.ds_password_confirm"
-        @focus="delete inputError.ds_password_confirm">
-      </InputField>
-    </div>
+    </Modal>
   </div>
 </template>
 
 <script>
+import { ENDPOINTS } from 'src/services/endpoints';
+
 export default {
   name: 'component-userinfo',
 
@@ -74,7 +88,10 @@ export default {
     readonly: Boolean,
     showTitle: Boolean,
     confirmEmail: Boolean,
-    requiredPass: Boolean,
+    createPass: Boolean,
+    editPass: Boolean,
+    onlySecurity: Boolean,
+    bordered: Boolean,
     HideFields: {
       type: Array,
       default: () => [],
@@ -108,9 +125,11 @@ export default {
       },
       control: {
         ds_email_confirm: null,
+        ds_password: null,
         ds_password_confirm: null,
       },
       formReadonly: !!this.readonly,
+      showPasswordModal: false,
     }
   },
 
@@ -121,6 +140,12 @@ export default {
         read: this.read,
         validate: this.validateFields
       }
+    },
+
+    modalActions() {
+      return [
+        { label: 'Salvar', icon: 'save', color: 'positive', fn: async () => { this.savePassword } }
+      ]
     }
   },
 
@@ -146,18 +171,18 @@ export default {
       }
 
       // -- Password
-      if (user.ds_password !== '' && user.ds_password !== null) {
-        if (user.ds_password !== this.control.ds_password_confirm) {
-          this.inputError.ds_password = true;
-          this.inputError.ds_password_confirm = true;
-          this.$utils.notify({
-            message: 'As senhas inseridas são diferentes',
-            type: 'negative',
-            position: 'top-right'
-          });
-          return false;
-        }
-      }
+      // if (user.ds_password !== '' && user.ds_password !== null) {
+      //   if (user.ds_password !== this.control.ds_password_confirm) {
+      //     this.inputError.ds_password = true;
+      //     this.inputError.ds_password_confirm = true;
+      //     this.$utils.notify({
+      //       message: 'As senhas inseridas são diferentes',
+      //       type: 'negative',
+      //       position: 'top-right'
+      //     });
+      //     return false;
+      //   }
+      // }
 
       return true;
     },
@@ -177,6 +202,62 @@ export default {
 
     shouldHide(element) {
       return this.HideFields.includes(element);
+    },
+
+    isValidPassword() {
+      if(this.control.ds_password === '' || this.control.ds_password === null) {
+        this.inputError.ds_password = true;
+        this.$utils.notify({
+          message: 'Preencha os campos corretamente',
+          type: 'negative',
+          position: 'top-right'
+        })
+        return false;
+      }
+
+      if(this.control.ds_password_confirm === '' || this.control.ds_password_confirm === null) {
+        this.inputError.ds_password = true;
+        this.$utils.notify({
+          message: 'Preencha os campos corretamente',
+          type: 'negative',
+          position: 'top-right'
+        })
+        return false;
+      }
+
+      if (this.control.ds_password !== this.control.ds_password_confirm) {
+        this.inputError.ds_password = true;
+        this.inputError.ds_password_confirm = true;
+        this.$utils.notify({
+          message: 'As senhas inseridas são diferentes',
+          type: 'negative',
+          position: 'top-right'
+        });
+        return false;
+      }
+
+      return true;
+    },
+
+    savePassword() {
+      if(!this.isValidPassword()) return;
+      return this.$http.post()
+        .then(() => {
+          this.$utils.notify({
+            message: 'Senha atualizada com sucesso',
+            type: 'positive',
+            position: 'top-right'
+          });
+        })
+        .catch((error) => {
+          this.$utils.notify({
+            message: 'Houve um erro ao tentar salvar a senha, tente novamente mais tarde',
+            type: 'negative',
+            position: 'top-right'
+          });
+          console.error('An error occurred while attempting to save the password.', error);
+        })
+        .finally(() => this.showPasswordModal = false)
     }
   },
 
@@ -201,7 +282,7 @@ export default {
   },
 
   mounted() {
-    if (this.requiredPass) {
+    if (this.createPass) {
       this.inputError.ds_password = false;
     }
     this.$emit("update:model-value", this.factory);
@@ -213,5 +294,33 @@ export default {
 h1 {
   font-size: 1.5rem;
   line-height: 15px;
+}
+
+.card {
+  position: relative;
+  top: -50px;
+  z-index: 1;
+  border-radius: 15px;
+  padding-top: 20px;
+  margin-bottom: -50px;
+}
+
+@media (max-width: 768px) {
+  .card {
+    padding-top: 50px;
+  }
+}
+
+.avatar {
+  position: relative;
+  z-index: 2;
+}
+
+.section {
+  border-radius: 12px;
+}
+
+.section .q-btn{
+  border-radius: 8px;
 }
 </style>
