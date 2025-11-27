@@ -48,12 +48,12 @@
             </InputField>
           </div>
           <div v-if="createPass && !readonly" class="col-12 col-md-6">
-            <InputField type="password" Label="Senha" Icon="fas fa-key" clearable :readonly="readonly" v-model="input.ds_password" 
+            <InputField type="password" Label="Senha*" Icon="fas fa-key" clearable :readonly="readonly" v-model="input.ds_password" 
               :Error="inputError.ds_password" @focus="() => inputError.ds_password = false">
             </InputField>
           </div>
           <div v-if="createPass && !readonly" class="col-12 col-md-6">
-            <InputField type="password" Label="Confirmar Senha" Icon="fas fa-check" clearable :readonly="readonly" 
+            <InputField type="password" Label="Confirmar Senha*" Icon="fas fa-check" clearable :readonly="readonly" 
               v-model="control.ds_password_confirm" :disable="!input.ds_password"
               :Error="inputError.ds_password_confirm" @focus="delete inputError.ds_password_confirm">
             </InputField>
