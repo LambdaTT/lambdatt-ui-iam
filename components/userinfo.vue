@@ -7,7 +7,7 @@
         </PhotoPicker>
       </div>
       <q-card flat :bordered="bordered" class="card" :class="bordered? 'q-pa-xs':''">
-        <div class="row">
+        <div class="row q-mt-md">
           <div class="col-12 row items-center q-pa-sm">
             <div class="col-auto">
               <!-- <q-icon name="fas fa-user" size="1.4em" class="q-mr-sm"  style="padding-bottom: 6px;"></q-icon> -->
