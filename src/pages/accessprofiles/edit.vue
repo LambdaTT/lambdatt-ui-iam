@@ -47,12 +47,8 @@
 <script>
 import ENDPOINTS from '../../ENDPOINTS';
 
-export const __PAGE_CONFIG = {
-  params: ['key']
-}
-
 export default {
-  name: 'pages-iam-accessprofile-create',
+  name: 'pages-iam-accessprofile-edit',
 
   data() {
     return {
@@ -78,7 +74,7 @@ export default {
     breadcrumb() {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles" },
+        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles/list" },
         { label: 'Editar' },
       ]
     }
@@ -214,7 +210,7 @@ export default {
               type: 'negative',
               position: 'top-right'
             })
-            this.$router.push('/iam/accessprofiles');
+            this.$router.push('/iam/accessprofiles/list');
             return;
           }
           this.$getService('toolcase/utils').notifyError(error);

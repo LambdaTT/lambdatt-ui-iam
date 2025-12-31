@@ -48,7 +48,7 @@ export default {
     breadcrumb() {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Usuários', icon: "fas fa-users", to: "/iam/users" },
+        { label: 'Usuários', icon: "fas fa-users", to: "/iam/users/list" },
         { label: 'Adicionar', icon: 'fas fa-plus' },
       ]
     },

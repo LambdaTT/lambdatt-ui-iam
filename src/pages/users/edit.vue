@@ -36,10 +36,6 @@
 <script>
 import ENDPOINTS from '../../ENDPOINTS'
 
-export const __PAGE_CONFIG = {
-  params: ['key']
-};
-
 export default {
   name: 'pages-iam-user-edit',
 
@@ -66,7 +62,7 @@ export default {
     breadcrumb() {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Usuários', icon: "fas fa-users", to: "/iam/users" },
+        { label: 'Usuários', icon: "fas fa-users", to: "/iam/users/list" },
         { label: 'Editar', icon: 'fas fa-pen-to-square' },
       ]
     },
@@ -164,7 +160,7 @@ export default {
               type: 'negative',
               position: 'top-right'
             })
-            this.$router.push('/iam/users');
+            this.$router.push('/iam/users/list');
             return;
           }
 

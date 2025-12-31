@@ -105,7 +105,7 @@ export default {
     breadcrumb() {
       return [
         { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles" },
+        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles/list" },
         { label: 'Adicionar', icon: 'fas fa-plus' },
       ]
     }
