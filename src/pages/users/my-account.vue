@@ -60,7 +60,7 @@ export default {
           data.set(k, this.input[k]);
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
-      this.$emit('load', 'save-user');
+      this.$getService('toolcase/loader').load( 'save-user');
       return this.$getService('toolcase/http').put(ENDPOINTS.USERS.MY_ACCOUNT, data)
         .then(() => {
           this.$getService('toolcase/utils').notify({
@@ -74,12 +74,12 @@ export default {
           console.error(error);
         })
         .finally(() => {
-          this.$emit('loaded', 'save-user');
+          this.$getService('toolcase/loader').loaded( 'save-user');
         })
     },
 
     getData() {
-      this.$emit('load', 'users-data');
+      this.$getService('toolcase/loader').load( 'users-data');
       return this.$getService('toolcase/http').get(ENDPOINTS.USERS.MY_ACCOUNT)
         .then((response) => {
           this.User.read(response.data)
@@ -89,7 +89,7 @@ export default {
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
-          this.$emit('loaded', 'users-data');
+          this.$getService('toolcase/loader').loaded( 'users-data');
         });
     }
   },

@@ -76,7 +76,7 @@ export default {
     save() {
       if (!this.validateForm()) return false;
 
-      this.$emit('load', 'save-accessprofile');
+      this.$getService('toolcase/loader').load( 'save-accessprofile');
       return this.$getService('toolcase/http').post(ENDPOINTS.PROFILES.PROFILE, this.input)
         .then((response) => {
           this.$router.push(`/iam/accessprofiles/edit/${response.data.ds_key}`);
@@ -91,7 +91,7 @@ export default {
           console.error(error);
         })
         .finally(() => {
-          this.$emit('loaded', 'save-accessprofile');
+          this.$getService('toolcase/loader').loaded( 'save-accessprofile');
         })
     },
   },

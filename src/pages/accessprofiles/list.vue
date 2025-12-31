@@ -70,7 +70,7 @@ export default {
     remove(row) {
       if (!confirm('Deseja excluir as informações?')) return false;
 
-      this.$emit('load', 'accessprofile-remove');
+      this.$getService('toolcase/loader').load( 'accessprofile-remove');
 
       var key = row.ds_key;
       this.$getService('toolcase/http').delete(`${ENDPOINTS.PROFILES.PROFILE}/${key}`)
@@ -87,7 +87,7 @@ export default {
         })
         .finally(() => {
           this.Datatable.reload();
-          this.$emit('loaded', 'accessprofile-remove');
+          this.$getService('toolcase/loader').loaded( 'accessprofile-remove');
         });
 
     },

@@ -106,7 +106,7 @@ export default {
           data.set(k, this.input[k]);
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
-      this.$emit('load', 'save-user');
+      this.$getService('toolcase/loader').load( 'save-user');
       return this.$getService('toolcase/http').put(`${ENDPOINTS.USERS.USER}/${this.$route.params.key}`, data)
         .then(() => {
           this.$router.push('/iam/users/list');
@@ -121,14 +121,14 @@ export default {
           console.error(error);
         })
         .finally(() => {
-          this.$emit('loaded', 'save-user');
+          this.$getService('toolcase/loader').loaded( 'save-user');
         })
     },
 
     remove() {
       if (!confirm('Deseja excluir as informações?')) return false;
 
-      this.$emit('load', 'user-remove');
+      this.$getService('toolcase/loader').load( 'user-remove');
 
       this.$getService('toolcase/http').delete(`${ENDPOINTS.USERS.USER}/${this.$route.params.key}`)
         .then(() => {
@@ -144,12 +144,12 @@ export default {
           console.error(error);
         })
         .finally(() => {
-          this.$emit('loaded', 'user-remove');
+          this.$getService('toolcase/loader').loaded( 'user-remove');
         })
     },
 
     getData() {
-      this.$emit('load', 'users-data');
+      this.$getService('toolcase/loader').load( 'users-data');
       return this.$getService('toolcase/http').get(`${ENDPOINTS.USERS.USER}/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.inputUser)
@@ -172,12 +172,12 @@ export default {
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
-          this.$emit('loaded', 'users-data');
+          this.$getService('toolcase/loader').loaded( 'users-data');
         });
     },
 
     listProfiles() {
-      this.$emit('load', 'profiles-list');
+      this.$getService('toolcase/loader').load( 'profiles-list');
       this.$getService('toolcase/http').get(ENDPOINTS.PROFILES.PROFILE)
         .then((response) => {
           this.profiles = response.data.map(prf => ({
@@ -190,7 +190,7 @@ export default {
           console.error(error);
         })
         .finally(() => {
-          this.$emit('loaded', 'profiles-list');
+          this.$getService('toolcase/loader').loaded( 'profiles-list');
         });
     }
   },

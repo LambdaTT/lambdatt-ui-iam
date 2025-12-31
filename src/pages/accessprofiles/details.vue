@@ -91,7 +91,7 @@ export default {
 
     getProfileData() {
       // Get Access profile data:
-      this.$emit('load', 'profile-data');
+      this.$getService('toolcase/loader').load( 'profile-data');
       this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`)
         .then((response) => {
           this.userData = response.data;
@@ -111,7 +111,7 @@ export default {
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
-          this.$emit('loaded', 'profile-data');
+          this.$getService('toolcase/loader').loaded( 'profile-data');
         });
     }
   },

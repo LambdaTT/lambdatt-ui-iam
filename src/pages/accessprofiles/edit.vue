@@ -133,7 +133,7 @@ export default {
     save() {
       if (!this.validateForm()) return false;
 
-      this.$emit('load', 'save-accessprofile');
+      this.$getService('toolcase/loader').load( 'save-accessprofile');
       return this.$getService('toolcase/http').put(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`, this.input)
         .then(() => {
           this.$router.push('/iam/accessprofiles/list');
@@ -148,14 +148,14 @@ export default {
           console.error(error);
         })
         .finally(() => {
-          this.$emit('loaded', 'save-accessprofile');
+          this.$getService('toolcase/loader').loaded( 'save-accessprofile');
         })
     },
 
     remove() {
       if (!confirm('Deseja excluir as informações?')) return false;
 
-      this.$emit('load', 'accessprofile-remove');
+      this.$getService('toolcase/loader').load( 'accessprofile-remove');
 
       this.$getService('toolcase/http').delete(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`)
         .then(() => {
@@ -171,7 +171,7 @@ export default {
           console.error(error);
         })
         .finally(() => {
-          this.$emit('loaded', 'accessprofile-remove');
+          this.$getService('toolcase/loader').loaded( 'accessprofile-remove');
         })
     },
 
@@ -198,7 +198,7 @@ export default {
 
     getProfileData() {
       // Get Access profile data:
-      this.$emit('load', 'profile-data');
+      this.$getService('toolcase/loader').load( 'profile-data');
       this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`)
         .then((response) => {
           for (let k in this.input) {
@@ -221,7 +221,7 @@ export default {
           console.error("An error has occurred on the attempt to retrieve user's data.", error);
         })
         .finally(() => {
-          this.$emit('loaded', 'profile-data');
+          this.$getService('toolcase/loader').loaded( 'profile-data');
         });
     }
 

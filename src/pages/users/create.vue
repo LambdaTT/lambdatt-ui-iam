@@ -88,7 +88,7 @@ export default {
           data.set(k, this.input[k]);
       if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
-      this.$emit('load', 'save-user');
+      this.$getService('toolcase/loader').load( 'save-user');
       return this.$getService('toolcase/http').post(ENDPOINTS.USERS.USER, data)
         .then((response) => {
           this.$router.push(`/iam/users/edit/${response.data.ds_key}`);
@@ -103,7 +103,7 @@ export default {
           console.error(error);
         })
         .finally(() => {
-          this.$emit('loaded', 'save-user');
+          this.$getService('toolcase/loader').loaded( 'save-user');
         })
     },
 
@@ -124,14 +124,14 @@ export default {
   },
 
   async mounted() {
-    this.$emit('load', 'data');
+    this.$getService('toolcase/loader').load( 'data');
     await this.$getService('iam/auth').authenticate();
     if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
       !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/error/forbidden');
 
     await this.listProfiles();
-    this.$emit('loaded', 'data');
+    this.$getService('toolcase/loader').loaded( 'data');
   },
 }
 </script>

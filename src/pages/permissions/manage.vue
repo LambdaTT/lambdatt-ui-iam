@@ -203,7 +203,7 @@ export default {
 
   methods: {
     async listProfiles() {
-      this.$emit('load', 'list-acessprofiles');
+      this.$getService('toolcase/loader').load( 'list-acessprofiles');
       var response = await this.$getService('toolcase/http').get(ENDPOINTS.PROFILES.PROFILE)
         .catch((error) => {
           this.$getService('toolcase/utils').notifyError(error);
@@ -218,11 +218,11 @@ export default {
           'value': profileObj.ds_key
         });
       }
-      this.$emit('loaded', 'list-acessprofiles');
+      this.$getService('toolcase/loader').loaded( 'list-acessprofiles');
     },
 
     async listSystemModules() {
-      this.$emit('load', 'list-system-modules');
+      this.$getService('toolcase/loader').load( 'list-system-modules');
       var response = await this.$getService('toolcase/http').get('/modcontrol/v1/module')
         .catch((error) => {
           this.$getService('toolcase/utils').notifyError(error);
@@ -237,7 +237,7 @@ export default {
           'value': moduleObj.id_apm_module
         });
       }
-      this.$emit('loaded', 'list-system-modules');
+      this.$getService('toolcase/loader').loaded( 'list-system-modules');
     },
 
     generateExecPermissionKey() {
@@ -257,7 +257,7 @@ export default {
     },
 
     async getPermissions() {
-      this.$emit('load', 'get-permissions');
+      this.$getService('toolcase/loader').load( 'get-permissions');
       this.entityPermissions = {};
       this.customPermissions = {};
 
@@ -271,13 +271,13 @@ export default {
         }
       }
 
-      this.$emit('loaded', 'get-permissions');
+      this.$getService('toolcase/loader').loaded( 'get-permissions');
     },
 
     async createExecPermission() {
       if (this.$getService('toolcase/utils').validateForm(this.input, this.inputError) == false) return;
 
-      this.$emit('load', 'create-execpermission');
+      this.$getService('toolcase/loader').load( 'create-execpermission');
       await this.$getService('toolcase/http').post(ENDPOINTS.PROFILES.PERMISSION, this.input)
         .catch((error) => {
           console.error(error);
@@ -292,7 +292,7 @@ export default {
         position: 'top-right'
       });
       this.showExecPermissionModal = false;
-      this.$emit('loaded', 'create-execpermission');
+      this.$getService('toolcase/loader').loaded( 'create-execpermission');
     },
 
     changePermission(permission) {
@@ -318,7 +318,7 @@ export default {
 
       if (this.$getService('toolcase/utils').objectSize(input) < 1) return;
 
-      this.$emit('load', 'save-permissions');
+      this.$getService('toolcase/loader').load( 'save-permissions');
       await this.$getService('toolcase/http').put(`${ENDPOINTS.PROFILES.PERMISSION}/${this.profileId}`, input)
         .then(() => {
           return this.$getService('iam/permissions').getUserPermissions();

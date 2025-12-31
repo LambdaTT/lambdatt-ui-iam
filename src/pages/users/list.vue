@@ -85,7 +85,7 @@ export default {
     remove(row) {
       if (!confirm('Deseja excluir as informações?')) return false;
 
-      this.$emit('load', 'users-remove');
+      this.$getService('toolcase/loader').load( 'users-remove');
 
       var key = row.ds_key;
       this.$getService('toolcase/http').delete(`${ENDPOINTS.USERS.USER}/${key}`)
@@ -102,7 +102,7 @@ export default {
         })
         .finally(() => {
           this.Datatable.reload();
-          this.$emit('loaded', 'users-remove');
+          this.$getService('toolcase/loader').loaded( 'users-remove');
         });
     },
   },
