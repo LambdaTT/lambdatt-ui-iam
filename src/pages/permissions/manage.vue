@@ -159,10 +159,6 @@
 <script>
 import ENDPOINTS from '../../ENDPOINTS'
 
-export const __PAGE_CONFIG = {
-  route: 'iam/permissions',
-}
-
 export default {
   name: 'pages-iam-permissions-permissions',
 
