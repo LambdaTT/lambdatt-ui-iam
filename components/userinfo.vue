@@ -31,36 +31,40 @@
           </div>
           <div v-if="!shouldHide('ds_phone1')" class="col-12 col-md-6">
             <InputField type="phone" Label="Telefone" clearable :readonly="readonly"
-              v-model="input.ds_phone1"></InputField>
+              v-model="input.ds_phone1">
+            </InputField>
           </div>
           <div v-if="!shouldHide('ds_phone2')" class="col-12 col-md-6">
             <InputField type="phone" Label="Telefone Adicional" clearable :readonly="readonly"
-              v-model="input.ds_phone2"></InputField>
+              v-model="input.ds_phone2">
+            </InputField>
           </div>
           <div v-if="!shouldHide('ds_email')" class="col-12 col-md-6">
-            <InputField type="text" Label="Email*" Icon="fas fa-at" clearable :readonly="readonly" v-model="input.ds_email"
-              :Error="inputError.ds_email" @focus="inputError.ds_email = false">
+            <InputField type="text" :Label="`Email${requireEmail?'*':''}`" Icon="fas fa-at" clearable :readonly="readonly" v-model="input.ds_email"
+              :Error="inputError.ds_email" @focus="delete inputError.ds_email">
             </InputField>
           </div>
           <div v-if="!shouldHide('ds_email') && confirmEmail" class="col-12 col-md-6">
-            <InputField type="text" Label="Confirmar Email*" Icon="fas fa-at" clearable :readonly="readonly" v-model="control.ds_email_confirm"
-              :Error="inputError.ds_email" @focus="inputError.ds_email = false">
+            <InputField type="text" :Label="`Confirmar Email${requireEmail?'*':''}`" Icon="fas fa-at" clearable :readonly="readonly" 
+              v-model="control.ds_email_confirm"
+              :Error="inputError.ds_email" @focus="delete inputError.ds_email">
             </InputField>
           </div>
           <div v-if="createPass && !readonly" class="col-12 col-md-6">
-            <InputField type="password" Label="Senha*" Icon="fas fa-key" clearable :readonly="readonly" v-model="input.ds_password" 
-              :Error="inputError.ds_password" @focus="() => inputError.ds_password = false">
+            <InputField type="password" :Label="`Senha${requirePassword?'*':''}`" Icon="fas fa-key" clearable :readonly="readonly" v-model="input.ds_password"
+              :Error="inputError.ds_password" @focus="delete inputError.ds_password">
             </InputField>
           </div>
           <div v-if="createPass && !readonly" class="col-12 col-md-6">
-            <InputField type="password" Label="Confirmar Senha*" Icon="fas fa-check" clearable :readonly="readonly" 
+            <InputField type="password" :Label="`Confirmar Senha${requirePassword?'*':''}`" Icon="fas fa-check" clearable :readonly="readonly" 
               v-model="control.ds_password_confirm" :disable="!input.ds_password"
               :Error="inputError.ds_password_confirm" @focus="delete inputError.ds_password_confirm">
             </InputField>
           </div>
           <div v-if="!shouldHide('ds_company')" class="col-12 col-md-6">
             <InputField type="text" Label="Empresa" Icon="fas fa-building" clearable :readonly="readonly"
-              v-model="input.ds_company"></InputField>
+              v-model="input.ds_company">
+            </InputField>
           </div>
         </div>
       </q-card>
@@ -93,6 +97,8 @@ export default {
     editPass: Boolean,
     onlySecurity: Boolean,
     bordered: Boolean,
+    requireEmail: Boolean,
+    requirePassword: Boolean,
     HideFields: {
       type: Array,
       default: () => [],
@@ -123,7 +129,6 @@ export default {
       inputError: {
         ds_first_name: false,
         ds_last_name: false,
-        ds_email: false,
       },
       control: {
         ds_email_confirm: null,
@@ -153,14 +158,16 @@ export default {
 
   methods: {
     validateFields() {
-      // Validation
       let user = Object.assign({}, this.input);
       delete user.avatar;
 
-      // -- Form
+      if(this.requireEmail) { this.inputError.ds_email = false; }
+      if(this.requirePassword) { this.inputError.ds_password = false; }
+
+      // Form
       if (!this.$utils.validateForm(user, this.inputError)) return false;
 
-      // -- Email
+      // Email Confirm
       if (this.confirmEmail && (user.ds_email !== this.control.ds_email_confirm)) {
         this.inputError.ds_email = true;
         this.inputError.ds_email_confirm = true;
@@ -172,7 +179,7 @@ export default {
         return false;
       }
 
-      // -- Password
+      // Password Confirm
       if (user.ds_password !== '' && user.ds_password !== null) {
         if (user.ds_password !== this.control.ds_password_confirm) {
           this.inputError.ds_password = true;
