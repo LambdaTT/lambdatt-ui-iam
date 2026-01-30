@@ -33,9 +33,9 @@
               <q-card-section>
                 <div class="row text-center">
                   <div class="col-12">
-                    <p class="text-h5 text-grey-7"><q-icon name="fas fa-bomb" size="xl"></q-icon> Erro
+                    <p class="text-h5 text-red-3"><q-icon name="fas fa-bomb" size="xl"></q-icon> Erro
                     </p>
-                    <p class="text-caption text-grey-9">
+                    <p class="text-caption text-red-3 text-bold">
                       Ocorreu um problema para carregar as informações.
                     </p>
                   </div>
