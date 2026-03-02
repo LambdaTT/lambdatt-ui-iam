@@ -12,7 +12,7 @@
         </div>
       </template>
 
-      <DataTable Name="user-list" DataURL="/api/iam/users/v1/user" v-model="Datatable" :Columns="columns"
+      <DataTable Name="Usuário" DataURL="/api/iam/users/v1/user" v-model="Datatable" :Columns="columns"
         :RowActions="rowActions">
         <template #cell-avatar="row">
           <div class="q-pa-sm text-center">

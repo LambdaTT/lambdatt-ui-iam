@@ -12,7 +12,7 @@
         </div>
       </template>
 
-      <DataTable Name="accessprofile-list" DataURL="/api/iam/accessprofiles/v1/accessprofile" v-model="Datatable"
+      <DataTable Name="Perfil de Acesso" DataURL="/api/iam/accessprofiles/v1/accessprofile" v-model="Datatable"
         :Columns="columns" :RowActions="rowActions">
       </DataTable>
 
