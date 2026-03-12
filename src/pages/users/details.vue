@@ -11,10 +11,10 @@
         </div>
       </template>
 
-      <IamUserInfo v-model="User" readonly></IamUserInfo>
+      <UserForm v-model="User" readonly></UserForm>
 
       <template #audit-info>
-        <IamAuditInfo :input="inputUser"></IamAuditInfo>
+        <AuditBlock :input="inputUser"></AuditBlock>
       </template>
 
       <template #user-profiles>

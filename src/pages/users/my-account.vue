@@ -16,7 +16,7 @@
         </div>
       </template>
 
-      <IamUserInfo v-model="User"></IamUserInfo>
+      <UserForm v-model="User"></UserForm>
     </La1Card>
   </La1Page>
 </template>

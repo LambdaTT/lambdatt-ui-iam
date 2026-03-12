@@ -29,7 +29,7 @@
       </div>
 
       <template #audit-info>
-        <IamAuditInfo :input="userData"></IamAuditInfo>
+        <AuditBlock :input="userData"></AuditBlock>
       </template>
 
       <template #section-modules>

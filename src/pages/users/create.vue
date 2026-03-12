@@ -16,7 +16,7 @@
         </div>
       </template>
 
-      <IamUserInfo v-model="User" confirmEmail requiredPass></IamUserInfo>
+      <UserForm v-model="User" confirmEmail requiredPass></UserForm>
 
       <template #user-profiles>
         <La1Card Title="Perfis de Acesso" Icon="fas fa-id-card">

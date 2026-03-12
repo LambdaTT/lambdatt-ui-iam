@@ -21,7 +21,7 @@
         </div>
       </template>
 
-      <IamUserInfo v-model="User"></IamUserInfo>
+      <UserForm v-model="User"></UserForm>
 
       <template #user-profiles>
         <La1Card Title="Perfis de Acesso" Icon="fas fa-id-card">
