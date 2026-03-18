@@ -4,71 +4,89 @@ import ENDPOINTS from '../ENDPOINTS';
 const REQUIRE_ALL = 1; // All permissions must be granted
 const REQUIRE_ANY = 2; // At least one permission must be granted
 
-export default {
-  isSuperAdmin: null,
-  regularPermissions: [],
-  customPermissions: [],
+var isSuperAdmin = null;
+var regularPermissions = null;
+var customPermissions = null;
 
+export default {
   getUserPermissions() {
     return $sys.getService('toolcase/http').get(ENDPOINTS.PERMISSIONS.READ)
       .then((response) => {
-        this.isSuperAdmin = response.data?.isSuperAdmin == 'Y';
-        this.regularPermissions = response.data.regularPermissions;
-        this.customPermissions = response.data.customPermissions;
+        isSuperAdmin = response.data?.isSuperAdmin == 'Y';
+        regularPermissions = response.data.regularPermissions;
+        customPermissions = response.data.customPermissions;
       })
   },
 
   canExecute(keys, mode = REQUIRE_ALL) {
-    const utils = $sys.getService('toolcase/utils');
-    
-    if (this.isSuperAdmin || utils.empty(keys)) return true
+    function innerExec() {
+      const utils = $sys.getService('toolcase/utils');
 
-    if (keys instanceof Array) {
-      let allow = false;
+      if (isSuperAdmin || utils.empty(keys)) return true
 
-      for (let i = 0; i < keys.length; i++) {
-        allow = this.canExecute(keys[i], mode);
-        if (allow && mode === REQUIRE_ANY) break;
+      if (keys instanceof Array) {
+        let allow = false;
+
+        for (let i = 0; i < keys.length; i++) {
+          allow = this.canExecute(keys[i], mode);
+          if (allow && mode === REQUIRE_ANY) break;
+        }
+
+        return allow;
+      } else {
+        var permission = customPermissions.find(p => p.ds_key == keys);
+        return !!permission;
       }
-
-      return allow;
-    } else {
-      var permission = this.customPermissions.find(p => p.ds_key == keys);
-      return !!permission;
     }
+
+    return new Promise(async resolve => {
+      while (isSuperAdmin === null || customPermissions === null) {
+        await $sys.getService('toolcase/utils').sleep(100);
+      }
+      resolve(innerExec());
+    });
   },
 
   validatePermissions(requiredPermissions, mode = REQUIRE_ALL) {
-    const utils = $sys.getService('toolcase/utils');
-    
-    if (this.isSuperAdmin || utils.empty(requiredPermissions)) return true
+    function innerExec() {
+      const utils = $sys.getService('toolcase/utils');
 
-    const lvlDict = {
-      'C': 'do_create',
-      'R': 'do_read',
-      'U': 'do_update',
-      'D': 'do_delete'
-    };
+      if (isSuperAdmin || utils.empty(requiredPermissions)) return true
 
-    let result = false;
-    for (let entity in requiredPermissions) {
-      let level = requiredPermissions[entity].toUpperCase();
+      const lvlDict = {
+        'C': 'do_create',
+        'R': 'do_read',
+        'U': 'do_update',
+        'D': 'do_delete'
+      };
 
-      let p = this.regularPermissions.find(p => p.ds_entity_name == entity);
-      if (!p && mode === REQUIRE_ALL) return false;
-      else if (!p) continue;
+      let result = false;
+      for (let entity in requiredPermissions) {
+        let level = requiredPermissions[entity].toUpperCase();
 
-      for (let i = 0; i < level.length; i++) {
-        let translated = lvlDict[level[i]];
-        if (!translated) {
-          console.warn(`Invalid permission level: ${level[i]} for entity: ${entity}`);
-          continue;
+        let p = this.regularPermissions.find(p => p.ds_entity_name == entity);
+        if (!p && mode === REQUIRE_ALL) return false;
+        else if (!p) continue;
+
+        for (let i = 0; i < level.length; i++) {
+          let translated = lvlDict[level[i]];
+          if (!translated) {
+            console.warn(`Invalid permission level: ${level[i]} for entity: ${entity}`);
+            continue;
+          }
+          result = p[translated] == 'Y';
+          if (!result && mode === REQUIRE_ANY) break;
         }
-        result = p[translated] == 'Y';
-        if (!result && mode === REQUIRE_ANY) break;
       }
+
+      return result;
     }
 
-    return result;
+    return new Promise(async resolve => {
+      while (isSuperAdmin === null || regularPermissions === null) {
+        await $sys.getService('toolcase/utils').sleep(100);
+      }
+      resolve(innerExec());
+    });
   }
 }
