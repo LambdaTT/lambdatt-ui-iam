@@ -137,16 +137,19 @@ export default {
       this.$q.loading.show();
 
       try {
+        // Login
         const loginResponse = await this.$http.post('/api/iam/auth/v1/login', this.input)
 
         localStorage.setItem('iam_session_key', loginResponse.data.ds_key);
         localStorage.setItem('xsrf_token', loginResponse.data.xsrfToken);
 
+        // Remember Me(auto-login)
         if (this.rememberMe) {
           const tknResponse = await this.$http.get('/api/iam/auth/v1/renew-token')
           localStorage.setItem('authtoken', tknResponse.data.ds_hash);
         }
 
+        // Redirect
         setTimeout(() => {
           if (!!this.$route.query.goTo)
             this.$router.push(this.$route.query.goTo);
