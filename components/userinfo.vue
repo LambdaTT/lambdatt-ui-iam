@@ -90,6 +90,7 @@ export default {
   name: 'component-userinfo',
 
   props: {
+    AccountOwner: Boolean,
     readonly: Boolean,
     showTitle: Boolean,
     confirmEmail: Boolean,
@@ -260,7 +261,9 @@ export default {
         ds_password: this.control.ds_password
       }
 
-      return this.$http.put('/api/iam/users/v1/admin-change-pass', data)
+      const url = this.AccountOwner ? '/api/iam/users/v1/my-account' : '/api/iam/users/v1/admin-change-pass';
+
+      return this.$http.put(url, data)
         .then(() => {
           this.$utils.notify({
             message: 'Senha atualizada com sucesso',

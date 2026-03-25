@@ -16,7 +16,7 @@
         </div>
       </template>
 
-      <UserInfo v-model="User" editPass></UserInfo>
+      <UserInfo AccountOwner v-model="User" editPass></UserInfo>
     </Card>
   </Page>
 </template>
