@@ -34,9 +34,9 @@
                       Icon="email"
                       type="email"
                       clearable
-                      v-model="input.ds_email"
-                      :Error="inputError.ds_email"
-                      @focus="inputError.ds_email = false"
+                      v-model="input.username"
+                      :Error="inputError.username"
+                      @focus="inputError.username = false"
                     ></InputField>
                     <InputField
                       Label="Senha"
@@ -157,11 +157,11 @@ export default {
       showForgotPassForm: false,
       rememberMe: false,
       input: {
-        ds_email: null,
+        username: null,
         ds_password: null,
       },
       inputError: {
-        ds_email: false,
+        username: false,
         ds_password: false,
       },
       recoveryEmail: null,
@@ -293,7 +293,7 @@ export default {
       try {
         this.$getService("toolcase/http").post(
           ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET,
-          { ds_email: this.recoveryEmail },
+          { username: this.recoveryEmail },
         );
         this.$getService("toolcase/utils").notify({
           message:

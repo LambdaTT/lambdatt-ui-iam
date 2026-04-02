@@ -74,10 +74,7 @@
       ></InputField>
     </div>
     <div v-if="HideFields.length == 0" class="col-12 col-md-6">&nbsp;</div>
-    <div
-      v-if="!shouldHide('ds_email')"
-      class="col-12 col-md-6"
-    >
+    <div v-if="!shouldHide('ds_email')" class="col-12 col-md-6">
       <InputField
         type="text"
         Label="Email*"
@@ -90,10 +87,7 @@
       >
       </InputField>
     </div>
-    <div
-      v-if="!shouldHide('ds_username')"
-      class="col-12 col-md-6"
-    >
+    <div v-if="!shouldHide('ds_username')" class="col-12 col-md-6">
       <InputField
         type="text"
         Label="Nome de Usuário*"
@@ -255,6 +249,11 @@ export default {
       // -- Password
       if (user.ds_password !== "" && user.ds_password !== null) {
         if (user.ds_password !== this.control.ds_password_confirm) {
+          console.log(
+            `${user.ds_password} !== ${this.control.ds_password_confirm}`,
+            user.ds_password !== this.control.ds_password_confirm,
+          );
+
           this.inputError.ds_password = true;
           this.inputError.ds_password_confirm = true;
           this.$getService("toolcase/utils").notify({
