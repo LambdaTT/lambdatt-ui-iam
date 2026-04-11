@@ -203,11 +203,12 @@ export default {
 
       this.$q.loading.show();
 
+      const deviceKey = this.$getService("iam/device").getDeviceKey();
+
       try {
-        const loginResponse = await this.$getService("toolcase/http").post(
-          ENDPOINTS.AUTH.LOGIN,
-          this.input,
-        );
+        const loginResponse = await this.$getService("toolcase/http")
+          .setHeader("Iam-Device-Key", deviceKey)
+          .post(ENDPOINTS.AUTH.LOGIN, this.input);
 
         localStorage.setItem("iam_session_key", loginResponse.data.ds_key);
         localStorage.setItem("xsrf_token", loginResponse.data.xsrfToken);

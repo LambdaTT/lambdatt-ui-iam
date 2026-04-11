@@ -1,5 +1,5 @@
 import $sys from "src/lambdatt.js";
-import ENDPI from "../ENDPOINTS";
+import ENDPOINTS from "../ENDPOINTS";
 
 export default {
   async registerDevice() {
