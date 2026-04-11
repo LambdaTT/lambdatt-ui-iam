@@ -1,13 +1,14 @@
 import $sys from "src/lambdatt.js";
-import { ENDPOINTS } from "src/ENDPOINTS";
+import ENDPI from "../ENDPOINTS";
 
 export default {
   async registerDevice() {
     try {
-      const response = await $sys
+      const { data } = await $sys
         .getService("toolcase/http")
-        .post(ENDPOINTS.IAM.DEVICES.DEVICE);
-      localStorage.setItem("iam_device_key", response.data.ds_key);
+        .post(ENDPOINTS.DEVICES.DEVICE);
+
+      localStorage.setItem("iam_device_key", data.ds_key);
     } catch (error) {
       console.error(
         "An error occurred while attempting to register device.",

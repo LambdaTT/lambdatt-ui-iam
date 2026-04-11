@@ -28,6 +28,10 @@ export default {
     PROFILE: '/iam/accessprofiles/v1/profile',
     MODULE: '/iam/accessprofiles/v1/module',
     PERMISSION: '/iam/accessprofiles/v1/permission',
+  },
+
+  DEVICES: {
+    DEVICE: "/iam/devices/v1/device"                        // POST
   }
 
 }
