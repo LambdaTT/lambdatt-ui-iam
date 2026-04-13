@@ -203,7 +203,7 @@ export default {
 
       this.$q.loading.show();
 
-      const deviceKey = this.$getService("iam/device").getDeviceKey();
+      const deviceKey = await this.$getService("iam/device").getDeviceKey();
 
       try {
         const loginResponse = await this.$getService("toolcase/http")
