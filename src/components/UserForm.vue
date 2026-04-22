@@ -10,7 +10,7 @@
     <div class="col-12">
       <PhotoPicker
         v-if="!shouldHide('avatar') && input.avatar"
-        DefaultImgPath="/resources/img/unknown-user.jpg"
+        :DefaultImgPath="DefaultAvatarPath || '/resources/img/unknown-user.jpg'"
         v-model="input.avatar"
         :disable="readonly"
       >
@@ -173,6 +173,10 @@ export default {
     HideFields: {
       type: Array,
       default: () => [],
+    },
+    DefaultAvatarPath: {
+      type: String,
+      default: null,
     },
     modelValue: {
       type: Object,
