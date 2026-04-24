@@ -51,7 +51,7 @@ export default {
 
     columns() {
       return [
-        { label: 'Nome', field: 'ds_title' },
+        { label: 'Nome', field: 'ds_title', align: 'center' },
         { label: 'Ativo?', field: 'activeText', align: 'center' },
       ]
     },
@@ -60,12 +60,18 @@ export default {
       return [
         { icon: 'fas fa-eye', label: 'Visualizar', tooltip: 'Ver Detalhes', fn: (row) => { this.$router.push(`/iam/access-profiles/view/${row.ds_key}`) } },
         { icon: 'fas fa-edit', label: 'Editar', tooltip: 'Editar Informações', hide: !this.permissions.update, fn: (row) => { this.$router.push(`/iam/access-profiles/edit/${row.ds_key}`) } },
-        { icon: 'fas fa-trash-alt', label: 'Excluir', tooltip: 'Excluir Perfil de Acesso', hide: !this.permissions.delete, fn: this.remove },
+        { icon: 'fas fa-trash-alt', label: 'Excluir', tooltip: 'Excluir Perfil de Acesso', hide: this.hideDelete, fn: this.remove },
       ]
     }
   },
 
   methods: {
+    hideDelete(row) {
+      const hasPermission = this.permissions.delete;
+      const isInWhitelist = ['assoc','prof','dir'].includes(row.ds_tag);
+      return !hasPermission || isInWhitelist;
+    },
+
     remove(row) {
       if (!confirm('Deseja excluir as informações?')) return false;
 
