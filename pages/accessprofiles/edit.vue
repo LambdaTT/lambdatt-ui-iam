@@ -3,14 +3,14 @@
     <Card Title="Dados do Perfil" Icon="fas fa-id-card">
       <template #actions>
         <div class="row justify-end">
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn v-if="permissions.update" class="full-width" icon="fas fa-save" color="green" label="Salvar"
+          <div v-if="permissions.update" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
+            <q-btn class="full-width" icon="fas fa-save" color="green" label="Salvar"
               @click="save()">
               <q-tooltip>Salvar dados</q-tooltip>
             </q-btn>
           </div>
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn v-if="permissions.delete" class="full-width" icon="fas fa-trash-alt" color="red" label="Excluir"
+          <div v-if="permissions.delete && !standart" class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
+            <q-btn class="full-width" icon="fas fa-trash-alt" color="red" label="Excluir"
               @click="remove()">
               <q-tooltip>Excluir dados</q-tooltip>
             </q-btn>
@@ -25,11 +25,11 @@
 
       <div class="row">
         <div class="col-12">
-          <InputField Label="Título" Icon="fas fa-id-card" type="text" clearable v-model="input.ds_title"
+          <InputField Label="Título" Icon="fas fa-id-card" type="text" clearable v-model="input.ds_title" :readonly="standart"
             :Error="inputError.ds_title" @focus="inputError.ds_title = false" maxlength="40"></InputField>
         </div>
         <div class="col-12">
-          <InputField Label="Descrição" Icon="fas fa-info-cricle" type="textarea" clearable
+          <InputField Label="Descrição" Icon="fas fa-info-cricle" type="textarea" clearable :readonly="standart"
             v-model="input.tx_description">
           </InputField>
         </div>
@@ -67,7 +67,8 @@ export default {
       },
       inputError: {
         ds_title: false,
-      }
+      },
+      standart: true,
     }
   },
 
@@ -202,6 +203,7 @@ export default {
             if (k in response.data)
               this.input[k] = response.data[k];
           }
+          this.standart = response.data.do_standart === 'Y';
         })
         .then(() => this.getModules())
         .catch((error) => {

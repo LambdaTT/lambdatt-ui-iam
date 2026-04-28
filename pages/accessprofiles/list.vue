@@ -68,7 +68,7 @@ export default {
   methods: {
     hideDelete(row) {
       const hasPermission = this.permissions.delete;
-      const isInWhitelist = ['assoc','prof','dir'].includes(row.ds_tag);
+      const isInWhitelist = row.do_standart === 'Y';
       return !hasPermission || isInWhitelist;
     },
 
