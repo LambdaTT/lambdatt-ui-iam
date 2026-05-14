@@ -221,7 +221,7 @@ export default {
         }
 
         setTimeout(() => {
-          if (!!this.$route.query.goTo)
+          if (this.$route.query.goTo)
             this.$router.push(this.$route.query.goTo);
           else this.$router.push("/");
         }, 100);
@@ -251,7 +251,6 @@ export default {
         localStorage.setItem(
           "iam_session_key",
           response.data.ds_key,
-          cookieOptions,
         );
         localStorage.setItem("xsrf_token", response.data.xsrfToken);
 
@@ -261,7 +260,7 @@ export default {
         localStorage.setItem("authtoken", tknResponse.data.ds_hash);
 
         // Set renewed token
-        if (!!this.$route.query.goTo) this.$router.push(this.$route.query.goTo);
+        if (this.$route.query.goTo) this.$router.push(this.$route.query.goTo);
         else this.$router.push("/");
       } catch (error) {
         if (error.response.status != 401) {

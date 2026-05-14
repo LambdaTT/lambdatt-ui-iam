@@ -294,9 +294,7 @@ export default {
       for (const field of conditionalFields) {
         if (!this.shouldHide(field)) {
           if (!(field in this.inputError)) {
-            this.$set
-              ? this.$set(this.inputError, field, false)
-              : (this.inputError[field] = false);
+            this.inputError[field] = false;
           }
         } else {
           delete this.inputError[field];

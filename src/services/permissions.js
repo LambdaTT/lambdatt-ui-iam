@@ -18,7 +18,7 @@ export default {
       })
   },
 
-  canExecute(keys, mode = REQUIRE_ALL) {
+  async canExecute(keys, mode = REQUIRE_ALL) {
     function innerExec() {
       const utils = $sys.getService('toolcase/utils');
 
@@ -39,15 +39,13 @@ export default {
       }
     }
 
-    return new Promise(async resolve => {
-      while (isSuperAdmin === null || customPermissions === null) {
-        await $sys.getService('toolcase/utils').sleep(100);
-      }
-      resolve(innerExec());
-    });
+    while (isSuperAdmin === null || customPermissions === null) {
+      await $sys.getService('toolcase/utils').sleep(100);
+    }
+    return innerExec();
   },
 
-  validatePermissions(requiredPermissions, mode = REQUIRE_ALL) {
+  async validatePermissions(requiredPermissions, mode = REQUIRE_ALL) {
     function innerExec() {
       const utils = $sys.getService('toolcase/utils');
 
@@ -82,11 +80,9 @@ export default {
       return result;
     }
 
-    return new Promise(async resolve => {
-      while (isSuperAdmin === null || regularPermissions === null) {
-        await $sys.getService('toolcase/utils').sleep(100);
-      }
-      resolve(innerExec());
-    });
+    while (isSuperAdmin === null || regularPermissions === null) {
+      await $sys.getService('toolcase/utils').sleep(100);
+    }
+    return innerExec();
   }
 }

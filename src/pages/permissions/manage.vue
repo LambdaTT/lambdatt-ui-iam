@@ -385,7 +385,7 @@ export default {
       this.entityPermissions = {};
       this.customPermissions = {};
 
-      if (!!this.profileId) {
+      if (this.profileId) {
         try {
           const response = await this.$getService("toolcase/http").get(
             `${ENDPOINTS.PROFILES.PERMISSION}/${this.profileId}`,
@@ -435,7 +435,7 @@ export default {
       if (permission.permission_type == "E")
         this.entityPermissions[permission.permission_key] = permission;
       else if (permission.permission_type == "C") {
-        if (this.customPermissions.hasOwnProperty(permission.permission_key))
+        if (Object.prototype.hasOwnProperty.call(this.customPermissions, permission.permission_key))
           delete this.customPermissions[permission.permission_key];
         else this.customPermissions[permission.permission_key] = permission;
       }

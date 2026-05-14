@@ -58,7 +58,7 @@ export default {
       for (let k in this.input)
         if (k != 'avatar')
           data.set(k, this.input[k]);
-      if (!!this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
+      if (this.input.avatar.file) data.set('user_avatar', this.input.avatar.file)
 
       this.$getService('toolcase/loader').load( 'save-user');
       return this.$getService('toolcase/http').put(ENDPOINTS.USERS.MY_ACCOUNT, data)
