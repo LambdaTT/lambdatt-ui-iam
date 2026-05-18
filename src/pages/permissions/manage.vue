@@ -193,20 +193,14 @@
       <div>
         <div class="q-pa-xs">
           <p
-            style="
-              border: 1px solid;
-              padding: 5px;
-              background-color: #f0f0f0;
-              font-weight: bold;
-            "
+            style="border: 1px solid; padding: 5px; background-color: #f0f0f0; font-weight: bold"
             class="text-warning text-justify"
           >
-            <i class="fas fa-exclamation-triangle"></i> A permissão de execução
-            é um tipo especial de permissão que permite controlar ações
-            específicas do usuário no sistema, como emitir relatórios, por
-            exemplo. Quando criada, esta permissão ficará disponível para todos
-            os perfis que possuírem acesso ao módulo selecionado e não poderá
-            ser excluída posteriormente.
+            <i class="fas fa-exclamation-triangle"></i> A permissão de execução é um tipo especial
+            de permissão que permite controlar ações específicas do usuário no sistema, como emitir
+            relatórios, por exemplo. Quando criada, esta permissão ficará disponível para todos os
+            perfis que possuírem acesso ao módulo selecionado e não poderá ser excluída
+            posteriormente.
           </p>
         </div>
         <div class="row">
@@ -272,10 +266,10 @@
 </template>
 
 <script>
-import { ENDPOINTS } from "src/ENDPOINTS";
+import ENDPOINTS from '../../ENDPOINTS'
 
 export default {
-  name: "pages-iam-permissions-permissions",
+  name: 'pages-iam-permissions-permissions',
 
   data() {
     return {
@@ -299,213 +293,201 @@ export default {
       },
       execPermissionModalActions: [
         {
-          label: "Salvar",
-          color: "green",
-          icon: "save",
+          label: 'Salvar',
+          color: 'green',
+          icon: 'save',
           fn: this.createExecPermission,
         },
       ],
-    };
+    }
   },
 
   computed: {
     breadcrumb() {
       return [
-        { label: "Home", icon: "fas fa-home", to: "/" },
-        { label: "Permissões", icon: "fas fa-key" },
-      ];
+        { label: 'Home', icon: 'fas fa-home', to: '/' },
+        { label: 'Permissões', icon: 'fas fa-key' },
+      ]
     },
   },
 
   methods: {
     async listProfiles() {
-      this.$getService("toolcase/loader").load("list-acessprofiles");
-      var response = await this.$getService("toolcase/http")
+      this.$getService('toolcase/loader').load('list-acessprofiles')
+      var response = await this.$getService('toolcase/http')
         .get(ENDPOINTS.PROFILES.PROFILE)
         .catch((error) => {
-          this.$getService("toolcase/utils").notifyError(error);
-          console.error(error);
-        });
+          this.$getService('toolcase/utils').notifyError(error)
+          console.error(error)
+        })
 
       for (let i = 0; i < response.data.length; i++) {
-        let profileObj = response.data[i];
+        let profileObj = response.data[i]
 
         this.accessprofiles.push({
           label: profileObj.ds_title,
           value: profileObj.ds_key,
-        });
+        })
       }
-      this.$getService("toolcase/loader").loaded("list-acessprofiles");
+      this.$getService('toolcase/loader').loaded('list-acessprofiles')
     },
 
     async listSystemModules() {
-      this.$getService("toolcase/loader").load("list-system-modules");
-      var response = await this.$getService("toolcase/http")
+      this.$getService('toolcase/loader').load('list-system-modules')
+      var response = await this.$getService('toolcase/http')
         .get(ENDPOINTS.MOD_CONTROL)
         .catch((error) => {
-          this.$getService("toolcase/utils").notifyError(error);
-          console.error(error);
-        });
+          this.$getService('toolcase/utils').notifyError(error)
+          console.error(error)
+        })
 
       for (let i = 0; i < response.data.length; i++) {
-        let moduleObj = response.data[i];
+        let moduleObj = response.data[i]
 
         this.systemModules.push({
           label: moduleObj.ds_title,
           value: moduleObj.id_apm_module,
-        });
+        })
       }
-      this.$getService("toolcase/loader").loaded("list-system-modules");
+      this.$getService('toolcase/loader').loaded('list-system-modules')
     },
 
     generateExecPermissionKey() {
-      var moduleName;
+      var moduleName
       for (let i = 0; i < this.systemModules.length; i++) {
         if (this.systemModules[i].value == this.input.id_apm_module)
-          moduleName = this.systemModules[i].label.toSlug();
+          moduleName = this.systemModules[i].label.toSlug()
       }
       this.input.ds_key =
         moduleName +
-        "-" +
-        (this.input.ds_title != null
-          ? this.input.ds_title.toSlug() + "-"
-          : "") +
-        this.$getService("toolcase/utils").uniqid();
+        '-' +
+        (this.input.ds_title != null ? this.input.ds_title.toSlug() + '-' : '') +
+        this.$getService('toolcase/utils').uniqid()
     },
 
     resetInput() {
       for (let k in this.input) {
-        this.input[k] = null;
-        this.inputError[k] = false;
+        this.input[k] = null
+        this.inputError[k] = false
       }
     },
 
     async getPermissions() {
-      this.$getService("toolcase/loader").load("get-permissions");
-      this.entityPermissions = {};
-      this.customPermissions = {};
+      this.$getService('toolcase/loader').load('get-permissions')
+      this.entityPermissions = {}
+      this.customPermissions = {}
 
       if (this.profileId) {
         try {
-          const response = await this.$getService("toolcase/http").get(
+          const response = await this.$getService('toolcase/http').get(
             `${ENDPOINTS.PROFILES.PERMISSION}/${this.profileId}`,
-          );
-          this.permissions = response.data;
+          )
+          this.permissions = response.data
         } catch (err) {
-          console.error(
-            "An error has occurred on the attempt to get profile's permissions.",
-            err,
-          );
-          this.$getService("toolcase/utils").notifyError(err);
+          console.error("An error has occurred on the attempt to get profile's permissions.", err)
+          this.$getService('toolcase/utils').notifyError(err)
         }
       }
 
-      this.$getService("toolcase/loader").loaded("get-permissions");
+      this.$getService('toolcase/loader').loaded('get-permissions')
     },
 
     async createExecPermission() {
-      if (
-        this.$getService("toolcase/utils").validateForm(
-          this.input,
-          this.inputError,
-        ) == false
-      )
-        return;
+      if (this.$getService('toolcase/utils').validateForm(this.input, this.inputError) == false)
+        return
 
-      this.$getService("toolcase/loader").load("create-execpermission");
-      await this.$getService("toolcase/http")
+      this.$getService('toolcase/loader').load('create-execpermission')
+      await this.$getService('toolcase/http')
         .post(ENDPOINTS.PROFILES.PERMISSION, this.input)
         .catch((error) => {
-          console.error(error);
-          this.$getService("toolcase/utils").notifyError(error);
-        });
+          console.error(error)
+          this.$getService('toolcase/utils').notifyError(error)
+        })
 
-      await this.getPermissions();
+      await this.getPermissions()
 
-      this.$getService("toolcase/utils").notify({
-        message: "A permissão de execução foi criada com sucesso.",
-        type: "positive",
-        position: "top-right",
-      });
-      this.showExecPermissionModal = false;
-      this.$getService("toolcase/loader").loaded("create-execpermission");
+      this.$getService('toolcase/utils').notify({
+        message: 'A permissão de execução foi criada com sucesso.',
+        type: 'positive',
+        position: 'top-right',
+      })
+      this.showExecPermissionModal = false
+      this.$getService('toolcase/loader').loaded('create-execpermission')
     },
 
     changePermission(permission) {
-      if (permission.permission_type == "E")
-        this.entityPermissions[permission.permission_key] = permission;
-      else if (permission.permission_type == "C") {
+      if (permission.permission_type == 'E')
+        this.entityPermissions[permission.permission_key] = permission
+      else if (permission.permission_type == 'C') {
         if (Object.prototype.hasOwnProperty.call(this.customPermissions, permission.permission_key))
-          delete this.customPermissions[permission.permission_key];
-        else this.customPermissions[permission.permission_key] = permission;
+          delete this.customPermissions[permission.permission_key]
+        else this.customPermissions[permission.permission_key] = permission
       }
     },
 
     checkForChanges() {
       return (
-        this.$getService("toolcase/utils").objectSize(this.entityPermissions) >
-          0 ||
-        this.$getService("toolcase/utils").objectSize(this.customPermissions) >
-          0
-      );
+        this.$getService('toolcase/utils').objectSize(this.entityPermissions) > 0 ||
+        this.$getService('toolcase/utils').objectSize(this.customPermissions) > 0
+      )
     },
 
     async save() {
       var input = {
         entityPermissions: this.entityPermissions,
         customPermissions: this.customPermissions,
-      };
+      }
 
-      if (this.$getService("toolcase/utils").objectSize(input) < 1) return;
+      if (this.$getService('toolcase/utils').objectSize(input) < 1) return
 
-      this.$getService("toolcase/loader").load("save-permissions");
-      await this.$getService("toolcase/http")
+      this.$getService('toolcase/loader').load('save-permissions')
+      await this.$getService('toolcase/http')
         .put(`${ENDPOINTS.PROFILES.PERMISSION}/${this.profileId}`, input)
         .then(() => {
-          return this.$getService("iam/permissions").getUserPermissions();
+          return this.$getService('iam/permissions').getUserPermissions()
         })
         .catch(function (error) {
-          console.error(error);
-          this.$getService("toolcase/utils").notifyError(error);
-        });
+          console.error(error)
+          this.$getService('toolcase/utils').notifyError(error)
+        })
 
-      await this.getPermissions();
+      await this.getPermissions()
 
       this.$persistentNotifications.add({
-        message: "As permissões do perfil foram alteradas.",
-        type: "positive",
-      });
+        message: 'As permissões do perfil foram alteradas.',
+        type: 'positive',
+      })
 
-      location.reload();
+      location.reload()
     },
   },
 
   async mounted() {
-    await this.$getService("iam/auth").authenticate();
+    await this.$getService('iam/auth').authenticate()
     if (
-      !this.$getService("iam/permissions").validatePermissions({
-        IAM_ACCESSPROFILE: "R",
+      !this.$getService('iam/permissions').validatePermissions({
+        IAM_ACCESSPROFILE: 'R',
       }) ||
-      !this.$getService("iam/permissions").validatePermissions({
-        IAM_ACCESSPROFILE_MODULE: "R",
+      !this.$getService('iam/permissions').validatePermissions({
+        IAM_ACCESSPROFILE_MODULE: 'R',
       }) ||
-      !this.$getService("iam/permissions").validatePermissions({
-        IAM_ACCESSPROFILE_PERMISSION: "RU",
+      !this.$getService('iam/permissions').validatePermissions({
+        IAM_ACCESSPROFILE_PERMISSION: 'RU',
       }) ||
-      !this.$getService("iam/permissions").validatePermissions({
-        IAM_CUSTOM_PERMISSION: "CR",
+      !this.$getService('iam/permissions').validatePermissions({
+        IAM_CUSTOM_PERMISSION: 'CR',
       }) ||
-      !this.$getService("iam/permissions").validatePermissions({
-        IAM_ACCESSPROFILE_CUSTOM_PERMISSION: "CRUD",
+      !this.$getService('iam/permissions').validatePermissions({
+        IAM_ACCESSPROFILE_CUSTOM_PERMISSION: 'CRUD',
       })
     )
-      this.$router.push("/error/forbidden");
+      this.$router.push('/error/forbidden')
 
-    this.listProfiles();
-    this.listSystemModules();
-    this.$persistentNotifications.showAll();
+    this.listProfiles()
+    this.listSystemModules()
+    this.$persistentNotifications.showAll()
   },
-};
+}
 </script>
 
 <style scoped>
