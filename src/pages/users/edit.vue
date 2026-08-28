@@ -21,7 +21,7 @@
         </div>
       </template>
 
-      <UserForm v-model="User"></UserForm>
+      <UserForm v-model="User" editPass :UserKey="$route.params.key"></UserForm>
 
       <template #user-profiles>
         <La1Card Title="Perfis de Acesso" Icon="fas fa-id-card">
@@ -101,6 +101,8 @@ export default {
         if (k != 'avatar')
           data.set(k, this.input[k]);
       if (this.input.avatar.file) data.set('avatar', this.input.avatar.file)
+      // Senha é alterada pelo modal "Alterar Senha" (admin-change-pass), não neste save.
+      data.delete('ds_password')
 
       this.$getService('toolcase/loader').load( 'save-user');
       return this.$getService('toolcase/http').put(`${ENDPOINTS.USERS.USER}/${this.$route.params.key}`, data)

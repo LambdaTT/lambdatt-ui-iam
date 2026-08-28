@@ -16,7 +16,7 @@
         </div>
       </template>
 
-      <UserForm v-model="User"></UserForm>
+      <UserForm v-model="User" editPass accountOwner></UserForm>
     </La1Card>
   </La1Page>
 </template>
@@ -59,6 +59,8 @@ export default {
         if (k != 'avatar')
           data.set(k, this.input[k]);
       if (this.input.avatar.file) data.set('avatar', this.input.avatar.file)
+      // Senha é alterada pelo modal "Alterar Senha" (my-account), não neste save.
+      data.delete('ds_password')
 
       this.$getService('toolcase/loader').load( 'save-user');
       return this.$getService('toolcase/http').put(ENDPOINTS.USERS.MY_ACCOUNT, data)

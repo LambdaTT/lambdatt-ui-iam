@@ -17,6 +17,16 @@
       </PhotoPicker>
     </div>
 
+    <!-- Alterar Senha (modo edição) -->
+    <div v-if="editPass" class="col-12 q-pa-xs" align="right">
+      <q-btn
+        label="Alterar Senha"
+        icon="fas fa-key"
+        color="grey-9"
+        @click="openPasswordModal"
+      />
+    </div>
+
     <!-- Data -->
     <div v-if="!shouldHide('ds_first_name')" class="col-12 col-md-6">
       <InputField
@@ -117,7 +127,10 @@
       >
       </InputField>
     </div>
-    <div v-if="!shouldHide('ds_password') && !readonly" class="col-12 col-md-6">
+    <div
+      v-if="!shouldHide('ds_password') && !readonly && !editPass"
+      class="col-12 col-md-6"
+    >
       <InputField
         type="password"
         :Label="`${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`"
@@ -139,7 +152,8 @@
       v-if="
         !shouldHide('ds_password_confirm') &&
         !readonly &&
-        !shouldHide('ds_password')
+        !shouldHide('ds_password') &&
+        !editPass
       "
       class="col-12 col-md-6"
     >
@@ -158,10 +172,61 @@
       >
       </InputField>
     </div>
+
+    <!-- Modal: Alterar Senha -->
+    <q-dialog
+      v-model="showPasswordModal"
+      persistent
+      @hide="resetPasswordControl"
+    >
+      <q-card style="min-width: 360px">
+        <q-card-section class="row items-center q-pb-none">
+          <div class="text-h6">Alterar Senha</div>
+          <q-space />
+          <q-btn icon="fas fa-times" flat round dense v-close-popup />
+        </q-card-section>
+
+        <q-card-section>
+          <InputField
+            Label="Nova Senha"
+            Icon="fas fa-key"
+            type="password"
+            clearable
+            v-model="control.ds_password"
+            :Error="inputError.ds_password"
+            @focus="delete inputError.ds_password"
+          >
+          </InputField>
+          <InputField
+            Label="Confirmar Nova Senha"
+            Icon="fas fa-key"
+            type="password"
+            clearable
+            v-model="control.ds_password_confirm"
+            :Error="inputError.ds_password_confirm"
+            @focus="delete inputError.ds_password_confirm"
+          >
+          </InputField>
+        </q-card-section>
+
+        <q-card-actions align="right" class="q-pa-md">
+          <q-btn flat color="grey-8" label="Cancelar" v-close-popup />
+          <q-btn
+            color="positive"
+            icon="fas fa-save"
+            label="Salvar"
+            :loading="passwordLoading"
+            @click="savePassword"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
+import ENDPOINTS from "../ENDPOINTS";
+
 export default {
   name: "component-userinfo",
 
@@ -170,6 +235,15 @@ export default {
     showTitle: Boolean,
     confirmEmail: Boolean,
     requiredPass: Boolean,
+    // Exibe o botão/modal "Alterar Senha" (edição), no lugar dos campos de senha inline.
+    editPass: Boolean,
+    // Quando true, a troca de senha usa o endpoint da própria conta (my-account);
+    // caso contrário, usa admin-change-pass com a chave passada em UserKey.
+    accountOwner: Boolean,
+    UserKey: {
+      type: String,
+      default: null,
+    },
     HideFields: {
       type: Array,
       default: () => [],
@@ -207,9 +281,12 @@ export default {
       },
       control: {
         ds_email_confirm: null,
+        ds_password: null,
         ds_password_confirm: null,
       },
       formReadonly: !!this.readonly,
+      showPasswordModal: false,
+      passwordLoading: false,
     };
   },
 
@@ -287,6 +364,89 @@ export default {
 
     shouldHide(element) {
       return this.HideFields.includes(element);
+    },
+
+    openPasswordModal() {
+      this.resetPasswordControl();
+      this.showPasswordModal = true;
+    },
+
+    resetPasswordControl() {
+      this.control.ds_password = null;
+      this.control.ds_password_confirm = null;
+      this.inputError.ds_password = false;
+      this.inputError.ds_password_confirm = false;
+    },
+
+    isValidNewPassword() {
+      if (
+        this.control.ds_password === "" ||
+        this.control.ds_password === null
+      ) {
+        this.inputError.ds_password = true;
+        this.$getService("toolcase/utils").notify({
+          message: "Preencha os campos corretamente",
+          type: "negative",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      if (
+        this.control.ds_password_confirm === "" ||
+        this.control.ds_password_confirm === null
+      ) {
+        this.inputError.ds_password_confirm = true;
+        this.$getService("toolcase/utils").notify({
+          message: "Preencha os campos corretamente",
+          type: "negative",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      if (this.control.ds_password !== this.control.ds_password_confirm) {
+        this.inputError.ds_password = true;
+        this.inputError.ds_password_confirm = true;
+        this.$getService("toolcase/utils").notify({
+          message: "As senhas inseridas são diferentes",
+          type: "negative",
+          position: "top-right",
+        });
+        return false;
+      }
+
+      return true;
+    },
+
+    savePassword() {
+      if (!this.isValidNewPassword()) return;
+
+      const url = this.accountOwner
+        ? ENDPOINTS.USERS.MY_ACCOUNT
+        : `${ENDPOINTS.USERS.ADMIN_CHANGE_PASS}/${this.UserKey}`;
+
+      this.passwordLoading = true;
+      return this.$getService("toolcase/http")
+        .put(url, { ds_password: this.control.ds_password })
+        .then(() => {
+          this.$getService("toolcase/utils").notify({
+            message: "Senha atualizada com sucesso",
+            type: "positive",
+            position: "top-right",
+          });
+          this.showPasswordModal = false;
+        })
+        .catch((error) => {
+          this.$getService("toolcase/utils").notifyError(error);
+          console.error(
+            "An error occurred while attempting to save the password.",
+            error,
+          );
+        })
+        .finally(() => {
+          this.passwordLoading = false;
+        });
     },
 
     syncConditionalErrors() {

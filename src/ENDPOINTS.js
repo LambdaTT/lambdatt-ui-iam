@@ -21,6 +21,7 @@ export default {
       CHANGE: '/iam/users/v1/change-password'
     },
     MY_ACCOUNT: '/iam/users/v1/my-account',
+    ADMIN_CHANGE_PASS: '/iam/users/v1/admin-change-pass',
     PROFILES: '/iam/users/v1/profiles',
   },
 
