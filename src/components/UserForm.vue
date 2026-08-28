@@ -312,15 +312,44 @@ export default {
       let user = Object.assign({}, this.input);
       delete user.avatar;
 
-      // -- Form
+      // -- Form (campos genéricos obrigatórios). ds_username/ds_email são
+      // validados à parte como "ao menos um" (OR), fora do check genérico.
+      let genericUser = Object.assign({}, user);
+      delete genericUser.ds_email;
+      delete genericUser.ds_username;
       if (
-        !this.$getService("toolcase/utils").validateForm(user, this.inputError)
+        !this.$getService("toolcase/utils").validateForm(
+          genericUser,
+          this.inputError,
+        )
       )
         return false;
 
-      // -- Email
+      // -- Username OU Email: exige ao menos um dos dois (quando visíveis)
+      const usernameVisible = !this.shouldHide("ds_username");
+      const emailVisible = !this.shouldHide("ds_email");
+      if (usernameVisible || emailVisible) {
+        const usernameFilled = usernameVisible && !!user.ds_username;
+        const emailFilled = emailVisible && !!user.ds_email;
+        if (!usernameFilled && !emailFilled) {
+          if (usernameVisible) this.inputError.ds_username = true;
+          if (emailVisible) this.inputError.ds_email = true;
+          this.$getService("toolcase/utils").notify({
+            message: "Informe ao menos um: nome de usuário ou email",
+            type: "negative",
+            position: "top-right",
+          });
+          return false;
+        }
+        // ao menos um preenchido: limpa eventuais marcações de erro
+        if (usernameVisible) this.inputError.ds_username = false;
+        if (emailVisible) this.inputError.ds_email = false;
+      }
+
+      // -- Email (confirmação, apenas quando um email foi informado)
       if (
         this.confirmEmail &&
+        !!user.ds_email &&
         user.ds_email !== this.control.ds_email_confirm
       ) {
         this.inputError.ds_email = true;
