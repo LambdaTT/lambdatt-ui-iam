@@ -193,8 +193,8 @@
             type="password"
             clearable
             v-model="control.ds_password"
-            :Error="inputError.ds_password"
-            @focus="delete inputError.ds_password"
+            :Error="passwordError.ds_password"
+            @focus="passwordError.ds_password = false"
           >
           </InputField>
           <InputField
@@ -203,8 +203,8 @@
             type="password"
             clearable
             v-model="control.ds_password_confirm"
-            :Error="inputError.ds_password_confirm"
-            @focus="delete inputError.ds_password_confirm"
+            :Error="passwordError.ds_password_confirm"
+            @focus="passwordError.ds_password_confirm = false"
           >
           </InputField>
         </q-card-section>
@@ -287,6 +287,12 @@ export default {
       formReadonly: !!this.readonly,
       showPasswordModal: false,
       passwordLoading: false,
+      // Erros do modal de senha, separados do inputError do formulário principal
+      // (evita que validateForm passe a exigir ds_password no save principal).
+      passwordError: {
+        ds_password: false,
+        ds_password_confirm: false,
+      },
     };
   },
 
@@ -374,8 +380,8 @@ export default {
     resetPasswordControl() {
       this.control.ds_password = null;
       this.control.ds_password_confirm = null;
-      this.inputError.ds_password = false;
-      this.inputError.ds_password_confirm = false;
+      this.passwordError.ds_password = false;
+      this.passwordError.ds_password_confirm = false;
     },
 
     isValidNewPassword() {
@@ -383,7 +389,7 @@ export default {
         this.control.ds_password === "" ||
         this.control.ds_password === null
       ) {
-        this.inputError.ds_password = true;
+        this.passwordError.ds_password = true;
         this.$getService("toolcase/utils").notify({
           message: "Preencha os campos corretamente",
           type: "negative",
@@ -396,7 +402,7 @@ export default {
         this.control.ds_password_confirm === "" ||
         this.control.ds_password_confirm === null
       ) {
-        this.inputError.ds_password_confirm = true;
+        this.passwordError.ds_password_confirm = true;
         this.$getService("toolcase/utils").notify({
           message: "Preencha os campos corretamente",
           type: "negative",
@@ -406,8 +412,8 @@ export default {
       }
 
       if (this.control.ds_password !== this.control.ds_password_confirm) {
-        this.inputError.ds_password = true;
-        this.inputError.ds_password_confirm = true;
+        this.passwordError.ds_password = true;
+        this.passwordError.ds_password_confirm = true;
         this.$getService("toolcase/utils").notify({
           message: "As senhas inseridas são diferentes",
           type: "negative",
