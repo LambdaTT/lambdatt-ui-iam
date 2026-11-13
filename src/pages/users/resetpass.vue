@@ -63,103 +63,100 @@
 </template>
 
 <script>
-import ENDPOINTS from '../../ENDPOINTS';
-
 export const __PAGE_CONFIG = {
   route: 'iam/resetpass/:token',
 };
+</script>
 
-export default {
-  name: 'pages-iam-user-resetpass',
+<script setup>
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import { useRoute } from 'vue-router'
+import ENDPOINTS from '../../ENDPOINTS';
 
-  props: {
-    LogoURL: String
-  },
+defineOptions({ name: 'pages-iam-user-resetpass' })
 
-  data() {
-    return {
-      // Page State:
-      done: false,
-      error: false,
+defineProps({
+  LogoURL: String
+})
 
-      // Form related vars:
-      form: {
-        ds_password: null,
-        confirm_pass: null
-      },
+const route = useRoute()
+// Submódulo acessa os serviços do app pelo $getService global (resolução por URI) — equivalente
+// ao this.$getService do Options API.
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
-      formError: {
-        ds_password: false,
-        confirm_pass: false
-      },
-    }
-  },
+// Page State:
+const done = ref(false)
+const error = ref(false)
 
-  computed: {
-    token() {
-      return this.$route.params.token;
-    }
-  },
+// Form related vars:
+const form = ref({
+  ds_password: null,
+  confirm_pass: null
+})
 
-  methods: {
-    handleEnterKey(event) {
-      if (event.key === 'Enter') {
-        this.save();
-      }
-    },
+const formError = ref({
+  ds_password: false,
+  confirm_pass: false
+})
 
-    checkPassConfirmation() {
-      if (this.form.ds_password != this.form.confirm_pass) {
-        this.$getService('toolcase/utils').notify({
-          message: "As senhas não coincidem",
-          type: 'negative',
-          position: 'top-right'
-        })
+const token = computed(() => route.params.token)
 
-        this.formError.ds_password = true;
-        this.formError.confirm_pass = true;
-
-        return false;
-      }
-
-      return true;
-    },
-
-    async save() {
-      if (!this.$getService('toolcase/utils').validateForm(this.form, this.formError)) return;
-      if (!this.checkPassConfirmation()) return;
-
-      const payload = {
-        ds_password: this.form.ds_password
-      }
-
-      try {
-        await this.$getService('toolcase/http').put(`${ENDPOINTS.USERS.RESET_PASS.CHANGE}/${this.token}`, payload)
-        this.done = true;
-      } catch (error) {
-        this.error = true;
-        this.$getService('toolcase/utils').notifyError(error);
-        console.error(error);
-      }
-    },
-
-    async validateToken() {
-      try {
-        await this.$getService('toolcase/http').get(`${ENDPOINTS.AUTH.VALIDATE_TOKEN}/${this.token}`)
-      } catch (error) {
-        this.error = true;
-        if (error.response.status != 401) {
-          this.$getService('toolcase/utils').notifyError(error);
-          console.error(error);
-        }
-      }
-    }
-  },
-
-  mounted() {
-    this.validateToken()
+function handleEnterKey(event) {
+  if (event.key === 'Enter') {
+    save();
   }
 }
+
+function checkPassConfirmation() {
+  if (form.value.ds_password != form.value.confirm_pass) {
+    getService('toolcase/utils').notify({
+      message: "As senhas não coincidem",
+      type: 'negative',
+      position: 'top-right'
+    })
+
+    formError.value.ds_password = true;
+    formError.value.confirm_pass = true;
+
+    return false;
+  }
+
+  return true;
+}
+
+async function save() {
+  if (!getService('toolcase/utils').validateForm(form.value, formError.value)) return;
+  if (!checkPassConfirmation()) return;
+
+  const payload = {
+    ds_password: form.value.ds_password
+  }
+
+  try {
+    await getService('toolcase/http').put(`${ENDPOINTS.USERS.RESET_PASS.CHANGE}/${token.value}`, payload)
+    done.value = true;
+  } catch (err) {
+    error.value = true;
+    getService('toolcase/utils').notifyError(err);
+    console.error(err);
+  }
+}
+
+async function validateToken() {
+  try {
+    await getService('toolcase/http').get(`${ENDPOINTS.AUTH.VALIDATE_TOKEN}/${token.value}`)
+  } catch (err) {
+    error.value = true;
+    if (err.response.status != 401) {
+      getService('toolcase/utils').notifyError(err);
+      console.error(err);
+    }
+  }
+}
+
+onMounted(() => {
+  validateToken()
+})
 </script>
 
 <style scoped>

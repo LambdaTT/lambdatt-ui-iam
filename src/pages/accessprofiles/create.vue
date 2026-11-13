@@ -1,21 +1,7 @@
 <template>
   <La1Page Title="Adicionar Perfil de Acesso" :Breadcrumb="breadcrumb">
-    <La1Card Title="Dados do Perfil" Icon="fas fa-id-card">
-      <template #actions>
-        <div class="row justify-end">
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-save" color="green" label="Salvar" @click="save()">
-              <q-tooltip>Salvar dados</q-tooltip>
-            </q-btn>
-          </div>
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-undo" color="grey-8" label="Voltar" @click="$router.go(-1)">
-              <q-tooltip>Voltar à página anterior</q-tooltip>
-            </q-btn>
-          </div>
-        </div>
-      </template>
-
+    <Widget Title="Dados do Perfil" Icon="fas fa-id-card"
+      :Actions="[{ label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', fn: save }]">
       <div class="row">
         <div class="col-12">
           <InputField Label="Título" Icon="fas fa-id-card" type="text" clearable v-model="input.ds_title"
@@ -28,87 +14,82 @@
         </div>
       </div>
 
-    </La1Card>
+    </Widget>
   </La1Page>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import { useRouter } from 'vue-router'
 import ENDPOINTS from '../../ENDPOINTS';
 
-export default {
-  name: 'pages-iam-accessprofile-create',
+defineOptions({ name: 'pages-iam-accessprofile-create' })
 
-  data() {
-    return {
-      input: {
-        ds_title: null,
-        tx_description: null,
-      },
-      inputError: {
-        ds_title: false,
-      }
-    }
-  },
+const router = useRouter()
+// Submódulo acessa os serviços do app pelo $getService global (resolução por URI) — equivalente
+// ao this.$getService do Options API.
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
-  methods: {
-    validateForm() {
-      var isInvalid = false;
-      for (let k in this.inputError) {
-        let field = this.input[k];
-        if ((!field || field == '')) {
-          this.inputError[k] = true;
-          isInvalid = true;
-        }
-      }
+const input = ref({
+  ds_title: null,
+  tx_description: null,
+})
+const inputError = ref({
+  ds_title: false,
+})
 
-      if (isInvalid) {
-        this.$getService('toolcase/utils').notify({
-          message: "Preencha o formulário corretamente",
-          type: "negative",
-          position: 'top-right'
-        });
-        return false;
-      }
+const breadcrumb = computed(() => [
+  { label: 'Home', icon: "fas fa-home", to: "/" },
+  { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles/list" },
+  { label: 'Adicionar', icon: 'fas fa-plus' },
+])
 
-      return true;
-    },
-
-    save() {
-      if (!this.validateForm()) return false;
-
-      this.$getService('toolcase/loader').load( 'save-accessprofile');
-      return this.$getService('toolcase/http').post(ENDPOINTS.PROFILES.PROFILE, this.input)
-        .then((response) => {
-          this.$router.push(`/iam/accessprofiles/edit/${response.data.ds_key}`);
-          this.$getService('toolcase/utils').notify({
-            message: "O novo perfil de acesso foi criado com sucesso.",
-            type: 'positive',
-            position: 'top-right'
-          });
-        })
-        .catch((error) => {
-          this.$getService('toolcase/utils').notifyError(error);
-          console.error(error);
-        })
-        .finally(() => {
-          this.$getService('toolcase/loader').loaded( 'save-accessprofile');
-        })
-    },
-  },
-
-  async mounted() {
-    await this.$getService('iam/auth').authenticate();
-    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) this.$router.push('/error/forbidden');
-  },
-
-  computed: {
-    breadcrumb() {
-      return [
-        { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles/list" },
-        { label: 'Adicionar', icon: 'fas fa-plus' },
-      ]
+function validateForm() {
+  var isInvalid = false;
+  for (let k in inputError.value) {
+    let field = input.value[k];
+    if ((!field || field == '')) {
+      inputError.value[k] = true;
+      isInvalid = true;
     }
   }
+
+  if (isInvalid) {
+    getService('toolcase/utils').notify({
+      message: "Preencha o formulário corretamente",
+      type: "negative",
+      position: 'top-right'
+    });
+    return false;
+  }
+
+  return true;
 }
+
+function save() {
+  if (!validateForm()) return false;
+
+  getService('toolcase/loader').load('save-accessprofile');
+  return getService('toolcase/http').post(ENDPOINTS.PROFILES.PROFILE, input.value)
+    .then((response) => {
+      router.push(`/iam/accessprofiles/edit/${response.data.ds_key}`);
+      getService('toolcase/utils').notify({
+        message: "O novo perfil de acesso foi criado com sucesso.",
+        type: 'positive',
+        position: 'top-right'
+      });
+    })
+    .catch((error) => {
+      getService('toolcase/utils').notifyError(error);
+      console.error(error);
+    })
+    .finally(() => {
+      getService('toolcase/loader').loaded('save-accessprofile');
+    })
+}
+
+onMounted(async () => {
+  await getService('iam/auth').authenticate();
+  if (!getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) router.push('/error/forbidden');
+})
 </script>

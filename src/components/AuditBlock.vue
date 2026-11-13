@@ -22,40 +22,35 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'components-common-auditinfo',
+<script setup>
+import { ref, watch, onMounted } from 'vue'
 
-  props: {
-    showTitle: Boolean,
-    input: Object
-  },
+defineOptions({ name: 'components-common-auditinfo' })
 
-  data() {
-    return {
-      values: {
-        dtCreated: null,
-        dtUpdated: null,
-        userCreated: null,
-        userUpdated: null,
-      }
-    }
-  },
+const props = defineProps({
+  showTitle: Boolean,
+  input: Object
+})
 
-  watch: {
-    input: {
-      handler() {
-        for (let k in this.input)
-          if (k in this.values)
-            this.values[k] = this.input[k];
-      },
+const values = ref({
+  dtCreated: null,
+  dtUpdated: null,
+  userCreated: null,
+  userUpdated: null,
+})
 
-      depp: true
-    }
-  },
-
-  mounted() {
-    this.values = this.input;
+// Nota: o Options API original tinha `depp: true` (typo) no watcher — ou seja, nunca foi deep.
+// Mantido o comportamento raso (dispara só quando a referência de `input` troca).
+watch(
+  () => props.input,
+  () => {
+    for (let k in props.input)
+      if (k in values.value)
+        values.value[k] = props.input[k];
   }
-}
+)
+
+onMounted(() => {
+  values.value = props.input;
+})
 </script>

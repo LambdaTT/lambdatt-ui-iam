@@ -1,104 +1,83 @@
 <template>
   <La1Page Title="Minha Conta" :Breadcrumb="breadcrumb">
-    <La1Card Title="Meus Dados Pessoais" Icon="fas fa-user">
-      <template #actions>
-        <div class="row justify-end">
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-save" color="green" label="Salvar" @click="save()">
-              <q-tooltip>Salvar dados</q-tooltip>
-            </q-btn>
-          </div>
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-undo" color="grey-8" label="Voltar" @click="$router.go(-1)">
-              <q-tooltip>Voltar à página anterior</q-tooltip>
-            </q-btn>
-          </div>
-        </div>
-      </template>
-
+    <Widget Title="Meus Dados Pessoais" Icon="fas fa-user"
+      :Actions="[{ label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', fn: save }]">
       <UserForm v-model="User" editPass accountOwner></UserForm>
-    </La1Card>
+    </Widget>
   </La1Page>
 </template>
 
 <script>
-import ENDPOINTS from '../../ENDPOINTS'
-
 export const __PAGE_CONFIG = {
   route: 'iam/my-account'
 };
+</script>
 
-export default {
-  name: 'pages-iam-users-myaccount',
+<script setup>
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import ENDPOINTS from '../../ENDPOINTS'
 
-  data() {
-    return {
-      User: {}
-    }
-  },
+defineOptions({ name: 'pages-iam-users-myaccount' })
 
-  computed: {
-    breadcrumb() {
-      return [
-        { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Minha Conta', icon: "fas fa-user" },
-      ]
-    },
+// Submódulo acessa os serviços do app pelo $getService global (resolução por URI) — equivalente
+// ao this.$getService do Options API.
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
-    input() {
-      return this.User.input
-    }
-  },
+const User = ref({})
 
-  methods: {
-    save() {
-      if (!this.User.validate()) return false;
+const breadcrumb = computed(() => [
+  { label: 'Home', icon: "fas fa-home", to: "/" },
+  { label: 'Minha Conta', icon: "fas fa-user" },
+])
 
-      var data = new FormData()
-      for (let k in this.input)
-        if (k != 'avatar')
-          data.set(k, this.input[k]);
-      if (this.input.avatar.file) data.set('avatar', this.input.avatar.file)
-      // Senha é alterada pelo modal "Alterar Senha" (my-account), não neste save.
-      data.delete('ds_password')
+const input = computed(() => User.value.input)
 
-      this.$getService('toolcase/loader').load( 'save-user');
-      return this.$getService('toolcase/http').put(ENDPOINTS.USERS.MY_ACCOUNT, data)
-        .then(() => {
-          this.$getService('toolcase/utils').notify({
-            message: "Seus dados foram salvos com sucesso.",
-            type: 'positive',
-            position: 'top-right'
-          });
-        })
-        .catch((error) => {
-          this.$getService('toolcase/utils').notifyError(error);
-          console.error(error);
-        })
-        .finally(() => {
-          this.$getService('toolcase/loader').loaded( 'save-user');
-        })
-    },
+function save() {
+  if (!User.value.validate()) return false;
 
-    getData() {
-      this.$getService('toolcase/loader').load( 'users-data');
-      return this.$getService('toolcase/http').get(ENDPOINTS.USERS.MY_ACCOUNT)
-        .then((response) => {
-          this.User.read(response.data)
-        })
-        .catch((error) => {
-          this.$getService('toolcase/utils').notifyError(error);
-          console.error("An error has occurred on the attempt to retrieve user's data.", error);
-        })
-        .finally(() => {
-          this.$getService('toolcase/loader').loaded( 'users-data');
-        });
-    }
-  },
+  var data = new FormData()
+  for (let k in input.value)
+    if (k != 'avatar')
+      data.set(k, input.value[k]);
+  if (input.value.avatar.file) data.set('avatar', input.value.avatar.file)
+  // Senha é alterada pelo modal "Alterar Senha" (my-account), não neste save.
+  data.delete('ds_password')
 
-  async mounted() {
-    await this.$getService('iam/auth').authenticate();
-    this.getData();
-  },
+  getService('toolcase/loader').load('save-user');
+  return getService('toolcase/http').put(ENDPOINTS.USERS.MY_ACCOUNT, data)
+    .then(() => {
+      getService('toolcase/utils').notify({
+        message: "Seus dados foram salvos com sucesso.",
+        type: 'positive',
+        position: 'top-right'
+      });
+    })
+    .catch((error) => {
+      getService('toolcase/utils').notifyError(error);
+      console.error(error);
+    })
+    .finally(() => {
+      getService('toolcase/loader').loaded('save-user');
+    })
 }
+
+function getData() {
+  getService('toolcase/loader').load('users-data');
+  return getService('toolcase/http').get(ENDPOINTS.USERS.MY_ACCOUNT)
+    .then((response) => {
+      User.value.read(response.data)
+    })
+    .catch((error) => {
+      getService('toolcase/utils').notifyError(error);
+      console.error("An error has occurred on the attempt to retrieve user's data.", error);
+    })
+    .finally(() => {
+      getService('toolcase/loader').loaded('users-data');
+    });
+}
+
+onMounted(async () => {
+  await getService('iam/auth').authenticate();
+  getData();
+})
 </script>

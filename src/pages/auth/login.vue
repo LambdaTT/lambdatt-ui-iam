@@ -134,198 +134,200 @@
 </template>
 
 <script>
-import { useQuasar } from "quasar";
-import ENDPOINTS from "../../ENDPOINTS";
-
 export const __PAGE_CONFIG = {
   route: false,
 };
+</script>
 
-export default {
-  name: "pages-iam-auth-login",
+<script setup>
+import { ref, reactive, onMounted, getCurrentInstance } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import { useQuasar } from "quasar";
+import ENDPOINTS from "../../ENDPOINTS";
 
-  props: {
-    logoSrc: {
-      type: String,
-      default: "/resources/img/main-logo.png",
-    },
+defineOptions({ name: "pages-iam-auth-login" });
+
+defineProps({
+  logoSrc: {
+    type: String,
+    default: "/resources/img/main-logo.png",
   },
+});
 
-  data() {
-    return {
-      $q: useQuasar(),
-      showForgotPassForm: false,
-      rememberMe: false,
-      input: {
-        username: null,
-        ds_password: null,
-      },
-      inputError: {
-        username: false,
-        ds_password: false,
-      },
-      recoveryEmail: null,
-    };
-  },
+const route = useRoute();
+const router = useRouter();
+const $q = useQuasar();
+// Submódulo acessa os serviços do app pelo $getService global (resolução por URI) — equivalente
+// ao this.$getService do Options API.
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService;
 
-  methods: {
-    handleEnterKey(event) {
-      if (event.key === "Enter") {
-        this.login();
-      }
-    },
+const showForgotPassForm = ref(false);
+const rememberMe = ref(false);
+const input = reactive({
+  username: null,
+  ds_password: null,
+});
+const inputError = reactive({
+  username: false,
+  ds_password: false,
+});
+const recoveryEmail = ref(null);
 
-    validateForm() {
-      var isInvalid = false;
-      for (let k in this.input) {
-        let field = this.input[k];
-        if (!field || field == "") {
-          this.inputError[k] = true;
-          isInvalid = true;
-        }
-      }
+function handleEnterKey(event) {
+  if (event.key === "Enter") {
+    login();
+  }
+}
 
-      if (isInvalid) {
-        this.$getService("toolcase/utils").notify({
-          message: "Preencha o formulário corretamente",
-          type: "negative",
-          position: "top-right",
-        });
-
-        return false;
-      }
-
-      return true;
-    },
-
-    async login() {
-      if (!this.validateForm()) return false;
-
-      this.$q.loading.show();
-
-      const deviceKey = await this.$getService("iam/device").getDeviceKey();
-
-      try {
-        const loginResponse = await this.$getService("toolcase/http")
-          .setHeader("Iam-Device-Key", deviceKey)
-          .post(ENDPOINTS.AUTH.LOGIN, this.input);
-
-        localStorage.setItem("iam_session_key", loginResponse.data.ds_key);
-        localStorage.setItem("xsrf_token", loginResponse.data.xsrfToken);
-
-        if (this.rememberMe) {
-          const tknResponse = await this.$getService("toolcase/http").get(
-            ENDPOINTS.AUTH.RENEW_TOKEN,
-          );
-          localStorage.setItem("authtoken", tknResponse.data.ds_hash);
-        }
-
-        setTimeout(() => {
-          if (this.$route.query.goTo)
-            this.$router.push(this.$route.query.goTo);
-          else this.$router.push("/");
-        }, 100);
-      } catch (error) {
-        console.error(error);
-        this.$getService("toolcase/utils").notifyError(error);
-
-        await this.$getService("toolcase/http").delete(ENDPOINTS.AUTH.LOGOUT);
-        localStorage.removeItem("authtoken");
-        localStorage.removeItem("xsrf_token");
-        localStorage.removeItem("iam_session_key");
-        localStorage.removeItem("regularPermissions");
-        localStorage.removeItem("customPermissions");
-      } finally {
-        this.$q.loading.hide();
-      }
-    },
-
-    async autoLogin() {
-      this.$q.loading.show();
-
-      try {
-        const response = await this.$getService("toolcase/http").post(
-          `${ENDPOINTS.AUTH.LOGIN_TOKEN}/${localStorage.getItem("authtoken")}`,
-        );
-
-        localStorage.setItem(
-          "iam_session_key",
-          response.data.ds_key,
-        );
-        localStorage.setItem("xsrf_token", response.data.xsrfToken);
-
-        const tknResponse = await this.$getService("toolcase/http").get(
-          ENDPOINTS.AUTH.RENEW_TOKEN,
-        );
-        localStorage.setItem("authtoken", tknResponse.data.ds_hash);
-
-        // Set renewed token
-        if (this.$route.query.goTo) this.$router.push(this.$route.query.goTo);
-        else this.$router.push("/");
-      } catch (error) {
-        if (error.response.status != 401) {
-          this.$getService("toolcase/utils").notifyError(error);
-          console.error(
-            "An error has occurred on the attempt to perform automatic login.",
-            error,
-          );
-        }
-
-        await this.$getService("toolcase/http").delete(ENDPOINTS.AUTH.LOGOUT);
-        localStorage.removeItem("authtoken");
-        localStorage.removeItem("xsrf_token");
-        localStorage.removeItem("iam_session_key");
-        localStorage.removeItem("regularPermissions");
-        localStorage.removeItem("customPermissions");
-      } finally {
-        this.$q.loading.hide();
-      }
-    },
-
-    async recoveryPass() {
-      if (!this.recoveryEmail || this.recoveryEmail == "") {
-        this.inputError.recoveryEmail = true;
-        return false;
-      }
-
-      this.$q.loading.show();
-
-      try {
-        this.$getService("toolcase/http").post(
-          ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET,
-          { username: this.recoveryEmail },
-        );
-        this.$getService("toolcase/utils").notify({
-          message:
-            "Um e-mail, contendo instruções de recuperação foi enviado ao endereço fornecido.",
-          type: "positive",
-          position: "top-right",
-        });
-      } catch (error) {
-        this.$getService("toolcase/utils").notifyError(error);
-        console.error(
-          "An error has occurred on the attempt to recovery password.",
-          error,
-        );
-      } finally {
-        this.$q.loading.hide();
-      }
-    },
-  },
-
-  async mounted() {
-    try {
-      await this.$getService("toolcase/http").get(ENDPOINTS.AUTH.LOGGED_USER);
-      this.$router.push("/");
-    } catch (error) {
-      if (error.response?.status == 401 && localStorage.getItem("authtoken")) {
-        this.autoLogin();
-      } else {
-        this.$q.loading.hide();
-      }
+function validateForm() {
+  var isInvalid = false;
+  for (let k in input) {
+    let field = input[k];
+    if (!field || field == "") {
+      inputError[k] = true;
+      isInvalid = true;
     }
-  },
-};
+  }
+
+  if (isInvalid) {
+    getService("toolcase/utils").notify({
+      message: "Preencha o formulário corretamente",
+      type: "negative",
+      position: "top-right",
+    });
+
+    return false;
+  }
+
+  return true;
+}
+
+async function login() {
+  if (!validateForm()) return false;
+
+  $q.loading.show();
+
+  const deviceKey = await getService("iam/device").getDeviceKey();
+
+  try {
+    const loginResponse = await getService("toolcase/http")
+      .setHeader("Iam-Device-Key", deviceKey)
+      .post(ENDPOINTS.AUTH.LOGIN, input);
+
+    localStorage.setItem("iam_session_key", loginResponse.data.ds_key);
+    localStorage.setItem("xsrf_token", loginResponse.data.xsrfToken);
+
+    if (rememberMe.value) {
+      const tknResponse = await getService("toolcase/http").get(
+        ENDPOINTS.AUTH.RENEW_TOKEN,
+      );
+      localStorage.setItem("authtoken", tknResponse.data.ds_hash);
+    }
+
+    setTimeout(() => {
+      if (route.query.goTo)
+        router.push(route.query.goTo);
+      else router.push("/");
+    }, 100);
+  } catch (error) {
+    console.error(error);
+    getService("toolcase/utils").notifyError(error);
+
+    await getService("toolcase/http").delete(ENDPOINTS.AUTH.LOGOUT);
+    localStorage.removeItem("authtoken");
+    localStorage.removeItem("xsrf_token");
+    localStorage.removeItem("iam_session_key");
+    localStorage.removeItem("regularPermissions");
+    localStorage.removeItem("customPermissions");
+  } finally {
+    $q.loading.hide();
+  }
+}
+
+async function autoLogin() {
+  $q.loading.show();
+
+  try {
+    const response = await getService("toolcase/http").post(
+      `${ENDPOINTS.AUTH.LOGIN_TOKEN}/${localStorage.getItem("authtoken")}`,
+    );
+
+    localStorage.setItem(
+      "iam_session_key",
+      response.data.ds_key,
+    );
+    localStorage.setItem("xsrf_token", response.data.xsrfToken);
+
+    const tknResponse = await getService("toolcase/http").get(
+      ENDPOINTS.AUTH.RENEW_TOKEN,
+    );
+    localStorage.setItem("authtoken", tknResponse.data.ds_hash);
+
+    // Set renewed token
+    if (route.query.goTo) router.push(route.query.goTo);
+    else router.push("/");
+  } catch (error) {
+    if (error.response.status != 401) {
+      getService("toolcase/utils").notifyError(error);
+      console.error(
+        "An error has occurred on the attempt to perform automatic login.",
+        error,
+      );
+    }
+
+    await getService("toolcase/http").delete(ENDPOINTS.AUTH.LOGOUT);
+    localStorage.removeItem("authtoken");
+    localStorage.removeItem("xsrf_token");
+    localStorage.removeItem("iam_session_key");
+    localStorage.removeItem("regularPermissions");
+    localStorage.removeItem("customPermissions");
+  } finally {
+    $q.loading.hide();
+  }
+}
+
+async function recoveryPass() {
+  if (!recoveryEmail.value || recoveryEmail.value == "") {
+    inputError.recoveryEmail = true;
+    return false;
+  }
+
+  $q.loading.show();
+
+  try {
+    getService("toolcase/http").post(
+      ENDPOINTS.AUTH.REQUEST_PASSWORD_RESET,
+      { username: recoveryEmail.value },
+    );
+    getService("toolcase/utils").notify({
+      message:
+        "Um e-mail, contendo instruções de recuperação foi enviado ao endereço fornecido.",
+      type: "positive",
+      position: "top-right",
+    });
+  } catch (error) {
+    getService("toolcase/utils").notifyError(error);
+    console.error(
+      "An error has occurred on the attempt to recovery password.",
+      error,
+    );
+  } finally {
+    $q.loading.hide();
+  }
+}
+
+onMounted(async () => {
+  try {
+    await getService("toolcase/http").get(ENDPOINTS.AUTH.LOGGED_USER);
+    router.push("/");
+  } catch (error) {
+    if (error.response?.status == 401 && localStorage.getItem("authtoken")) {
+      autoLogin();
+    } else {
+      $q.loading.hide();
+    }
+  }
+});
 </script>
 
 <style scoped>

@@ -1,16 +1,6 @@
 <template>
   <La1Page Title="Detalhes do Perfil de Acesso" :Breadcrumb="breadcrumb">
-    <La1Card Title="Dados do Perfil" Icon="fas fa-id-card">
-      <template #actions>
-        <div class="row justify-end">
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-undo" color="grey-8" label="Voltar" @click="$router.go(-1)">
-              <q-tooltip>Voltar à página anterior</q-tooltip>
-            </q-btn>
-          </div>
-        </div>
-      </template>
-
+    <Widget Title="Dados do Perfil" Icon="fas fa-id-card">
       <div class="row">
         <div class="col-12">
           <InputField Label="Título" Icon="fas fa-id-card" type="text" readonly v-model="userData.ds_title">
@@ -33,91 +23,87 @@
       </template>
 
       <template #section-modules>
-        <La1Card Title="Módulos do Perfil" Icon="fas fa-puzzle-piece">
+        <Widget Title="Módulos do Perfil" Icon="fas fa-puzzle-piece">
           <q-option-group disable v-model="selectedModules" :options="modules" color="primary" type="checkbox" />
-        </La1Card>
+        </Widget>
       </template>
 
-    </La1Card>
+    </Widget>
   </La1Page>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import ENDPOINTS from '../../ENDPOINTS';
 
-export default {
-  name: 'pages-iam-accessprofile-details',
+defineOptions({ name: 'pages-iam-accessprofile-details' })
 
-  data() {
-    return {
-      userData: {},
-      modules: [],
-      selectedModules: [],
-    }
-  },
+const route = useRoute()
+const router = useRouter()
+// Submódulo acessa os serviços do app pelo $getService global (resolução por URI) — equivalente
+// ao this.$getService do Options API.
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
-  computed: {
-    breadcrumb() {
-      return [
-        { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles/list" },
-        { label: 'Ver Detalhes' },
-      ]
-    }
-  },
+const userData = ref({})
+const modules = ref([])
+const selectedModules = ref([])
 
-  methods: {
-    getModules() {
-      return this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.MODULE}/${this.$route.params.key}`)
-        .then((response) => {
-          this.modules = [];
-          this.selectedModules = [];
+const breadcrumb = computed(() => [
+  { label: 'Home', icon: "fas fa-home", to: "/" },
+  { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles/list" },
+  { label: 'Ver Detalhes' },
+])
 
-          for (let i = 0; i < response.data.length; i++) {
-            let mod = response.data[i];
-            this.modules.push({
-              'label': mod.ds_title,
-              'value': mod.ds_key
-            })
-            if (mod.checked == 'Y')
-              this.selectedModules.push(mod.ds_key);
-          }
+function getModules() {
+  return getService('toolcase/http').get(`${ENDPOINTS.PROFILES.MODULE}/${route.params.key}`)
+    .then((response) => {
+      modules.value = [];
+      selectedModules.value = [];
+
+      for (let i = 0; i < response.data.length; i++) {
+        let mod = response.data[i];
+        modules.value.push({
+          'label': mod.ds_title,
+          'value': mod.ds_key
         })
-    },
-
-    getProfileData() {
-      // Get Access profile data:
-      this.$getService('toolcase/loader').load( 'profile-data');
-      this.$getService('toolcase/http').get(`${ENDPOINTS.PROFILES.PROFILE}/${this.$route.params.key}`)
-        .then((response) => {
-          this.userData = response.data;
-        })
-        .then(() => this.getModules())
-        .catch((error) => {
-          if (error.response.status == 404) {
-            this.$getService('toolcase/utils').notify({
-              message: 'Perfil de acesso não encontrado.',
-              type: 'negative',
-              position: 'top-right'
-            })
-            this.$router.push('/iam/accessprofiles/list');
-            return;
-          }
-          this.$getService('toolcase/utils').notifyError(error);
-          console.error("An error has occurred on the attempt to retrieve user's data.", error);
-        })
-        .finally(() => {
-          this.$getService('toolcase/loader').loaded( 'profile-data');
-        });
-    }
-  },
-
-  async mounted() {
-    await this.$getService('iam/auth').authenticate();
-    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) this.$router.push('/error/forbidden');
-
-    this.getProfileData();
-  },
+        if (mod.checked == 'Y')
+          selectedModules.value.push(mod.ds_key);
+      }
+    })
 }
+
+function getProfileData() {
+  // Get Access profile data:
+  getService('toolcase/loader').load('profile-data');
+  getService('toolcase/http').get(`${ENDPOINTS.PROFILES.PROFILE}/${route.params.key}`)
+    .then((response) => {
+      userData.value = response.data;
+    })
+    .then(() => getModules())
+    .catch((error) => {
+      if (error.response.status == 404) {
+        getService('toolcase/utils').notify({
+          message: 'Perfil de acesso não encontrado.',
+          type: 'negative',
+          position: 'top-right'
+        })
+        router.push('/iam/accessprofiles/list');
+        return;
+      }
+      getService('toolcase/utils').notifyError(error);
+      console.error("An error has occurred on the attempt to retrieve user's data.", error);
+    })
+    .finally(() => {
+      getService('toolcase/loader').loaded('profile-data');
+    });
+}
+
+onMounted(async () => {
+  await getService('iam/auth').authenticate();
+  if (!getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) router.push('/error/forbidden');
+
+  getProfileData();
+})
 </script>

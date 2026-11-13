@@ -1,137 +1,116 @@
 <template>
   <La1Page Title="Adicionar Usuário" :Breadcrumb="breadcrumb">
-    <La1Card Title="Dados do Usuário" Icon="fas fa-user-cog">
-      <template #actions>
-        <div class="row justify-end">
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-save" color="green" label="Salvar" @click="save()">
-              <q-tooltip>Salvar dados</q-tooltip>
-            </q-btn>
-          </div>
-          <div class="col-12 col-md-4 q-py-xs-xs q-px-md-xs">
-            <q-btn class="full-width" icon="fas fa-undo" color="grey-8" label="Voltar" @click="$router.go(-1)">
-              <q-tooltip>Voltar à página anterior</q-tooltip>
-            </q-btn>
-          </div>
-        </div>
-      </template>
-
+    <Widget Title="Dados do Usuário" Icon="fas fa-user-cog"
+      :Actions="[{ label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', fn: save }]">
       <UserForm v-model="User" confirmEmail requiredPass></UserForm>
 
       <template #user-profiles>
-        <La1Card Title="Perfis de Acesso" Icon="fas fa-id-card">
+        <Widget Title="Perfis de Acesso" Icon="fas fa-id-card">
           <q-option-group v-model="inputUser.selected_profiles" :options="profiles" color="primary" type="checkbox" />
-        </La1Card>
+        </Widget>
       </template>
 
-    </La1Card>
+    </Widget>
   </La1Page>
 </template>
 
-<script>
+<script setup>
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
+import { useRouter } from 'vue-router'
 import ENDPOINTS from '../../ENDPOINTS'
 
-export default {
-  name: 'pages-iam-users-create',
+defineOptions({ name: 'pages-iam-users-create' })
 
-  data() {
-    return {
-      User: {},
-      inputUser: {
-        selected_profiles: []
-      },
-      profiles: []
-    }
-  },
+const router = useRouter()
+// Submódulo acessa os serviços do app pelo $getService global (resolução por URI) — equivalente
+// ao this.$getService do Options API.
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
-  computed: {
-    breadcrumb() {
-      return [
-        { label: 'Home', icon: "fas fa-home", to: "/" },
-        { label: 'Usuários', icon: "fas fa-users", to: "/iam/users/list" },
-        { label: 'Adicionar', icon: 'fas fa-plus' },
-      ]
-    },
+const User = ref({})
+const inputUser = ref({
+  selected_profiles: []
+})
+const profiles = ref([])
 
-    input() {
-      return { ...this.inputUser, ...this.User.input }
-    },
-  },
+const breadcrumb = computed(() => [
+  { label: 'Home', icon: "fas fa-home", to: "/" },
+  { label: 'Usuários', icon: "fas fa-users", to: "/iam/users/list" },
+  { label: 'Adicionar', icon: 'fas fa-plus' },
+])
 
-  methods: {
-    validateForm() {
-      if (this.inputUser.selected_profiles.length < 1) {
-        this.$getService('toolcase/utils').notify({
-          message: "Selecione ao menos 1 perfil de acesso.",
-          type: "negative",
-          position: 'top-right'
-        });
-        return false;
-      }
+const input = computed(() => ({ ...inputUser.value, ...User.value.input }))
 
-      return true;
-    },
+function validateForm() {
+  if (inputUser.value.selected_profiles.length < 1) {
+    getService('toolcase/utils').notify({
+      message: "Selecione ao menos 1 perfil de acesso.",
+      type: "negative",
+      position: 'top-right'
+    });
+    return false;
+  }
 
-    save() {
-      let hasError = !this.User.validate() |
-        !this.validateForm();
-      if (hasError) { return false; }
-
-      for (let i = 0; i < this.inputUser.selected_profiles.length; i++) {
-        this.inputUser.selected_profiles[i] = { 'ds_key': this.inputUser.selected_profiles[i] };
-      }
-      this.inputUser.selected_profiles = JSON.stringify(this.inputUser.selected_profiles);
-
-      var data = new FormData()
-      for (let k in this.input)
-        if (k != 'avatar')
-          data.set(k, this.input[k]);
-      if (this.input.avatar.file) data.set('avatar', this.input.avatar.file)
-
-      this.$getService('toolcase/loader').load( 'save-user');
-      return this.$getService('toolcase/http').post(ENDPOINTS.USERS.USER, data)
-        .then((response) => {
-          this.$router.push(`/iam/users/edit/${response.data.ds_key}`);
-          this.$getService('toolcase/utils').notify({
-            message: "O novo usuário foi criado com sucesso.",
-            type: 'positive',
-            position: 'top-right'
-          });
-        })
-        .catch((error) => {
-          this.$getService('toolcase/utils').notifyError(error);
-          console.error(error);
-        })
-        .finally(() => {
-          this.$getService('toolcase/loader').loaded( 'save-user');
-        })
-    },
-
-    listProfiles() {
-      // Retrieve Access Profiles list:
-      return this.$getService('toolcase/http').get(ENDPOINTS.PROFILES.PROFILE)
-        .then((response) => {
-          this.profiles = response.data.map(prf => ({
-            label: prf.ds_title,
-            value: prf.ds_key
-          }))
-        })
-        .catch((error) => {
-          this.$getService('toolcase/utils').notifyError(error);
-          console.error(error);
-        })
-    }
-  },
-
-  async mounted() {
-    this.$getService('toolcase/loader').load( 'data');
-    await this.$getService('iam/auth').authenticate();
-    if (!this.$getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
-      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-      !this.$getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) this.$router.push('/error/forbidden');
-
-    await this.listProfiles();
-    this.$getService('toolcase/loader').loaded( 'data');
-  },
+  return true;
 }
+
+function save() {
+  let hasError = !User.value.validate() |
+    !validateForm();
+  if (hasError) { return false; }
+
+  for (let i = 0; i < inputUser.value.selected_profiles.length; i++) {
+    inputUser.value.selected_profiles[i] = { 'ds_key': inputUser.value.selected_profiles[i] };
+  }
+  inputUser.value.selected_profiles = JSON.stringify(inputUser.value.selected_profiles);
+
+  var data = new FormData()
+  for (let k in input.value)
+    if (k != 'avatar')
+      data.set(k, input.value[k]);
+  if (input.value.avatar.file) data.set('avatar', input.value.avatar.file)
+
+  getService('toolcase/loader').load('save-user');
+  return getService('toolcase/http').post(ENDPOINTS.USERS.USER, data)
+    .then((response) => {
+      router.push(`/iam/users/edit/${response.data.ds_key}`);
+      getService('toolcase/utils').notify({
+        message: "O novo usuário foi criado com sucesso.",
+        type: 'positive',
+        position: 'top-right'
+      });
+    })
+    .catch((error) => {
+      getService('toolcase/utils').notifyError(error);
+      console.error(error);
+    })
+    .finally(() => {
+      getService('toolcase/loader').loaded('save-user');
+    })
+}
+
+function listProfiles() {
+  // Retrieve Access Profiles list:
+  return getService('toolcase/http').get(ENDPOINTS.PROFILES.PROFILE)
+    .then((response) => {
+      profiles.value = response.data.map(prf => ({
+        label: prf.ds_title,
+        value: prf.ds_key
+      }))
+    })
+    .catch((error) => {
+      getService('toolcase/utils').notifyError(error);
+      console.error(error);
+    })
+}
+
+onMounted(async () => {
+  getService('toolcase/loader').load('data');
+  await getService('iam/auth').authenticate();
+  if (!getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
+    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) router.push('/error/forbidden');
+
+  await listProfiles();
+  getService('toolcase/loader').loaded('data');
+})
 </script>
