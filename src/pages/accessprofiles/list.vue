@@ -1,5 +1,5 @@
 <template>
-  <La1Page Title="Gerenciar Perfis de Acesso" :Breadcrumb="breadcrumb">
+  <Page Title="Gerenciar Perfis de Acesso" :Breadcrumb="breadcrumb">
     <Widget Title="Perfis Cadastrados" Icon="fas fa-id-card"
       :Actions="[{ label: 'Adicionar', icon: 'fas fa-plus', color: 'positive', textColor: 'white', fn: () => router.push('/iam/accessprofiles/create') }]">
       <DataTable Name="accessprofile-list" :DataURL="ENDPOINTS.PROFILES.PROFILE" v-model="Datatable" :Columns="columns"
@@ -7,7 +7,7 @@
       </DataTable>
 
     </Widget>
-  </La1Page>
+  </Page>
 </template>
 
 <script setup>

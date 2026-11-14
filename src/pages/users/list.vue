@@ -1,5 +1,5 @@
 <template>
-  <La1Page Title="Gerenciar Usuários" :Breadcrumb="breadcrumb">
+  <Page Title="Gerenciar Usuários" :Breadcrumb="breadcrumb">
     <Widget Title="Usuários Cadastrados" Icon="fas fa-user-cog"
       :Actions="[{ label: 'Adicionar', icon: 'fas fa-plus', color: 'positive', textColor: 'white', fn: () => router.push('/iam/users/create') }]">
       <DataTable Name="user-list" :DataURL="ENDPOINTS.USERS.USER" v-model="Datatable" :Columns="columns"
@@ -8,15 +8,15 @@
           <div class="q-pa-sm text-center">
             <q-avatar>
               <q-img class="user-avatar-img" :src="row.data.ds_avatar_img_url
-                  ? row.data.ds_avatar_img_url
-                  : '/resources/img/unknown-user.jpg'
+                ? row.data.ds_avatar_img_url
+                : '/resources/img/unknown-user.jpg'
                 "></q-img>
             </q-avatar>
           </div>
         </template>
       </DataTable>
     </Widget>
-  </La1Page>
+  </Page>
 </template>
 
 <script setup>

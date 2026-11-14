@@ -1,5 +1,5 @@
 <template>
-  <La1Page Title="Adicionar Perfil de Acesso" :Breadcrumb="breadcrumb">
+  <Page Title="Adicionar Perfil de Acesso" :Breadcrumb="breadcrumb">
     <Widget Title="Dados do Perfil" Icon="fas fa-id-card" :Actions="formActions">
       <div class="row">
         <div class="col-12">
@@ -14,7 +14,7 @@
       </div>
 
     </Widget>
-  </La1Page>
+  </Page>
 </template>
 
 <script setup>

@@ -1,5 +1,5 @@
 <template>
-  <La1Page Title="Adicionar Usuário" :Breadcrumb="breadcrumb">
+  <Page Title="Adicionar Usuário" :Breadcrumb="breadcrumb">
     <Widget Title="Dados do Usuário" Icon="fas fa-user-cog" :Actions="formActions">
       <UserForm v-model="User" confirmEmail requiredPass></UserForm>
 
@@ -10,7 +10,7 @@
       </template>
 
     </Widget>
-  </La1Page>
+  </Page>
 </template>
 
 <script setup>

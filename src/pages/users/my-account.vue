@@ -1,10 +1,10 @@
 <template>
-  <La1Page Title="Minha Conta" :Breadcrumb="breadcrumb">
+  <Page Title="Minha Conta" :Breadcrumb="breadcrumb">
     <Widget Title="Meus Dados Pessoais" Icon="fas fa-user"
       :Actions="[{ label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', fn: save }]">
       <UserForm v-model="User" editPass accountOwner></UserForm>
     </Widget>
-  </La1Page>
+  </Page>
 </template>
 
 <script>

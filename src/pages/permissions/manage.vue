@@ -1,5 +1,5 @@
 <template>
-  <La1Page Title="Gerenciar Permissões" :Breadcrumb="breadcrumb">
+  <Page Title="Gerenciar Permissões" :Breadcrumb="breadcrumb">
     <Widget Title="Permissões por Perfil" Icon="fas fa-key">
       <template #actions>
         <div class="row justify-end">
@@ -153,7 +153,7 @@
         </div>
       </div>
     </Modal>
-  </La1Page>
+  </Page>
 </template>
 
 <script setup>

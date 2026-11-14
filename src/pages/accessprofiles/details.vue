@@ -1,5 +1,5 @@
 <template>
-  <La1Page Title="Detalhes do Perfil de Acesso" :Breadcrumb="breadcrumb">
+  <Page Title="Detalhes do Perfil de Acesso" :Breadcrumb="breadcrumb">
     <Widget Title="Dados do Perfil" Icon="fas fa-id-card"
       :Actions="[{ label: 'Voltar', icon: 'fas fa-undo', color: 'white', textColor: 'primary', outline: true, fn: () => router.go(-1) }]">
       <div class="row">
@@ -30,7 +30,7 @@
       </template>
 
     </Widget>
-  </La1Page>
+  </Page>
 </template>
 
 <script setup>
