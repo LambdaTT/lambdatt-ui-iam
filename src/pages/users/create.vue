@@ -1,7 +1,6 @@
 <template>
   <La1Page Title="Adicionar Usuário" :Breadcrumb="breadcrumb">
-    <Widget Title="Dados do Usuário" Icon="fas fa-user-cog"
-      :Actions="[{ label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', fn: save }]">
+    <Widget Title="Dados do Usuário" Icon="fas fa-user-cog" :Actions="formActions">
       <UserForm v-model="User" confirmEmail requiredPass></UserForm>
 
       <template #user-profiles>
@@ -15,31 +14,47 @@
 </template>
 
 <script setup>
+// IMPORTS
 import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import { useRouter } from 'vue-router'
 import ENDPOINTS from '../../ENDPOINTS'
 
+
+// INITIALIZATION
 defineOptions({ name: 'pages-iam-users-create' })
-
 const router = useRouter()
-// Submódulo acessa os serviços do app pelo $getService global (resolução por URI) — equivalente
-// ao this.$getService do Options API.
-const getService = getCurrentInstance().appContext.config.globalProperties.$getService
+onMounted(async () => {
+  getService('toolcase/loader').load('data');
+  await getService('iam/auth').authenticate();
+  if (!getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
+    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
+    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) router.push('/error/forbidden');
 
+  await listProfiles();
+  getService('toolcase/loader').loaded('data');
+})
+
+
+// VARS
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 const User = ref({})
 const inputUser = ref({
   selected_profiles: []
 })
 const profiles = ref([])
-
 const breadcrumb = computed(() => [
   { label: 'Home', icon: "fas fa-home", to: "/" },
   { label: 'Usuários', icon: "fas fa-users", to: "/iam/users/list" },
   { label: 'Adicionar', icon: 'fas fa-plus' },
 ])
-
 const input = computed(() => ({ ...inputUser.value, ...User.value.input }))
+const formActions = [
+  { label: 'Voltar', icon: 'fas fa-undo', color: 'white', textColor: 'primary', outline: true, fn: () => router.go(-1) },
+  { label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', fn: save }
+]
 
+
+// FUNCTIONS
 function validateForm() {
   if (inputUser.value.selected_profiles.length < 1) {
     getService('toolcase/utils').notify({
@@ -52,7 +67,6 @@ function validateForm() {
 
   return true;
 }
-
 function save() {
   let hasError = !User.value.validate() |
     !validateForm();
@@ -87,7 +101,6 @@ function save() {
       getService('toolcase/loader').loaded('save-user');
     })
 }
-
 function listProfiles() {
   // Retrieve Access Profiles list:
   return getService('toolcase/http').get(ENDPOINTS.PROFILES.PROFILE)
@@ -102,15 +115,4 @@ function listProfiles() {
       console.error(error);
     })
 }
-
-onMounted(async () => {
-  getService('toolcase/loader').load('data');
-  await getService('iam/auth').authenticate();
-  if (!getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) router.push('/error/forbidden');
-
-  await listProfiles();
-  getService('toolcase/loader').loaded('data');
-})
 </script>

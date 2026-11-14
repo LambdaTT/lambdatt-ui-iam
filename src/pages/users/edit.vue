@@ -169,6 +169,7 @@ function listProfiles() {
 }
 
 const formActions = [
+  { label: 'Voltar', icon: 'fas fa-undo', color: 'white', textColor: 'primary', outline: true, fn: () => router.go(-1) },
   { label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', hide: !permissions.update, fn: save },
   { label: 'Excluir', icon: 'fas fa-trash-alt', color: 'negative', textColor: 'white', hide: !permissions.delete, fn: remove },
 ]

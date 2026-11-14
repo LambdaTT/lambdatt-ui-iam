@@ -1,7 +1,6 @@
 <template>
   <La1Page Title="Adicionar Perfil de Acesso" :Breadcrumb="breadcrumb">
-    <Widget Title="Dados do Perfil" Icon="fas fa-id-card"
-      :Actions="[{ label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', fn: save }]">
+    <Widget Title="Dados do Perfil" Icon="fas fa-id-card" :Actions="formActions">
       <div class="row">
         <div class="col-12">
           <InputField Label="Título" Icon="fas fa-id-card" type="text" clearable v-model="input.ds_title"
@@ -37,6 +36,11 @@ const input = ref({
 const inputError = ref({
   ds_title: false,
 })
+
+const formActions = [
+  { label: 'Voltar', icon: 'fas fa-undo', color: 'white', textColor: 'primary', outline: true, fn: () => router.go(-1) },
+  { label: 'Salvar', icon: 'fas fa-save', color: 'positive', textColor: 'white', fn: save }
+]
 
 const breadcrumb = computed(() => [
   { label: 'Home', icon: "fas fa-home", to: "/" },

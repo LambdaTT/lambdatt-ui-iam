@@ -1,6 +1,7 @@
 <template>
   <La1Page Title="Detalhes do Usuário" :Breadcrumb="breadcrumb">
-    <Widget Title="Informações do Usuário" Icon="fas fa-user-cog">
+    <Widget Title="Informações do Usuário" Icon="fas fa-user-cog"
+      :Actions="[{ label: 'Voltar', icon: 'fas fa-undo', color: 'white', textColor: 'primary', outline: true, fn: () => router.go(-1) }]">
       <UserForm v-model="User" readonly></UserForm>
 
       <template #audit-info>

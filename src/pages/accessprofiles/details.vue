@@ -1,6 +1,7 @@
 <template>
   <La1Page Title="Detalhes do Perfil de Acesso" :Breadcrumb="breadcrumb">
-    <Widget Title="Dados do Perfil" Icon="fas fa-id-card">
+    <Widget Title="Dados do Perfil" Icon="fas fa-id-card"
+      :Actions="[{ label: 'Voltar', icon: 'fas fa-undo', color: 'white', textColor: 'primary', outline: true, fn: () => router.go(-1) }]">
       <div class="row">
         <div class="col-12">
           <InputField Label="Título" Icon="fas fa-id-card" type="text" readonly v-model="userData.ds_title">
