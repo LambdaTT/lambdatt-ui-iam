@@ -22,11 +22,11 @@ const router = useRouter()
 // ao this.$getService do Options API.
 const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
-// Permissions:
+// Permissions (flat tag-based model):
 const permissions = {
-  create: getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'C' }),
-  update: getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
-  delete: getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
+  create: getService('iam/permissions').canExecute('profiles.manage'),
+  update: getService('iam/permissions').canExecute('profiles.manage'),
+  delete: getService('iam/permissions').canExecute('profiles.manage'),
 }
 
 // Datatable:
@@ -75,6 +75,6 @@ function remove(row) {
 
 onMounted(() => {
   getService('iam/auth').authenticate();
-  if (!getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' })) router.push('/error/forbidden');
+  if (!getService('iam/permissions').canExecute('profiles.manage')) router.push('/forbidden');
 })
 </script>

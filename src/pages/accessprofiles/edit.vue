@@ -12,18 +12,12 @@
           </InputField>
         </div>
       </div>
-
-      <template #section-modules>
-        <Widget Title="Módulos do Perfil" Icon="fas fa-puzzle-piece">
-          <q-option-group v-model="selectedModules" :options="modules" color="primary" type="checkbox" />
-        </Widget>
-      </template>
     </Widget>
   </Page>
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, getCurrentInstance } from 'vue'
+import { ref, computed, onMounted, getCurrentInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import ENDPOINTS from '../../ENDPOINTS';
 
@@ -36,12 +30,9 @@ const router = useRouter()
 const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
 const permissions = {
-  update: getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'U' }) && getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'CRUD' }),
-  delete: getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'D' }) && getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'D' }),
+  update: getService('iam/permissions').canExecute('profiles.manage'),
+  delete: getService('iam/permissions').canExecute('profiles.manage'),
 }
-const modules = ref([])
-const selectedModules = ref([])
-const selectedModulesControl = ref([])
 const input = ref({
   ds_title: null,
   tx_description: null,
@@ -124,27 +115,6 @@ function remove() {
     })
 }
 
-function getModules() {
-  return getService('toolcase/http').get(`${ENDPOINTS.PROFILES.MODULE}/${route.params.key}`)
-    .then((response) => {
-      modules.value = [];
-      selectedModules.value = [];
-      selectedModulesControl.value = [];
-
-      for (let i = 0; i < response.data.length; i++) {
-        let mod = response.data[i];
-        modules.value.push({
-          'label': mod.ds_title,
-          'value': mod.ds_key
-        })
-        if (mod.checked == 'Y') {
-          selectedModules.value.push(mod.ds_key);
-          selectedModulesControl.value.push(mod.ds_key);
-        }
-      }
-    })
-}
-
 function getProfileData() {
   // Get Access profile data:
   getService('toolcase/loader').load('profile-data');
@@ -155,7 +125,6 @@ function getProfileData() {
           input.value[k] = response.data[k];
       }
     })
-    .then(() => getModules())
     .catch((error) => {
       if (error.response.status == 404) {
         getService('toolcase/utils').notify({
@@ -180,31 +149,9 @@ const formActions = [
   { label: 'Excluir', icon: 'fas fa-trash-alt', color: 'negative', textColor: 'white', hide: !permissions.delete, fn: remove },
 ]
 
-watch(selectedModules, async () => {
-  var modKey = selectedModulesControl.value.diff(selectedModules.value)[0];
-  // Add:
-  if (selectedModules.value.length > selectedModulesControl.value.length) {
-    selectedModulesControl.value.push(modKey);
-    await getService('toolcase/http').post(`${ENDPOINTS.PROFILES.MODULE}/${route.params.key}/${modKey}`);
-  }
-  // Remove:
-  else if (selectedModules.value.length < selectedModulesControl.value.length) {
-    let idx = selectedModulesControl.value.indexOf(modKey);
-    selectedModulesControl.value.splice(idx, 1);
-    await getService('toolcase/http').delete(`${ENDPOINTS.PROFILES.MODULE}/${route.params.key}/${modKey}`);
-  } else return;
-
-  await getService('iam/permissions').getUserPermissions();
-  if (!getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) router.push('/error/forbidden');
-
-  getModules();
-})
-
 onMounted(async () => {
   await getService('iam/auth').authenticate();
-  if (!getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) router.push('/error/forbidden');
+  if (!getService('iam/permissions').canExecute('profiles.manage')) router.push('/forbidden');
 
   getProfileData()
 })

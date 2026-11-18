@@ -26,10 +26,10 @@ const router = useRouter()
 // ao this.$getService do Options API.
 const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
-// Permissions:
+// Permissions (flat tag-based model):
 const permissions = {
-  update: getService('iam/permissions').validatePermissions({ 'IAM_USER': 'U' }) && getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CRUD' }),
-  delete: getService('iam/permissions').validatePermissions({ 'IAM_USER': 'D' }) && getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'D' }),
+  update: getService('iam/permissions').canExecute('users.manage'),
+  delete: getService('iam/permissions').canExecute('users.manage'),
 }
 
 // User component:
@@ -176,9 +176,7 @@ const formActions = [
 
 onMounted(async () => {
   await getService('iam/auth').authenticate();
-  if (!getService('iam/permissions').validatePermissions({ 'IAM_USER': 'R' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'R' })) router.push('/error/forbidden');
+  if (!getService('iam/permissions').canExecute('users.read')) router.push('/forbidden');
 
   getData()
   listProfiles()

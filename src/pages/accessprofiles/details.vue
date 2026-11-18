@@ -22,13 +22,6 @@
       <template #audit-info>
         <AuditBlock :input="userData"></AuditBlock>
       </template>
-
-      <template #section-modules>
-        <Widget Title="Módulos do Perfil" Icon="fas fa-puzzle-piece">
-          <q-option-group disable v-model="selectedModules" :options="modules" color="primary" type="checkbox" />
-        </Widget>
-      </template>
-
     </Widget>
   </Page>
 </template>
@@ -47,32 +40,12 @@ const router = useRouter()
 const getService = getCurrentInstance().appContext.config.globalProperties.$getService
 
 const userData = ref({})
-const modules = ref([])
-const selectedModules = ref([])
 
 const breadcrumb = computed(() => [
   { label: 'Home', icon: "fas fa-home", to: "/" },
   { label: 'Perfis de Acesso', icon: "fas fa-id-card", to: "/iam/accessprofiles/list" },
   { label: 'Ver Detalhes' },
 ])
-
-function getModules() {
-  return getService('toolcase/http').get(`${ENDPOINTS.PROFILES.MODULE}/${route.params.key}`)
-    .then((response) => {
-      modules.value = [];
-      selectedModules.value = [];
-
-      for (let i = 0; i < response.data.length; i++) {
-        let mod = response.data[i];
-        modules.value.push({
-          'label': mod.ds_title,
-          'value': mod.ds_key
-        })
-        if (mod.checked == 'Y')
-          selectedModules.value.push(mod.ds_key);
-      }
-    })
-}
 
 function getProfileData() {
   // Get Access profile data:
@@ -81,7 +54,6 @@ function getProfileData() {
     .then((response) => {
       userData.value = response.data;
     })
-    .then(() => getModules())
     .catch((error) => {
       if (error.response.status == 404) {
         getService('toolcase/utils').notify({
@@ -102,8 +74,7 @@ function getProfileData() {
 
 onMounted(async () => {
   await getService('iam/auth').authenticate();
-  if (!getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_MODULE': 'R' })) router.push('/error/forbidden');
+  if (!getService('iam/permissions').canExecute('profiles.manage')) router.push('/forbidden');
 
   getProfileData();
 })

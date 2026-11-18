@@ -94,6 +94,6 @@ function save() {
 
 onMounted(async () => {
   await getService('iam/auth').authenticate();
-  if (!getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'C' })) router.push('/error/forbidden');
+  if (!getService('iam/permissions').canExecute('profiles.manage')) router.push('/forbidden');
 })
 </script>

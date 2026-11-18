@@ -237,8 +237,6 @@ async function login() {
     localStorage.removeItem("authtoken");
     localStorage.removeItem("xsrf_token");
     localStorage.removeItem("iam_session_key");
-    localStorage.removeItem("regularPermissions");
-    localStorage.removeItem("customPermissions");
   } finally {
     $q.loading.hide();
   }
@@ -279,8 +277,6 @@ async function autoLogin() {
     localStorage.removeItem("authtoken");
     localStorage.removeItem("xsrf_token");
     localStorage.removeItem("iam_session_key");
-    localStorage.removeItem("regularPermissions");
-    localStorage.removeItem("customPermissions");
   } finally {
     $q.loading.hide();
   }

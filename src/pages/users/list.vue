@@ -31,35 +31,11 @@ const router = useRouter();
 // ao this.$getService do Options API.
 const getService = getCurrentInstance().appContext.config.globalProperties.$getService;
 
-// Permissions:
+// Permissions (flat tag-based model):
 const permissions = {
-  create:
-    getService("iam/permissions").validatePermissions({
-      IAM_USER: "C",
-    }) &&
-    getService("iam/permissions").validatePermissions({
-      IAM_ACCESSPROFILE: "R",
-    }) &&
-    getService("iam/permissions").validatePermissions({
-      IAM_ACCESSPROFILE_USER: "CUD",
-    }),
-  update:
-    getService("iam/permissions").validatePermissions({
-      IAM_USER: "U",
-    }) &&
-    getService("iam/permissions").validatePermissions({
-      IAM_ACCESSPROFILE: "R",
-    }) &&
-    getService("iam/permissions").validatePermissions({
-      IAM_ACCESSPROFILE_USER: "CRUD",
-    }),
-  delete:
-    getService("iam/permissions").validatePermissions({
-      IAM_USER: "D",
-    }) &&
-    getService("iam/permissions").validatePermissions({
-      IAM_ACCESSPROFILE_USER: "D",
-    }),
+  create: getService("iam/permissions").canExecute("users.manage"),
+  update: getService("iam/permissions").canExecute("users.manage"),
+  delete: getService("iam/permissions").canExecute("users.manage"),
 };
 
 //  Datatable:
@@ -144,11 +120,7 @@ function remove(row) {
 
 onMounted(() => {
   getService("iam/auth").authenticate();
-  if (
-    !getService("iam/permissions").validatePermissions({
-      IAM_USER: "R",
-    })
-  )
-    router.push("/error/forbidden");
+  if (!getService("iam/permissions").canExecute("users.read"))
+    router.push("/forbidden");
 });
 </script>

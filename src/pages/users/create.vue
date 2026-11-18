@@ -26,9 +26,7 @@ const router = useRouter()
 onMounted(async () => {
   getService('toolcase/loader').load('data');
   await getService('iam/auth').authenticate();
-  if (!getService('iam/permissions').validatePermissions({ 'IAM_USER': 'C' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE': 'R' }) ||
-    !getService('iam/permissions').validatePermissions({ 'IAM_ACCESSPROFILE_USER': 'CUD' })) router.push('/error/forbidden');
+  if (!getService('iam/permissions').canExecute('users.manage')) router.push('/forbidden');
 
   await listProfiles();
   getService('toolcase/loader').loaded('data');

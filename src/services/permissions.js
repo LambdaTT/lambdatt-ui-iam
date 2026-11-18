@@ -4,87 +4,77 @@ import ENDPOINTS from '../ENDPOINTS'
 const REQUIRE_ALL = 1 // All permissions must be granted
 const REQUIRE_ANY = 2 // At least one permission must be granted
 
-var isSuperAdmin = null
-var regularPermissions = null
-var customPermissions = null
+// Cached authorization state of the logged user, loaded via getUserPermissions().
+// In the flat tag-based model (IAM v1.3.0+), a user holds a plain list of permission
+// records (identified by their ds_tag), inherited from their access profiles.
+let isSuperAdmin = false
+let grantedPermissions = []
+let loaded = false
 
 export default {
+  REQUIRE_ALL,
+  REQUIRE_ANY,
+
+  // Loads the logged user's authorization state: the superadmin flag plus the flat list of
+  // permission records granted through their access profiles.
   getUserPermissions() {
     return $sys
       .getService('toolcase/http')
       .get(ENDPOINTS.PERMISSIONS.READ)
       .then((response) => {
         isSuperAdmin = response.data?.isSuperAdmin == 'Y'
-        regularPermissions = response.data?.regularPermissions
-        customPermissions = response.data?.customPermissions
+        grantedPermissions = response.data?.permissions ?? []
+        loaded = true
+      })
+      .catch((error) => {
+        isSuperAdmin = false
+        grantedPermissions = []
+        loaded = true
+        throw error
       })
   },
 
-  async canExecute(keys, mode = REQUIRE_ALL) {
-    function innerExec() {
-      const utils = $sys.getService('toolcase/utils')
-
-      if (isSuperAdmin || utils.empty(keys)) return true
-
-      if (keys instanceof Array) {
-        let allow = false
-
-        for (let i = 0; i < keys.length; i++) {
-          allow = this.canExecute(keys[i], mode)
-          if (allow && mode === REQUIRE_ANY) break
-        }
-
-        return allow
-      } else {
-        var permission = customPermissions.find((p) => p.ds_key == keys)
-        return !!permission
-      }
-    }
-
-    while (isSuperAdmin === null || customPermissions === null) {
-      await $sys.getService('toolcase/utils').sleep(100)
-    }
-    return innerExec()
+  isLoaded() {
+    return loaded
   },
 
-  async validatePermissions(requiredPermissions, mode = REQUIRE_ALL) {
-    function innerExec() {
-      const utils = $sys.getService('toolcase/utils')
+  isSuperAdmin() {
+    return isSuperAdmin
+  },
 
-      if (isSuperAdmin || utils.empty(requiredPermissions)) return true
+  // Returns the flat list of permission tags granted to the logged user.
+  getGrantedTags() {
+    return grantedPermissions.map((p) => p.ds_tag)
+  },
 
-      const lvlDict = {
-        C: 'do_create',
-        R: 'do_read',
-        U: 'do_update',
-        D: 'do_delete',
-      }
+  // Checks whether the logged user holds the given execution permission tag(s).
+  // `tags` may be a single tag string or an array of tags; `mode` selects whether all
+  // (REQUIRE_ALL, default) or any (REQUIRE_ANY) of them must be granted. Superadmins always
+  // pass, and an empty requirement is treated as "no restriction".
+  canExecute(tags, mode = REQUIRE_ALL) {
+    const utils = $sys.getService('toolcase/utils')
 
-      let result = false
-      for (let entity in requiredPermissions) {
-        let level = requiredPermissions[entity].toUpperCase()
+    if (isSuperAdmin || utils.empty(tags)) return true
 
-        let p = regularPermissions.find((p) => p.ds_entity_name == entity)
-        if (!p && mode === REQUIRE_ALL) return false
-        else if (!p) continue
+    const required = tags instanceof Array ? tags : [tags]
+    if (utils.empty(required)) return true
 
-        for (let i = 0; i < level.length; i++) {
-          let translated = lvlDict[level[i]]
-          if (!translated) {
-            console.warn(`Invalid permission level: ${level[i]} for entity: ${entity}`)
-            continue
-          }
-          result = p[translated] == 'Y'
-          if (!result && mode === REQUIRE_ANY) break
-        }
-      }
+    const granted = (tag) => grantedPermissions.some((p) => p.ds_tag == tag)
 
-      return result
-    }
+    return mode === REQUIRE_ANY ? required.some(granted) : required.every(granted)
+  },
 
-    while (isSuperAdmin === null || regularPermissions === null) {
-      await $sys.getService('toolcase/utils').sleep(100)
-    }
-    return innerExec()
+  /**
+   * @deprecated The module/entity + CRUD permission model was removed in the IAM
+   * permissions-domain simplification (IAM v1.3.0). Authorization is now tag-based — use
+   * `canExecute(tags)` with explicit permission tags instead.
+   *
+   * This shim is kept so host-app pages that still gate on entity/CRUD maps (e.g.
+   * `validatePermissions({ CTP_PRODUCT: 'R' })`) keep working: it mirrors the backend route
+   * guards, which were reduced to authentication-only, by resolving permissive (true).
+   * Migrate those call sites to `canExecute()` as tags are defined for each feature.
+   */
+  validatePermissions() {
+    return true
   },
 }

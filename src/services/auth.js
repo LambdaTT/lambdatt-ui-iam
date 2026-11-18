@@ -17,8 +17,6 @@ export default {
       if (error.response?.status == 401) {
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
-        localStorage.removeItem('regularPermissions');
-        localStorage.removeItem('customPermissions');
         $sys.getRouter().push(`/login?goTo=${$sys.getCurrentRoute().path}`)
       }
     } finally {
@@ -40,8 +38,6 @@ export default {
         localStorage.removeItem('authtoken');
         localStorage.removeItem('xsrf_token');
         localStorage.removeItem('iam_session_key');
-        localStorage.removeItem('regularPermissions');
-        localStorage.removeItem('customPermissions');
       });
   },
 
