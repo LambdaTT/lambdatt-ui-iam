@@ -1,17 +1,13 @@
 export default {
   AUTH: {
     LOGGED_USER: '/iam/auth/v1/logged/user',
+    LOGGED_PERMISSIONS: '/iam/auth/v1/logged/permissions',
     LOGIN: '/iam/auth/v1/login',
     LOGIN_SSO: '/iam/auth/v1/login-sso',
     LOGIN_TOKEN: '/iam/auth/v1/login-token',
     LOGOUT: '/iam/auth/v1/logout',
     RENEW_TOKEN: '/iam/auth/v1/renew-token',
     VALIDATE_TOKEN: '/iam/auth/v1/validate-token',
-  },
-
-  PERMISSIONS: {
-    READ: '/iam/auth/v1/logged/permissions',       // GET  -> { isSuperAdmin, permissions: [...] }
-    CREATE: '/iam/permissions/v1/permission'        // POST /{title}/{tag}
   },
 
   USERS: {

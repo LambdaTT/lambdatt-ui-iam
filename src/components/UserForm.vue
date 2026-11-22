@@ -98,11 +98,12 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, watch, onMounted, getCurrentInstance } from "vue";
+// IMPORTS
+import { ref, reactive, computed, watch, onMounted, getCurrentInstance, defineModel, defineExpose } from "vue";
 import ENDPOINTS from "../ENDPOINTS";
 
-defineOptions({ name: "component-userinfo" });
 
+// INITIALIZATION
 const props = defineProps({
   readonly: Boolean,
   showTitle: Boolean,
@@ -124,34 +125,61 @@ const props = defineProps({
   DefaultAvatarPath: {
     type: String,
     default: null,
-  },
-  modelValue: {
-    type: Object,
-  },
+  }
+});
+const emit = defineEmits([
+  "iam.user.fetchdata.before",
+  "iam.user.fetchdata.error",
+  "iam.user.fetchdata.after",
+  "iam.user.save.before",
+  "iam.user.save.error",
+  "iam.user.save.after",
+  "iam.user.remove.before",
+  "iam.user.remove.error",
+  "iam.user.remove.after",
+  "iam.password.save.after",
+  "iam.password.save.before",
+  "iam.password.save.error",
+]);
+defineExpose({
+  getKey: () => props.UserKey,
+  validateForm,
+  resetInput,
+  reload,
+  save,
+  remove
+})
+onMounted(async () => {
+  syncConditionalErrors();
+  if (props.requiredPass) {
+    inputError.ds_password = false;
+  }
+
+  if (props.UserKey && typeof props.UserKey == 'string')
+    await fetchData()
 });
 
-const emit = defineEmits(["update:model-value"]);
 
-// Submódulo acessa os serviços do app pelo $getService global (resolução por URI) — equivalente
-// ao this.$getService do Options API.
-const getService = getCurrentInstance().appContext.config.globalProperties.$getService;
-
-const input = reactive({
-  ds_first_name: null,
-  ds_last_name: null,
-  ds_phone1: null,
-  ds_phone2: null,
-  ds_company: null,
-  ds_email: null,
-  ds_username: null,
-  ds_password: null,
-  avatar: {
-    file: null,
-    name: null,
-    src: null,
-    size: null,
-  },
-});
+// VARS
+const input = defineModel({
+  type: Object,
+  default: () => ({
+    ds_first_name: null,
+    ds_last_name: null,
+    ds_phone1: null,
+    ds_phone2: null,
+    ds_company: null,
+    ds_email: null,
+    ds_username: null,
+    ds_password: null,
+    avatar: {
+      file: null,
+      name: null,
+      src: null,
+      size: null,
+    },
+  })
+})
 const inputError = reactive({
   ds_first_name: false,
   ds_last_name: false,
@@ -162,21 +190,26 @@ const control = reactive({
   ds_password_confirm: null,
 });
 const showPasswordModal = ref(false);
-const passwordLoading = ref(false);
-// Erros do modal de senha, separados do inputError do formulário principal
-// (evita que validateForm passe a exigir ds_password no save principal).
 const passwordError = reactive({
   ds_password: false,
   ds_password_confirm: false,
 });
 
-const factory = computed(() => ({
-  input: { ...input },
-  read,
-  validate: validateFields,
-}));
 
-function validateFields() {
+// WATCHERS
+watch(
+  () => props.HideFields,
+  () => {
+    syncConditionalErrors();
+  },
+  { deep: true },
+);
+
+
+// FUNCTIONS
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService;
+const moduleExists = getCurrentInstance().appContext.config.globalProperties.$moduleExists;
+function validateForm() {
   // Validation
   let user = Object.assign({}, input);
   delete user.avatar;
@@ -252,7 +285,6 @@ function validateFields() {
 
   return true;
 }
-
 function read(source) {
   if ("ds_avatar_img_url" in source && !!source.ds_avatar_img_url) {
     input.avatar.src = source.ds_avatar_img_url;
@@ -265,23 +297,19 @@ function read(source) {
     }
   }
 }
-
 function shouldHide(element) {
   return props.HideFields.includes(element);
 }
-
 function openPasswordModal() {
   resetPasswordControl();
   showPasswordModal.value = true;
 }
-
 function resetPasswordControl() {
   control.ds_password = null;
   control.ds_password_confirm = null;
   passwordError.ds_password = false;
   passwordError.ds_password_confirm = false;
 }
-
 function isValidNewPassword() {
   if (
     control.ds_password === "" ||
@@ -322,37 +350,96 @@ function isValidNewPassword() {
 
   return true;
 }
+async function fetchData() {
+  if (!moduleExists('toolcase')) {
+    console.warn("Module 'Toolcase' not present, thus, it was not possible to fetch user's data automatically.")
+    return
+  }
 
-function savePassword() {
+  emit('iam.user.fetchdata.before')
+  try {
+    const { data } = await getService('toolcase/http').get(`${ENDPOINTS.USERS.USER}/${props.UserKey}`)
+    read(data)
+    emit('iam.user.fetchdata.after', data)
+  } catch (error) {
+    console.error("An error has occurred on the attempt to fetch users's data.", error)
+    toastError(error)
+    emit('iam.user.fetchdata.error', error)
+  }
+
+}
+async function reload() {
+  await fetchData()
+}
+async function save() {
+  if (!validateForm()) return
+
+  if (!moduleExists('toolcase')) {
+    console.warn("Module 'Toolcase' not present, thus, it was not possible to save user's data automatically.")
+    return
+  }
+
+  const method = props.UserKey ? 'put' : 'post'
+  const url = `${ENDPOINTS.USERS.USER}${props.UserKey ? `/${props.UserKey}` : ''}`
+
+  emit('iam.user.save.before', input.value)
+  try {
+    const { data } = await getService('toolcase/http')[method](url, input.value)
+    toast("Os dados do usuário foram salvos com sucesso.", "positive")
+    emit('iam.user.save.after', data)
+  } catch (error) {
+    console.error("An error has occurred on the attempt to save user's data.", error)
+    toastError(error)
+    emit('iam.user.save.error', error)
+  }
+}
+async function remove() {
+  if (!moduleExists('toolcase')) {
+    console.warn("Module 'Toolcase' not present, thus, it was not possible to remove user's data automatically.")
+    return
+  }
+
+  if (!props.UserKey) {
+    console.warn("No User Key was provided, thus, it was not possible to remove user's data automatically.")
+    return
+  }
+
+  emit('iam.user.remove.before', props.UserKey)
+  try {
+    await getService('toolcase/http').delete(`${ENDPOINTS.USERS.USER}/${props.UserKey}`)
+    toast("O usuário foi excluído com sucesso.", 'positive')
+    emit('iam.user.remove.after')
+  } catch (error) {
+    console.error("An error has occurred on the attempt to remove user's data.", error)
+    toastError(error)
+    emit('iam.user.remove.error', error)
+  }
+}
+async function savePassword() {
   if (!isValidNewPassword()) return;
+
+  if (!props.UserKey) {
+    console.warn("No User Key was provided, thus, it was not possible to save user's password automatically.")
+    return
+  }
 
   const url = props.accountOwner
     ? ENDPOINTS.USERS.MY_ACCOUNT
     : `${ENDPOINTS.USERS.ADMIN_CHANGE_PASS}/${props.UserKey}`;
+  const payload = { ds_password: control.ds_password }
 
-  passwordLoading.value = true;
-  return getService("toolcase/http")
-    .put(url, { ds_password: control.ds_password })
-    .then(() => {
-      getService("toolcase/utils").notify({
-        message: "Senha atualizada com sucesso",
-        type: "positive",
-        position: "top-right",
-      });
-      showPasswordModal.value = false;
-    })
-    .catch((error) => {
-      getService("toolcase/utils").notifyError(error);
-      console.error(
-        "An error occurred while attempting to save the password.",
-        error,
-      );
-    })
-    .finally(() => {
-      passwordLoading.value = false;
-    });
+  emit('iam.password.save.before', payload)
+  try {
+    await getService("toolcase/http").put(url, payload)
+    toast("A senha do usuário foi alterada com sucesso.", 'positive')
+    emit('iam.password.save.after')
+    showPasswordModal.value = false;
+  } catch (error) {
+    console.error("An error has occurred on the attempt to save user's password.", error)
+    toastError(error)
+    emit('iam.password.save.error', error)
+  }
 }
-
 function syncConditionalErrors() {
   const conditionalFields = ["ds_email", "ds_username"];
   for (const field of conditionalFields) {
@@ -365,42 +452,15 @@ function syncConditionalErrors() {
     }
   }
 }
+function toast(message, type) {
+  if (moduleExists('toolcase'))
+    getService('toolcase/utils').notify({ message, type })
+}
+function toastError(error) {
+  if (moduleExists('toolcase'))
+    getService('toolcase/utils').notifyError(error)
 
-watch(
-  input,
-  () => {
-    emit("update:model-value", factory.value);
-  },
-  { deep: true },
-);
-
-watch(
-  () => props.HideFields,
-  () => {
-    syncConditionalErrors();
-  },
-  { deep: true },
-);
-
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    for (let key in input) {
-      if (key in newValue) {
-        input[key] = newValue[key];
-      }
-    }
-  },
-  { deep: true },
-);
-
-onMounted(() => {
-  syncConditionalErrors();
-  if (props.requiredPass) {
-    inputError.ds_password = false;
-  }
-  emit("update:model-value", factory.value);
-});
+}
 </script>
 
 <style scoped>
