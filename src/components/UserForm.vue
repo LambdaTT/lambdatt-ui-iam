@@ -1,5 +1,5 @@
 <template>
-  <div class="row">
+  <div class="row" v-if="permissions.read || props.accountOwner">
     <div class="col-12 q-pa-xs" v-if="showTitle">
       <div class="q-pa-xs">
         <h1>Informações do Usuário</h1>
@@ -10,7 +10,7 @@
     <div class="col-12">
       <PhotoPicker v-if="!shouldHide('avatar') && input.avatar"
         :DefaultImgPath="DefaultAvatarPath || '/resources/img/unknown-user.jpg'" v-model="input.avatar"
-        :disable="readonly">
+        :disable="readonly || !canManage">
       </PhotoPicker>
     </div>
 
@@ -20,49 +20,50 @@
         @click="openPasswordModal" />
     </div>
 
-    <!-- Data -->
     <div v-if="!shouldHide('ds_first_name')" class="col-12 col-md-6">
-      <InputField type="text" Label="Nome*" Icon="fas fa-user-tie" clearable :readonly="readonly"
+      <InputField type="text" Label="Nome*" Icon="fas fa-user-tie" clearable :readonly="readonly || !canManage"
         v-model="input.ds_first_name" :Error="inputError.ds_first_name" @focus="inputError.ds_first_name = false">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_last_name')" class="col-12 col-md-6">
-      <InputField type="text" Label="Sobrenome*" Icon="fas fa-user-tie" clearable :readonly="readonly"
+      <InputField type="text" Label="Sobrenome*" Icon="fas fa-user-tie" clearable :readonly="readonly || !canManage"
         v-model="input.ds_last_name" :Error="inputError.ds_last_name" @focus="inputError.ds_last_name = false">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_phone1')" class="col-12 col-md-6">
-      <InputField type="phone" Label="Telefone" clearable :readonly="readonly" v-model="input.ds_phone1"></InputField>
+      <InputField type="phone" Label="Telefone" clearable :readonly="readonly || !canManage" v-model="input.ds_phone1">
+      </InputField>
     </div>
     <div v-if="!shouldHide('ds_phone2')" class="col-12 col-md-6">
-      <InputField type="phone" Label="Telefone Adicional" clearable :readonly="readonly" v-model="input.ds_phone2">
+      <InputField type="phone" Label="Telefone Adicional" clearable :readonly="readonly || !canManage"
+        v-model="input.ds_phone2">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_company')" class="col-12 col-md-6">
-      <InputField type="text" Label="Empresa" Icon="fas fa-building" clearable :readonly="readonly"
+      <InputField type="text" Label="Empresa" Icon="fas fa-building" clearable :readonly="readonly || !canManage"
         v-model="input.ds_company"></InputField>
     </div>
     <div v-if="HideFields.length == 0" class="col-12 col-md-6">&nbsp;</div>
     <div v-if="!shouldHide('ds_email')" class="col-12 col-md-6">
-      <InputField type="text" Label="Email*" Icon="fas fa-at" clearable :readonly="readonly" v-model="input.ds_email"
-        :Error="inputError.ds_email" @focus="inputError.ds_email = false">
+      <InputField type="text" Label="Email*" Icon="fas fa-at" clearable :readonly="readonly || !canManage"
+        v-model="input.ds_email" :Error="inputError.ds_email" @focus="inputError.ds_email = false">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_username')" class="col-12 col-md-6">
-      <InputField type="text" Label="Nome de Usuário*" Icon="fas fa-user" clearable :readonly="readonly"
+      <InputField type="text" Label="Nome de Usuário*" Icon="fas fa-user" clearable :readonly="readonly || !canManage"
         v-model="input.ds_username" :Error="inputError.ds_username" @focus="inputError.ds_username = false">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_email_confirm') && confirmEmail" class="col-12 col-md-6">
-      <InputField type="text" Label="Confirmar Email*" Icon="fas fa-check" clearable :readonly="readonly"
+      <InputField type="text" Label="Confirmar Email*" Icon="fas fa-check" clearable :readonly="readonly || !canManage"
         v-model="control.ds_email_confirm" :disable="!input.ds_email" :Error="inputError.ds_email_confirm"
         @focus="delete inputError.ds_email_confirm">
       </InputField>
     </div>
     <div v-if="!shouldHide('ds_password') && !readonly && !editPass" class="col-12 col-md-6">
       <InputField type="password" :Label="`${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''}`"
-        Icon="fas fa-key" clearable :readonly="readonly" v-model="input.ds_password" :Error="inputError.ds_password"
-        @focus="
+        Icon="fas fa-key" clearable :readonly="readonly || !canManage" v-model="input.ds_password"
+        :Error="inputError.ds_password" @focus="
           () => {
             if (requiredPass) inputError.ds_password = false;
             else delete inputError.ds_password;
@@ -77,7 +78,7 @@
       !editPass
     " class="col-12 col-md-6">
       <InputField type="password" :Label="`Confirmar ${requiredPass ? '' : 'Nova'} Senha${requiredPass ? '*' : ''
-        }`" Icon="fas fa-check" clearable :readonly="readonly" v-model="control.ds_password_confirm"
+        }`" Icon="fas fa-check" clearable :readonly="readonly || !canManage" v-model="control.ds_password_confirm"
         :disable="!input.ds_password" :Error="inputError.ds_password_confirm"
         @focus="delete inputError.ds_password_confirm">
       </InputField>
@@ -94,12 +95,16 @@
         @focus="passwordError.ds_password_confirm = false">
       </InputField>
     </Modal>
+
+    <Confirm ref="ConfirmRef" />
   </div>
 </template>
 
 <script setup>
 // IMPORTS
 import { ref, reactive, computed, watch, onMounted, getCurrentInstance, defineModel, defineExpose } from "vue";
+import auth from '../services/auth'
+import permissionService from '../services/permissions'
 import ENDPOINTS from "../ENDPOINTS";
 
 
@@ -128,18 +133,18 @@ const props = defineProps({
   }
 });
 const emit = defineEmits([
-  "iam.user.fetchdata.before",
-  "iam.user.fetchdata.error",
-  "iam.user.fetchdata.after",
-  "iam.user.save.before",
-  "iam.user.save.error",
-  "iam.user.save.after",
-  "iam.user.remove.before",
-  "iam.user.remove.error",
-  "iam.user.remove.after",
-  "iam.password.save.after",
-  "iam.password.save.before",
-  "iam.password.save.error",
+  "iam-user-fetchdata-before",
+  "iam-user-fetchdata-error",
+  "iam-user-fetchdata-after",
+  "iam-user-save-before",
+  "iam-user-save-error",
+  "iam-user-save-after",
+  "iam-user-remove-before",
+  "iam-user-remove-error",
+  "iam-user-remove-after",
+  "iam-password-save-after",
+  "iam-password-save-before",
+  "iam-password-save-error",
 ]);
 defineExpose({
   getKey: () => props.UserKey,
@@ -155,12 +160,13 @@ onMounted(async () => {
     inputError.ds_password = false;
   }
 
-  if (props.UserKey && typeof props.UserKey == 'string')
+  if (userKey.value)
     await fetchData()
 });
 
 
 // VARS
+const ConfirmRef = ref({})
 const input = defineModel({
   type: Object,
   default: () => ({
@@ -196,6 +202,22 @@ const passwordError = reactive({
 });
 
 
+// COMPUTED
+const userKey = computed(() =>
+  props.accountOwner ?
+    auth.getLoggedUser()?.ds_key :
+    (props.UserKey ?? null)
+)
+const permissions = computed(() => ({
+  read: permissionService.requireAny([
+    'iam.users.read',
+    'iam.users.manage',
+  ]),
+  manage: permissionService.requireAll('iam.users.manage')
+}))
+const canManage = computed(() => permissions.value.manage || props.accountOwner)
+
+
 // WATCHERS
 watch(
   () => props.HideFields,
@@ -211,7 +233,7 @@ const getService = getCurrentInstance().appContext.config.globalProperties.$getS
 const moduleExists = getCurrentInstance().appContext.config.globalProperties.$moduleExists;
 function validateForm() {
   // Validation
-  let user = Object.assign({}, input);
+  let user = Object.assign({}, input.value);
   delete user.avatar;
 
   // -- Form (campos genéricos obrigatórios). ds_username/ds_email são
@@ -286,16 +308,41 @@ function validateForm() {
   return true;
 }
 function read(source) {
+  const updatedInput = { ...input.value };
   if ("ds_avatar_img_url" in source && !!source.ds_avatar_img_url) {
-    input.avatar.src = source.ds_avatar_img_url;
-    delete source.ds_avatar_img_url;
+    updatedInput.avatar = {
+      ...updatedInput.avatar,
+      src: source.ds_avatar_img_url,
+    };
   }
   // Reads User-related Data
-  for (let key in input) {
+  for (let key in updatedInput) {
     if (key in source) {
-      input[key] = source[key];
+      updatedInput[key] = source[key];
     }
   }
+
+  input.value = updatedInput;
+}
+function resetInput() {
+  const clearedInput = {};
+  for (let key in input.value) {
+    if (key === "avatar") {
+      clearedInput[key] = {
+        file: null,
+        name: null,
+        src: null,
+        size: null,
+      }
+    } else {
+      clearedInput[key] = null;
+    }
+
+    if (key in inputError)
+      inputError[key] = false;
+  }
+
+  input.value = clearedInput;
 }
 function shouldHide(element) {
   return props.HideFields.includes(element);
@@ -351,49 +398,72 @@ function isValidNewPassword() {
   return true;
 }
 async function fetchData() {
+  if (!permissions.value.read && !props.accountOwner) {
+    toast("Você não tem permissão para executar esta ação", 'negative')
+    return
+  }
+
   if (!moduleExists('toolcase')) {
     console.warn("Module 'Toolcase' not present, thus, it was not possible to fetch user's data automatically.")
     return
   }
 
-  emit('iam.user.fetchdata.before')
+  const url = props.accountOwner ?
+    ENDPOINTS.USERS.MY_ACCOUNT :
+    `${ENDPOINTS.USERS.USER}/${userKey.value}`
+
+  emit('iam-user-fetchdata-before')
   try {
-    const { data } = await getService('toolcase/http').get(`${ENDPOINTS.USERS.USER}/${props.UserKey}`)
+    const { data } = await getService('toolcase/http').get(url)
     read(data)
-    emit('iam.user.fetchdata.after', data)
+    emit('iam-user-fetchdata-after', data)
   } catch (error) {
     console.error("An error has occurred on the attempt to fetch users's data.", error)
-    toastError(error)
-    emit('iam.user.fetchdata.error', error)
+    emit('iam-user-fetchdata-error', error)
   }
 
 }
 async function reload() {
   await fetchData()
 }
-async function save() {
-  if (!validateForm()) return
+async function save(validate = true) {
+  if (!canManage.value) {
+    toast("Você não tem permissão para executar esta ação", 'negative')
+    return
+  }
+
+  if (validate)
+    if (!validateForm()) return
 
   if (!moduleExists('toolcase')) {
     console.warn("Module 'Toolcase' not present, thus, it was not possible to save user's data automatically.")
     return
   }
 
-  const method = props.UserKey ? 'put' : 'post'
-  const url = `${ENDPOINTS.USERS.USER}${props.UserKey ? `/${props.UserKey}` : ''}`
+  const method = userKey.value ? 'put' : 'post'
+  const url = props.accountOwner ?
+    ENDPOINTS.USERS.MY_ACCOUNT :
+    `${ENDPOINTS.USERS.USER}${userKey.value ? `/${userKey.value}` : ''}`
 
-  emit('iam.user.save.before', input.value)
+  emit('iam-user-save-before', input.value)
   try {
     const { data } = await getService('toolcase/http')[method](url, input.value)
-    toast("Os dados do usuário foram salvos com sucesso.", "positive")
-    emit('iam.user.save.after', data)
+    emit('iam-user-save-after', data)
   } catch (error) {
     console.error("An error has occurred on the attempt to save user's data.", error)
-    toastError(error)
-    emit('iam.user.save.error', error)
+    emit('iam-user-save-error', error)
+    throw error
   }
 }
 async function remove() {
+  if (!ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O usuário será excluído permanentemente e não poderá ser recuperado.'))
+    return false;
+
+  if (!canManage.value) {
+    toast("Você não tem permissão para executar esta ação", 'negative')
+    return
+  }
+
   if (!moduleExists('toolcase')) {
     console.warn("Module 'Toolcase' not present, thus, it was not possible to remove user's data automatically.")
     return
@@ -404,18 +474,22 @@ async function remove() {
     return
   }
 
-  emit('iam.user.remove.before', props.UserKey)
+  emit('iam-user-remove-before', props.UserKey)
   try {
     await getService('toolcase/http').delete(`${ENDPOINTS.USERS.USER}/${props.UserKey}`)
-    toast("O usuário foi excluído com sucesso.", 'positive')
-    emit('iam.user.remove.after')
+    emit('iam-user-remove-after')
   } catch (error) {
     console.error("An error has occurred on the attempt to remove user's data.", error)
-    toastError(error)
-    emit('iam.user.remove.error', error)
+    emit('iam-user-remove-error', error)
+    throw error
   }
 }
 async function savePassword() {
+  if (!canManage.value) {
+    toast("Você não tem permissão para executar esta ação", 'negative')
+    return
+  }
+
   if (!isValidNewPassword()) return;
 
   if (!props.UserKey) {
@@ -428,16 +502,17 @@ async function savePassword() {
     : `${ENDPOINTS.USERS.ADMIN_CHANGE_PASS}/${props.UserKey}`;
   const payload = { ds_password: control.ds_password }
 
-  emit('iam.password.save.before', payload)
+  emit('iam-password-save-before', payload)
   try {
     await getService("toolcase/http").put(url, payload)
     toast("A senha do usuário foi alterada com sucesso.", 'positive')
-    emit('iam.password.save.after')
+    emit('iam-password-save-after')
     showPasswordModal.value = false;
   } catch (error) {
     console.error("An error has occurred on the attempt to save user's password.", error)
     toastError(error)
-    emit('iam.password.save.error', error)
+    emit('iam-password-save-error', error)
+    throw error
   }
 }
 function syncConditionalErrors() {
