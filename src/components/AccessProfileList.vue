@@ -13,11 +13,11 @@
 
 <script setup>
 // IMPORTS
-import { ref, computed, defineExpose } from 'vue'
-import permissionService from '../services/permissions'
+import { ref, computed, getCurrentInstance } from 'vue'
 import ENDPOINTS from '../ENDPOINTS'
 
 // INITIALIZATION
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService;
 const props = defineProps({
   RowActions: {
     type: Array,
@@ -35,34 +35,35 @@ const emit = defineEmits([
 
 
 // VARS
-const ConfirmRef = ref({})
 const endpoints = ENDPOINTS
 const DataTableRef = ref({})
+const ConfirmRef = ref({})
 const columns = [
   { label: 'Nome', field: 'ds_title' },
   { label: 'Ativo?', field: 'activeText', align: 'center' },
+]
+const accessProfilePermissions = [
+  'iam.accessprofiles.read',
+  'iam.accessprofiles.manage',
 ]
 
 
 // COMPUTED
 const permissions = computed(() => ({
-  read: permissionService.requireAny([
-    'iam.accessprofiles.read',
-    'iam.accessprofiles.manage',
-  ]),
-  manage: permissionService.requireAll('iam.accessprofiles.manage')
+  read: getService('iam/permissions').requireAny(accessProfilePermissions),
+  manage: getService('iam/permissions').requireAll(accessProfilePermissions[1])
 }))
 
 
 // FUNCTIONS
 async function remove(row) {
-  if (!ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O perfil de acesso será excluído permanentemente e não poderá ser recuperado.')) return false;
+  if (!await ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O perfil de acesso será excluído permanentemente e não poderá ser recuperado.')) return false;
 
   const key = row.ds_key;
 
   emit('iam-accessprofile-list-remove-before', key)
   try {
-    const response = await getService("toolcase/http").delete(`${ENDPOINTS.USERS.USER}/${key}`)
+    const response = await getService("toolcase/http").delete(`${ENDPOINTS.PROFILES.PROFILE}/${key}`)
     emit('iam-accessprofile-list-remove-after', response)
   } catch (e) {
     console.error("An error has occurred on the attempt to remove user's data.", e)

@@ -31,7 +31,7 @@
 
 <script setup>
 // IMPORTS
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, getCurrentInstance } from 'vue'
 import ENDPOINTS from '../ENDPOINTS'
 
 
@@ -83,7 +83,7 @@ const requiredPermissions = [
 
 
 // COMPUTED
-const options = computed(() => profilePermissions.map(p => ({
+const options = computed(() => profilePermissions.value.map(p => ({
   label: p.ds_title,
   value: p.ds_tag
 })))
@@ -145,12 +145,11 @@ async function save() {
   try {
     const payload = { permission_tags: selectedPermissions.value }
     const response = await getService('toolcase/http').put(`${ENDPOINTS.PROFILES.PERMISSION}/${props.ProfileKey}`, payload)
-    toast('As permissões do perfil de acesso foram salvas com sucesso.', 'positive')
     emit('iam-permission-selector-save-after', response)
   } catch(e){
     console.error("An error has occurred on the attempt to save profile's permissions.", e)
-    toastError(e)
     emit('iam-permission-selector-save-error', e)
+    throw e
   } finally{
     isLoading.value = false
   }

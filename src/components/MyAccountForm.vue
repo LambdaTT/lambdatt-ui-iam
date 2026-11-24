@@ -11,7 +11,7 @@
 
 <script setup>
 // IMPORTS
-import { ref, defineExpose, defineModel } from 'vue'
+import { ref, defineModel } from 'vue'
 
 
 // INITIALIZATION
@@ -30,9 +30,14 @@ const emit = defineEmits([
 
 // VARS
 const input = defineModel()
-const UserFormRef = ref({})
+const UserFormRef = ref(null)
 
 defineExpose({
-  ...UserFormRef.value
+  getKey: () => UserFormRef.value?.getKey(),
+  validateForm: (...args) => UserFormRef.value?.validateForm(...args),
+  resetInput: (...args) => UserFormRef.value?.resetInput(...args),
+  reload: (...args) => UserFormRef.value?.reload(...args),
+  save: (...args) => UserFormRef.value?.save(...args),
+  remove: (...args) => UserFormRef.value?.remove(...args),
 })
 </script>

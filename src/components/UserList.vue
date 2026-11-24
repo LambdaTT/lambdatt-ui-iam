@@ -1,7 +1,8 @@
 <template>
   <div v-if="permissions.read">
     <DataTable Name="iam-user-list" :DataURL="endpoints.USERS.USER" ref="DataTableRef" :Columns="columns"
-      :RowActions="props.RowActions" @datatable-fetchdata-before="emit('iam-user-list-fetch-before')"
+      :RowActions="props.RowActions" 
+      @datatable-fetchdata-before="emit('iam-user-list-fetch-before')"
       @datatable-fetchdata-after="emit('iam-user-list-fetch-after')"
       @datatable-fetchdata-error="emit('iam-user-list-fetch-error')">
       <template #cell-avatar="row">
@@ -22,7 +23,6 @@
 <script setup>
 // IMPORTS
 import { ref, computed, getCurrentInstance } from 'vue'
-import permissionService from '../services/permissions'
 import ENDPOINTS from '../ENDPOINTS'
 
 
@@ -72,14 +72,14 @@ const userPermissions = [
 
 // COMPUTED
 const permissions = computed(() => ({
-  read: permissionService.requireAny(userPermissions),
-  manage: permissionService.requireAll(userPermissions[1])
+  read: getService('iam/permissions').requireAny(userPermissions),
+  manage: getService('iam/permissions').requireAll(userPermissions[1])
 }))
 
 
 // FUNCTIONS
 async function remove(row) {
-  if (!ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O usuário será excluído permanentemente e não poderá ser recuperado.'))
+  if (!await ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O usuário será excluído permanentemente e não poderá ser recuperado.'))
     return false;
 
   const key = row.ds_key;

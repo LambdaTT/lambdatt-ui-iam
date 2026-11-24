@@ -169,7 +169,7 @@ onMounted(async () => {
 const ConfirmRef = ref({})
 const input = defineModel({
   type: Object,
-  default: () => ({
+  default: () => reactive({
     ds_first_name: null,
     ds_last_name: null,
     ds_phone1: null,
@@ -445,9 +445,11 @@ async function save(validate = true) {
     ENDPOINTS.USERS.MY_ACCOUNT :
     `${ENDPOINTS.USERS.USER}${userKey.value ? `/${userKey.value}` : ''}`
 
+  const payload = preparePayload()
+
   emit('iam-user-save-before', input.value)
   try {
-    const { data } = await getService('toolcase/http')[method](url, input.value)
+    const { data } = await getService('toolcase/http')[method](url, payload)
     emit('iam-user-save-after', data)
   } catch (error) {
     console.error("An error has occurred on the attempt to save user's data.", error)
@@ -456,7 +458,7 @@ async function save(validate = true) {
   }
 }
 async function remove() {
-  if (!ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O usuário será excluído permanentemente e não poderá ser recuperado.'))
+  if (!await ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O usuário será excluído permanentemente e não poderá ser recuperado.'))
     return false;
 
   if (!canManage.value) {
@@ -535,6 +537,22 @@ function toastError(error) {
   if (moduleExists('toolcase'))
     getService('toolcase/utils').notifyError(error)
 
+}
+function preparePayload() {
+  const payload = new FormData()
+
+  for (let key in input.value) {
+    if (key == 'avatar') continue
+
+    const val = input.value[key]
+
+    payload.set(key, val)
+  }
+
+  if (input.value.avatar.file !== null)
+    payload.set('avatar', input.value.avatar.file)
+
+  return payload
 }
 </script>
 

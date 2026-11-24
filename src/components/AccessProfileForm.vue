@@ -23,12 +23,13 @@
 
 <script setup>
 // IMPORTS
-import { ref, defineExpose, computed, defineModel, defineEmits, onMounted, getCurrentInstance } from 'vue'
-import permissionService from '../services/permissions'
+import { ref, defineExpose, computed, defineModel, defineEmits, onMounted, getCurrentInstance, reactive } from 'vue'
 import ENDPOINTS from '../ENDPOINTS'
 
 
 // INITIALIZATION
+const getService = getCurrentInstance().appContext.config.globalProperties.$getService
+const moduleExists = getCurrentInstance().appContext.config.globalProperties.$moduleExists
 const props = defineProps({
   readonly: Boolean,
   showTitle: Boolean,
@@ -71,7 +72,7 @@ onMounted(async () => {
 const ConfirmRef = ref({})
 var input = defineModel({
   type: Object,
-  default: () => ({
+  default: () => reactive({
     ds_title: null,
     tx_description: null,
   })
@@ -83,17 +84,15 @@ var inputError = ref({
 
 // COMPUTED
 const permissions = computed(() => ({
-  read: permissionService.requireAny([
+  read: getService('iam/permissions').requireAny([
     'iam.accessprofiles.read',
     'iam.accessprofiles.manage',
   ]),
-  manage: permissionService.requireAll('iam.accessprofiles.manage')
+  manage: getService('iam/permissions').requireAll('iam.accessprofiles.manage')
 }))
 
 
 // FUNCTIONS
-const getService = getCurrentInstance().appContext.config.globalProperties.$getService;
-const moduleExists = getCurrentInstance().appContext.config.globalProperties.$moduleExists;
 function read(values) {
   const updatedInput = { ...input.value };
   for (let key in updatedInput)
@@ -176,7 +175,7 @@ async function save(validate) {
   }
 }
 async function remove() {
-  if (!ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O perfil de acesso será excluído permanentemente e não poderá ser recuperado.'))
+  if (!await ConfirmRef.value.ask("Deseja excluir as informações?", 'negative', 'O perfil de acesso será excluído permanentemente e não poderá ser recuperado.'))
     return false;
 
   if (!permissions.value.manage) {
@@ -207,10 +206,5 @@ async function remove() {
 function toast(message, type) {
   if (moduleExists('toolcase'))
     getService('toolcase/utils').notify({ message, type })
-}
-function toastError(error) {
-  if (moduleExists('toolcase'))
-    getService('toolcase/utils').notifyError(error)
-
 }
 </script>
