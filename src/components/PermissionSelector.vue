@@ -24,8 +24,12 @@
     </div>
 
     <!-- READY STATE -->
-    <q-option-group v-else-if="state == 'ready'" :disable="props.readonly || !permissions.manage" v-model="selectedPermissions" :options="options"
-      :color="props.color" type="checkbox" />
+    <div v-else-if="state == 'ready'" class="row">
+      <div v-for="(column, index) in optionColumns" :key="index" class="col-12 col-md-4">
+        <q-option-group :disable="props.readonly || !permissions.manage" v-model="selectedPermissions" :options="column"
+          :color="props.color" type="checkbox" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -87,6 +91,14 @@ const options = computed(() => profilePermissions.value.map(p => ({
   label: p.ds_title,
   value: p.ds_tag
 })))
+const COLUMN_COUNT = 3
+const optionColumns = computed(() => {
+  const perColumn = Math.ceil(options.value.length / COLUMN_COUNT)
+  const columns = []
+  for (let i = 0; i < COLUMN_COUNT; i++)
+    columns.push(options.value.slice(i * perColumn, (i + 1) * perColumn))
+  return columns
+})
 const state = computed(() => {
   switch (true) {
     case isLoading.value:
